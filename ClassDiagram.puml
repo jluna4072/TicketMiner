@@ -1,0 +1,84 @@
+@startuml name
+skinparam classAttributeIconSize 0
+
+' --- Core Hierarchies ---
+
+abstract class User {
+    - String firstName
+    - String lastName
+    - String username
+    - String password
+    - String userID
+    + login()
+    + logout()
+}
+class Customer {
+    - double moneyAvailable
+    - boolean hasMembership
+    + purchaseTicket()
+}
+
+class Organizer {
+    + createEvent()
+}
+
+class Admin {
+    + manageUsers()
+    + manageVenues()
+    + manageEvents()
+}
+
+' --- Event Hierarchy ---
+
+abstract class Event {
+    - String eventID
+    - String name
+    - String date
+    - String time
+    - Venue venue
+}
+
+class Concert extends Event
+class Sport extends Event
+class Special extends Event
+
+' --- Venue Hierarchy ---
+
+abstract class Venue {
+    - String venueID
+    - String name
+    - int capacity
+    - double cost
+}
+
+class Arena extends Venue
+class Auditorium extends Venue
+class Stadium extends Venue
+class OpenAir extends Venue
+
+' --- System Management ---
+
+class RunTicketMiner {
+    + {static} main(String[] args)
+}
+
+class DataManager {
+    + readCSV(String fileName)
+    + writeCSV(String fileName)
+}
+
+' --- Relationships ---
+
+User <|-- Customer 
+User <|-- Organizer
+User <|-- Admin
+
+Event o-- Venue
+Admin ..> User : manages
+Admin ..> Venue : manages
+Admin ..> Event : manages
+
+RunTicketMiner ..> DataManager
+
+
+@enduml
