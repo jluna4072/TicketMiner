@@ -1,8 +1,6 @@
 @startuml name
 skinparam classAttributeIconSize 0
 
-' --- Core Hierarchies ---
-
 abstract class User {
     - String firstName
     - String lastName
@@ -23,12 +21,19 @@ class Organizer {
 }
 
 class Admin {
-    + manageUsers()
-    + manageVenues()
-    + manageEvents()
+    + addMember(User user)
+    + viewMember(String identifier)
+    + updateMember(String identifier)
+    + deleteMember(String identifier)
+    + addVenue(Venue venue)
+    + viewVenue(String identifier)
+    + updateVenue(String identifier)
+    + deleteVenue(String identifier)
+    + addEvent(Event event)
+    + viewEvent(String identifier)
+    + updateEvent(String identifier)
+    + deleteEvent(String identifier)
 }
-
-' --- Event Hierarchy ---
 
 abstract class Event {
     - String eventID
@@ -42,11 +47,10 @@ class Concert extends Event
 class Sport extends Event
 class Special extends Event
 
-' --- Venue Hierarchy ---
-
 abstract class Venue {
     - String venueID
     - String name
+    - String type
     - int capacity
     - double cost
 }
@@ -56,15 +60,20 @@ class Auditorium extends Venue
 class Stadium extends Venue
 class OpenAir extends Venue
 
-' --- System Management ---
-
 class RunTicketMiner {
     + {static} main(String[] args)
+    + displayMainMenu()
 }
 
 class DataManager {
     + readCSV(String fileName)
-    + writeCSV(String fileName)
+    + writeEventCSV(String fileName)
+    + writeCustomerCSV(String fileName)
+    + writeVenueCSV(String fileName)
+}
+
+class Logger {
+    + {static} logAction(String actionDetail)
 }
 
 ' --- Relationships ---
@@ -79,6 +88,5 @@ Admin ..> Venue : manages
 Admin ..> Event : manages
 
 RunTicketMiner ..> DataManager
-
-
+RunTicketMiner ..> Logger : logs actions
 @enduml
