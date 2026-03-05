@@ -4,6 +4,11 @@ import model.events.Event;
 import model.venues.Venue;
 
 public class Admin extends User {
+    public Admin() {
+    }
+    public Admin(int userID, String firstName, String lastName, String username, String password, String userType) {
+        super(userID, firstName, lastName, username, password, userType);
+    }
 
     public void addMember(User user) {
     }

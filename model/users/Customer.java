@@ -4,7 +4,16 @@ public class Customer extends User {
 
     private double moneyAvailable;
     private boolean hasMembership;
+    private int concertsPurchased;
 
+    public Customer() {
+    }
+    public Customer(int userID, String firstName, String lastName, String username, String password, String userType, double moneyAvailable, boolean hasMembership, int concertsPurchased) {
+        super(userID, firstName, lastName, username, password, userType); 
+        this.moneyAvailable = moneyAvailable;
+        this.hasMembership = hasMembership;
+        this.concertsPurchased = concertsPurchased;
+    }
     public double getMoneyAvailable() {
         return moneyAvailable;
     }

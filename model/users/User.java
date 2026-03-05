@@ -5,7 +5,20 @@ public abstract class User {
     private String lastName;
     private String username;
     private String password;
-    private String userID;
+    private int userID;
+    private String userType;
+
+    public User() {
+    }
+
+    public User(int userID, String firstName, String lastName, String username, String password, String userType) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.username = username;
+        this.password = password;
+        this.userID = userID;
+        this.userType = userType;
+    }
 
     public String getFirstName() { 
         return firstName; 
@@ -36,10 +49,10 @@ public abstract class User {
         this.password = password; 
     }
     
-    public String getUserID() { 
+    public int getUserID() { 
         return userID; 
     }
-    public void setUserID(String userID) { 
+    public void setUserID(int userID) { 
         this.userID = userID; 
     }
     

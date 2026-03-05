@@ -1,4 +1,4 @@
-@startuml name
+@startuml ClassDiagram
 skinparam classAttributeIconSize 0
 
 abstract class User {
@@ -7,6 +7,7 @@ abstract class User {
     - String username
     - String password
     - String userID
+    - String userType
     + getFirstName(): String
     + setFirstName(String firstName)
     + getLastName(): String
@@ -17,6 +18,8 @@ abstract class User {
     + setPassword(String password)
     + getUserID(): String
     + setUserID(String userID)
+    + getUserType(): String
+    + setUserType(String userType)
     + login()
     + logout()
 }
@@ -55,6 +58,7 @@ abstract class Event {
     - String date
     - String time
     - Venue venue
+
     + getEventID(): String
     + setEventID(String eventID)
     + getName(): String
@@ -100,10 +104,13 @@ class RunTicketMiner {
 }
 
 class DataManager {
-    + readCSV(String fileName)
-    + writeEventCSV(String fileName)
-    + writeCustomerCSV(String fileName)
-    + writeVenueCSV(String fileName)
+    + loadUsers(String fileName)
+    + loadEvents(String fileName)
+    + loadVenues(String fileName)
+    + writeUsers(String fileName)
+    + writeEvents(String fileName)
+    + writeVenues(String fileName)
+
 }
 
 class Logger {
