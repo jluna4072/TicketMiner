@@ -55,13 +55,18 @@ public class DataManager {
     }
 
     public void loadEvents(String fileName) {
-        
+
+    }
+
+    public void loadVenues(String fileName) {
     }
 
     public void writeEvent(String fileName) {
     }
 
     public void writeUsers(String fileName) {
+    }
+    public void writeVenues(String fileName) {
     }
 
 }
