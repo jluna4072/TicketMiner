@@ -58,7 +58,6 @@ abstract class Event {
     - String name
     - String date
     - String time
-    - Venue venue
 
     + getEventID(): String
     + setEventID(String eventID)
@@ -68,8 +67,6 @@ abstract class Event {
     + setDate(String date)
     + getTime(): String
     + setTime(String time)
-    + getVenue(): Venue
-    + setVenue(Venue venue)
 }
 
 class Concert extends Event
@@ -127,7 +124,6 @@ User <|-- Organizer
 User <|-- Admin
 
 ' Aggregation / Composition 
-Event "*" o-- "1" Venue : takes place at
 DataManager "1" *-- "*" User : stores
 DataManager "1" *-- "*" Event : stores
 DataManager "1" *-- "*" Venue : stores
@@ -139,3 +135,4 @@ Admin ..> Event : manages
 RunTicketMiner ..> DataManager : uses
 RunTicketMiner ..> Logger : logs actions
 @enduml
+

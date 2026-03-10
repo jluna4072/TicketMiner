@@ -4,16 +4,24 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import model.events.Concert;
+import model.events.Event;
+import model.events.Special;
+import model.events.Sport;
 import model.users.Admin;
 import model.users.Customer;
 import model.users.Organizer;
 import model.users.User;
-
+import model.venues.Venue;
+import model.venues.Arena;
+import model.venues.Auditorium;
+import model.venues.OpenAir;
+import model.venues.Stadium;
 public class DataManager {
-    public HashMap<String, User> loadUsers(String filePath) {
+    public HashMap<String, User> loadUsers(String fileName) {
         HashMap<String, User> userMap = new HashMap<>();
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
             String line;
             br.readLine();
 
@@ -54,11 +62,97 @@ public class DataManager {
         return userMap;
     }
 
-    public void loadEvents(String fileName) {
+    public HashMap<Integer, Event> loadEvents(String fileName) {
+        HashMap<Integer, Event> eventMap = new HashMap<>();
 
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            br.readLine();
+
+            while ((line = br.readLine()) != null) {
+                String[] fields = line.split(",");
+
+                int id = Integer.parseInt(fields[0].trim());
+                String type = fields[1].trim();
+                String name = fields[2].trim();
+                String date = fields[3].trim();
+                String time = fields[4].trim();
+                String vipPrice = fields[5].trim();
+                String goldPrice = fields[6].trim();
+                String silverPrice = fields[7].trim();
+                String bronzePrice = fields[8].trim();
+                String generalAdmissionPrice = fields[9].trim();
+                Event event;
+                
+                switch (type) {
+                    case "Sport" -> {
+                        event = new Sport(id, type, name, date, time, vipPrice, goldPrice, silverPrice, bronzePrice, generalAdmissionPrice);
+                    }   
+                    case "Concert" -> {
+                        event = new Concert(id, type, name, date, time, vipPrice, goldPrice, silverPrice, bronzePrice, generalAdmissionPrice);
+                    }
+                    default -> {
+                        event = new Special(id, type, name, date, time, vipPrice, goldPrice, silverPrice, bronzePrice, generalAdmissionPrice);
+                    }
+                }
+
+                eventMap.put(id, event);
+            }
+
+        } catch (IOException e) {
+            System.out.println("Error reading file: " + e.getMessage());
+        }
+
+        return eventMap;
     }
 
-    public void loadVenues(String fileName) {
+    public HashMap<Integer, Venue> loadVenues(String fileName) {
+        HashMap<Integer, Venue> venueMap = new HashMap<>();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String line;
+            br.readLine();
+
+            while ((line = br.readLine()) != null) {
+                String[] fields = line.split(",");
+
+                int id = Integer.parseInt(fields[0].trim());
+                String name = fields[1].trim();
+                String type = fields[2].trim();
+                int capacity = Integer.parseInt(fields[3].trim());
+                int concertCapacity = Integer.parseInt(fields[4].trim());
+                double cost = Double.parseDouble(fields[5].trim());
+                int vipPercent = Integer.parseInt(fields[6].trim());
+                int goldPercent = Integer.parseInt(fields[7].trim());
+                int silverPercent = Integer.parseInt(fields[8].trim());
+                int bronzePercent = Integer.parseInt(fields[9].trim());
+                int generalAdmissionPercent = Integer.parseInt(fields[10].trim());
+                int reservedPercent = Integer.parseInt(fields[11].trim());
+                Venue venue;
+
+                switch (type) {
+                    case "Arena" -> {
+                        venue = new Arena(id, name, type, capacity, concertCapacity, cost, vipPercent, goldPercent, silverPercent, bronzePercent, generalAdmissionPercent, reservedPercent);
+                    }   
+                    case "Stadium" -> {
+                        venue = new Stadium(id, name, type, capacity, concertCapacity, cost, vipPercent, goldPercent, silverPercent, bronzePercent, generalAdmissionPercent, reservedPercent);
+                    }
+                    case "OpenAir" -> {
+                        venue = new OpenAir(id, name, type, capacity, concertCapacity, cost, vipPercent, goldPercent, silverPercent, bronzePercent, generalAdmissionPercent, reservedPercent);
+                    }
+                    default -> {
+                        venue = new Auditorium(id, name, type, capacity, concertCapacity, cost, vipPercent, goldPercent, silverPercent, bronzePercent, generalAdmissionPercent, reservedPercent);
+                    }
+                }
+
+                venueMap.put(id, venue);
+            }
+
+        } catch (IOException e) {
+            System.out.println("Error reading file: " + e.getMessage());
+        }
+
+        return venueMap;
     }
 
     public void writeEvent(String fileName) {

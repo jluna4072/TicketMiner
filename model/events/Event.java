@@ -3,18 +3,48 @@ import model.venues.Venue;
 
 public abstract class Event {
 
-    private String eventID;
+    private int eventID;
+    private String type;
     private String name;
     private String date;
     private String time;
+    private String vipPrice;
+    private String goldPrice;
+    private String silverPrice;
+    private String bronzePrice;
+    private String generalAdmissionPrice;
     private Venue venue;
 
-    public String getEventID() {
+
+    public Event() {
+    }
+
+    public Event(int eventID, String type, String name, String date, String time, String vipPrice, String goldPrice, String silverPrice, String bronzePrice, String generalAdmissionPrice) {
+        this.eventID = eventID;
+        this.type = type;
+        this.name = name;
+        this.date = date;
+        this.time = time;
+        this.vipPrice = vipPrice;
+        this.goldPrice = goldPrice;
+        this.silverPrice = silverPrice;
+        this.bronzePrice = bronzePrice;
+        this.generalAdmissionPrice = generalAdmissionPrice;
+    }
+
+    public int getEventID() {
         return eventID;
     }
 
-    public void setEventID(String eventID) {
+    public void setEventID(int eventID) {
         this.eventID = eventID;
+    }
+
+    public String getType() {
+        return type;
+    }
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getName() {
