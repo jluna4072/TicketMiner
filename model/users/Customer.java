@@ -30,6 +30,14 @@ public class Customer extends User {
         this.hasMembership = hasMembership;
     }
 
+    public int getConcertsPurchased() {
+        return concertsPurchased;
+    }
+
+    public void setConcertsPurchased(int concertsPurchased) {
+        this.concertsPurchased = concertsPurchased;
+    }
+
     public void purchaseTicket() {
     }
 }

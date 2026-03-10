@@ -6,7 +6,7 @@ abstract class User {
     - String lastName
     - String username
     - String password
-    - String userID
+    - int userID
     - String userType
     + getFirstName(): String
     + setFirstName(String firstName)
@@ -16,8 +16,8 @@ abstract class User {
     + setUsername(String username)
     + getPassword(): String
     + setPassword(String password)
-    + getUserID(): String
-    + setUserID(String userID)
+    + getUserID(): int
+    + setUserID(int userID)
     + getUserType(): String
     + setUserType(String userType)
     + login()
@@ -26,10 +26,13 @@ abstract class User {
 class Customer {
     - double moneyAvailable
     - boolean hasMembership
+    - int concertsPurchased
     + getMoneyAvailable(): double
     + setMoneyAvailable(double moneyAvailable)
     + hasMembership(): boolean
     + setMembership(boolean hasMembership)
+    + getConcertsPurchased(): int
+    + setConcertsPurchased(int concertsPurchased)
     + purchaseTicket()
 }
 
@@ -38,35 +41,45 @@ class Organizer {
 }
 
 class Admin {
-    + addMember(User user)
-    + viewMember(String identifier, String type)
+    + addMember(User user, HashMap<String, User> userMap)
+    + viewMember(String identifier)
     + updateMember(String identifier)
-    + deleteMember(String identifier)
+    + deleteMember(String username, HashMap<String, User> userMap)
     + addVenue(Venue venue)
-    + viewVenue(String identifier, String type)
+    + viewVenue(String identifier)
     + updateVenue(String identifier)
     + deleteVenue(String identifier)
     + addEvent(Event event)
-    + viewEvent(String identifier, String type)
+    + viewEvent(String identifier)
     + updateEvent(String identifier)
     + deleteEvent(String identifier)
-    + isUsernameUnique(String username): boolean
+    + isUsernameUnique(String username, HashMap<String, User> userMap): boolean
 }
 
 abstract class Event {
-    - String eventID
+    - int eventID
+    - String type
     - String name
     - String date
     - String time
-
-    + getEventID(): String
-    + setEventID(String eventID)
+    - String vipPrice
+    - String goldPrice
+    - String silverPrice
+    - String bronzePrice
+    - String generalAdmissionPrice
+    - Venue venue
+    + getEventID(): int
+    + setEventID(int eventID)
+    + getType(): String
+    + setType(String type)
     + getName(): String
     + setName(String name)
     + getDate(): String
     + setDate(String date)
     + getTime(): String
     + setTime(String time)
+    + getVenue(): Venue
+    + setVenue(Venue venue)
 }
 
 class Concert extends Event
@@ -74,13 +87,20 @@ class Sport extends Event
 class Special extends Event
 
 abstract class Venue {
-    - String venueID
+    - int venueID
     - String name
     - String type
     - int capacity
+    - int concertCapacity
     - double cost
-    + getVenueID(): String
-    + setVenueID(String venueID)
+    - int vipPercent
+    - int goldPercent
+    - int silverPercent
+    - int bronzePercent
+    - int generalAdmissionPercent
+    - int reservedPercent
+    + getVenueID(): int
+    + setVenueID(int venueID)
     + getName(): String
     + setName(String name)
     + getType(): String
@@ -89,6 +109,18 @@ abstract class Venue {
     + setCapacity(int capacity)
     + getCost(): double
     + setCost(double cost)
+    + getVipPercent(): int
+    + setVipPercent(int vipPercent)
+    + getGoldPercent(): int
+    + setGoldPercent(int goldPercent)
+    + getSilverPercent(): int
+    + setSilverPercent(int silverPercent)
+    + getBronzePercent(): int
+    + setBronzePercent(int bronzePercent)
+    + getGeneralAdmissionPercent(): int
+    + setGeneralAdmissionPercent(int generalAdmissionPercent)
+    + getReservedPercent(): int
+    + setReservedPercent(int reservedPercent)
 }
 
 class Arena extends Venue
@@ -97,19 +129,41 @@ class Stadium extends Venue
 class OpenAir extends Venue
 
 class RunTicketMiner {
+    - DataManager dataManager
+    - HashMap<String, User> userMap
+    - HashMap<Integer, Venue> venueMap
+    - HashMap<Integer, Event> eventMap
+    - Scanner in
+    - Admin admin
     + {static} main(String[] args)
     + displayMainMenu()
+    + registerCustomer()
+    + registerOrganizer()
+    + registerAdmin()
+    + customerLogin()
+    + organizerLogin()
+    + adminLogin()
+    + manageUsers()
+    + viewUsers()
+    + updateUser()
+    + deleteUser()
+    - findUserByIdentifier(String input): User
+    - printUserInfo(User u)
 }
 
 class DataManager {
-    + loadUsers(String fileName)
-    + loadEvents(String fileName)
-    + loadVenues(String fileName)
+    - int lastUserIDSeen
+    - int lastVenueIDSeen
+    - int lastEventIDSeen
+    + loadUsers(String fileName): HashMap<String, User>
+    + loadEvents(String fileName): HashMap<Integer, Event>
+    + loadVenues(String fileName): HashMap<Integer, Venue>
+    + writeEvent(String fileName)
     + writeUsers(String fileName)
-    + writeEvents(String fileName)
     + writeVenues(String fileName)
-    + generateUniqueID(): String
-
+    + generateUniqueUserId(): int
+    + generateUniqueVenueId(): int
+    + generateUniqueEventId(): int
 }
 
 class Logger {
@@ -119,7 +173,7 @@ class Logger {
 ' --- Relationships ---
 
 ' Inheritance
-User <|-- Customer 
+User <|-- Customer
 User <|-- Organizer
 User <|-- Admin
 
@@ -133,6 +187,7 @@ Admin ..> User : manages
 Admin ..> Venue : manages
 Admin ..> Event : manages
 RunTicketMiner ..> DataManager : uses
+RunTicketMiner ..> Admin : uses
 RunTicketMiner ..> Logger : logs actions
 @enduml
 

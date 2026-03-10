@@ -56,6 +56,14 @@ public abstract class User {
         this.userID = userID; 
     }
     
+    public String getUserType() {
+        return userType;
+    }
+
+    public void setUserType(String userType) {
+        this.userType = userType;
+    }
+
     public void login() {
     }
     

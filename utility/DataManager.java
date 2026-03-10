@@ -12,12 +12,16 @@ import model.users.Admin;
 import model.users.Customer;
 import model.users.Organizer;
 import model.users.User;
-import model.venues.Venue;
 import model.venues.Arena;
 import model.venues.Auditorium;
 import model.venues.OpenAir;
 import model.venues.Stadium;
+import model.venues.Venue;
 public class DataManager {
+    private int lastUserIDSeen = 0;
+    private int lastVenueIDSeen = 0;
+    private int lastEventIDSeen = 0;
+
     public HashMap<String, User> loadUsers(String fileName) {
         HashMap<String, User> userMap = new HashMap<>();
 
@@ -36,7 +40,6 @@ public class DataManager {
                 String userType = fields[5].trim();
 
                 User user;
-
                 switch (userType) {
                     case "Customer" -> {
                         double moneyAvailable = Double.parseDouble(fields[6].trim());
@@ -51,7 +54,7 @@ public class DataManager {
                         user = new Admin(id, firstName, lastName, username, password, userType);
                     }
                 }
-
+                lastUserIDSeen = Math.max(lastUserIDSeen, id);
                 userMap.put(username, user);
             }
 
@@ -95,7 +98,7 @@ public class DataManager {
                         event = new Special(id, type, name, date, time, vipPrice, goldPrice, silverPrice, bronzePrice, generalAdmissionPrice);
                     }
                 }
-
+                lastEventIDSeen = Math.max(lastEventIDSeen, id);
                 eventMap.put(id, event);
             }
 
@@ -137,21 +140,20 @@ public class DataManager {
                     case "Stadium" -> {
                         venue = new Stadium(id, name, type, capacity, concertCapacity, cost, vipPercent, goldPercent, silverPercent, bronzePercent, generalAdmissionPercent, reservedPercent);
                     }
-                    case "OpenAir" -> {
+                    case "Open Air" -> {
                         venue = new OpenAir(id, name, type, capacity, concertCapacity, cost, vipPercent, goldPercent, silverPercent, bronzePercent, generalAdmissionPercent, reservedPercent);
                     }
                     default -> {
                         venue = new Auditorium(id, name, type, capacity, concertCapacity, cost, vipPercent, goldPercent, silverPercent, bronzePercent, generalAdmissionPercent, reservedPercent);
                     }
                 }
-
+                lastVenueIDSeen = Math.max(lastVenueIDSeen, id);
                 venueMap.put(id, venue);
             }
 
         } catch (IOException e) {
             System.out.println("Error reading file: " + e.getMessage());
         }
-
         return venueMap;
     }
 
@@ -161,6 +163,20 @@ public class DataManager {
     public void writeUsers(String fileName) {
     }
     public void writeVenues(String fileName) {
+    }
+
+    public int generateUniqueUserId() {
+        lastUserIDSeen++;
+        return lastUserIDSeen;
+    }
+    public int generateUniqueVenueId() {
+        lastVenueIDSeen++;
+        return lastVenueIDSeen;
+    }
+
+    public int generateUniqueEventId() {
+        lastEventIDSeen++;
+        return lastEventIDSeen;
     }
 
 }
