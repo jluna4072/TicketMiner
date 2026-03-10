@@ -1,5 +1,4 @@
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -214,32 +213,14 @@ public class RunTicketMiner {
     }
 
     private User findUserByIdentifier(String input) {
-        //try id
-        try {
-            int id = Integer.parseInt(input);
-            for (User u : userMap.values()) {
-                if (u.getUserID() == id) {
-                    return u;
-                }
-            }
-            return null;
-        } catch (NumberFormatException e) {
+        // Try single-result lookup via Admin (ID, username, or unique name)
+        User result = admin.viewMember(input, userMap);
+        if (result != null) {
+            return result;
         }
-        //try username
-        if (userMap.containsKey(input)) {
-            return userMap.get(input);
-        }
-        //full name search — collect all matches
-        List<User> nameMatches = new ArrayList<>();
-        for (User u : userMap.values()) {
-            String fullName = u.getFirstName() + " " + u.getLastName();
-            if (fullName.equalsIgnoreCase(input)) {
-                nameMatches.add(u);
-            }
-        }
-        if (nameMatches.size() == 1) {
-            return nameMatches.get(0);
-        } else if (nameMatches.size() > 1) {
+        // Check for multiple name matches
+        List<User> nameMatches = admin.findMembersByName(input, userMap);
+        if (nameMatches.size() > 1) {
             System.out.println("Multiple members found with that name:");
             for (User u : nameMatches) {
                 System.out.println("  ID: " + u.getUserID() + " | Username: " + u.getUsername()
@@ -403,8 +384,7 @@ public class RunTicketMiner {
                         String newFirst = in.nextLine().trim();
                         System.out.print("Enter new last name: ");
                         String newLast = in.nextLine().trim();
-                        user.setFirstName(newFirst);
-                        user.setLastName(newLast);
+                        admin.updateMemberName(user, newFirst, newLast);
                         System.out.println("Name updated successfully.");
                         break;
                     case 2:
@@ -417,16 +397,13 @@ public class RunTicketMiner {
                             }
                             System.out.println("Username already exists. Please enter a different username.");
                         }
-                        String oldUsername = user.getUsername();
-                        userMap.remove(oldUsername);
-                        user.setUsername(newUsername);
-                        admin.addMember(user, userMap);
+                        admin.updateMemberUsername(user, newUsername, userMap);
                         System.out.println("Username updated successfully.");
                         break;
                     case 3:
                         System.out.print("Enter new password: ");
                         String newPassword = in.nextLine().trim();
-                        user.setPassword(newPassword);
+                        admin.updateMemberPassword(user, newPassword);
                         System.out.println("Password updated successfully.");
                         break;
                     case 4:

@@ -42,8 +42,11 @@ class Organizer {
 
 class Admin {
     + addMember(User user, HashMap<String, User> userMap)
-    + viewMember(String identifier)
-    + updateMember(String identifier)
+    + viewMember(String identifier, HashMap<String, User> userMap): User
+    + findMembersByName(String name, HashMap<String, User> userMap): List<User>
+    + updateMemberName(User user, String newFirstName, String newLastName)
+    + updateMemberUsername(User user, String newUsername, HashMap<String, User> userMap): boolean
+    + updateMemberPassword(User user, String newPassword)
     + deleteMember(String username, HashMap<String, User> userMap)
     + addVenue(Venue venue)
     + viewVenue(String identifier)
