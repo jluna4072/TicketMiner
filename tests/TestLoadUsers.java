@@ -37,7 +37,6 @@ public class TestLoadUsers {
             System.out.println("FAIL: allisonchang not found");
         }
 
-        // Test a known Admin
         User angela = users.get("angelacarney");
         if (angela != null) {
             System.out.println("\n-- Admin Test (angelacarney) --");

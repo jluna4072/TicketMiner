@@ -39,17 +39,18 @@ class Organizer {
 
 class Admin {
     + addMember(User user)
-    + viewMember(String identifier)
+    + viewMember(String identifier, String type)
     + updateMember(String identifier)
     + deleteMember(String identifier)
     + addVenue(Venue venue)
-    + viewVenue(String identifier)
+    + viewVenue(String identifier, String type)
     + updateVenue(String identifier)
     + deleteVenue(String identifier)
     + addEvent(Event event)
-    + viewEvent(String identifier)
+    + viewEvent(String identifier, String type)
     + updateEvent(String identifier)
     + deleteEvent(String identifier)
+    + isUsernameUnique(String username): boolean
 }
 
 abstract class Event {
@@ -110,6 +111,7 @@ class DataManager {
     + writeUsers(String fileName)
     + writeEvents(String fileName)
     + writeVenues(String fileName)
+    + generateUniqueID(): String
 
 }
 
@@ -119,15 +121,21 @@ class Logger {
 
 ' --- Relationships ---
 
+' Inheritance
 User <|-- Customer 
 User <|-- Organizer
 User <|-- Admin
 
-Event o-- Venue
+' Aggregation / Composition 
+Event "*" o-- "1" Venue : takes place at
+DataManager "1" *-- "*" User : stores
+DataManager "1" *-- "*" Event : stores
+DataManager "1" *-- "*" Venue : stores
+
+' Dependencies
 Admin ..> User : manages
 Admin ..> Venue : manages
 Admin ..> Event : manages
-
-RunTicketMiner ..> DataManager
+RunTicketMiner ..> DataManager : uses
 RunTicketMiner ..> Logger : logs actions
 @enduml
