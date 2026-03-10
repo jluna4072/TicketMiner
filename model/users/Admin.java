@@ -38,7 +38,6 @@ public class Admin extends User {
         return null;
     }
 
-    // Returns all members whose full name matches the given name (case-insensitive)
     public List<User> findMembersByName(String name, HashMap<String, User> userMap) {
         List<User> matches = new ArrayList<>();
         for (User u : userMap.values()) {
@@ -50,13 +49,11 @@ public class Admin extends User {
         return matches;
     }
 
-    // Update a member's name
     public void updateMemberName(User user, String newFirstName, String newLastName) {
         user.setFirstName(newFirstName);
         user.setLastName(newLastName);
     }
 
-    // Update a member's username — re-keys the map. Returns true if successful.
     public boolean updateMemberUsername(User user, String newUsername, HashMap<String, User> userMap) {
         if (!isUsernameUnique(newUsername, userMap)) {
             return false;
@@ -67,7 +64,6 @@ public class Admin extends User {
         return true;
     }
 
-    // Update a member's password
     public void updateMemberPassword(User user, String newPassword) {
         user.setPassword(newPassword);
     }
