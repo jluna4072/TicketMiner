@@ -72,10 +72,14 @@ public class Admin extends User {
         userMap.remove(username);
     }
 
-    public void addVenue(Venue venue) {
+    public void addVenue(Venue venue, HashMap<String, Venue> venueMap) {
+        //Using a "dictionary" to establish Venue values
+        venueMap.put(venue.getName(), venue);
+        venueMap.put(venue.getType(), venue);
+        venueMap.put(venue.get);
     }
 
-    public void viewVenue(String identifier) {
+    public void viewVenue(String identifier, HashMap<String, Venue> venueMap) {
     }
 
     public void updateVenue(String identifier) {

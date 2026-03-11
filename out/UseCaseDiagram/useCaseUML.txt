@@ -1,0 +1,57 @@
+@startuml
+left to right direction
+actor "Admin" as admin
+actor "Customer" as customer
+actor "Organizer" as organizer
+actor "CSV" as CSV
+
+rectangle applicationSystem as "Application System"{
+
+  usecase "Main Menu" as mainMenu 
+  usecase "Register" as register
+  usecase "Login" as login 
+  usecase "Exit" as exit
+  
+  mainMenu --> register : <<extends>> 
+  mainMenu --> login : <<extends>>
+  mainMenu --> exit : <<extends>>
+  rectangle adminRights as "Admin Rights"{
+    usecase "Manage Event" as manEvent
+    usecase "Manage Venue" as manVenue
+    usecase "Manage Users" as manUsers
+    
+   rectangle userOptions as "User Options"{
+   usecase "Add User" as addUser
+   usecase "View User" as viewUser
+   usecase "Delete User" as deleteUser
+   usecase "Update User" as updateUser
+   usecase "Register Admin" as regAdmin
+   usecase "Return to Admin Rights" as return
+   addUser --> regAdmin : <<extend>> 
+   }
+
+   manUsers --> userOptions : <<extend>>
+   usecase "Venue Options" as venueOptions
+   manVenue --> venueOptions : <<extend>>
+ 
+   usecase "Event Options" as eventOptions
+   manEvent --> eventOptions : <<extend>> 
+   
+   usecase logger as "Log action"
+
+   userOptions --> logger : <<include>>
+   venueOptions --> logger : <<include>>
+   eventOptions --> logger : <<include>>
+  
+  }
+
+}
+
+logger --> CSV
+
+mainMenu <-- admin
+adminRights <-- admin
+
+customer --> mainMenu
+organizer --> mainMenu
+@enduml
