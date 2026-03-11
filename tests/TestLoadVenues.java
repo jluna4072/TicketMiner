@@ -16,14 +16,12 @@ public class TestLoadVenues {
         System.out.println("=== Venue CSV Load Test ===");
         System.out.println("Total venues loaded: " + venues.size());
 
-        // Expect 6 venues
         if (venues.size() == 6) {
             System.out.println("PASS: Expected 6 venues");
         } else {
             System.out.println("FAIL: Expected 6 venues, got " + venues.size());
         }
 
-        // Test venue 1: Don Haskins Center (Arena)
         Venue v1 = venues.get(1);
         if (v1 != null) {
             System.out.println("\n-- Venue 1 Test (Don Haskins Center) --");
@@ -42,7 +40,6 @@ public class TestLoadVenues {
             System.out.println("FAIL: Venue with ID 1 not found");
         }
 
-        // Test venue 2: Sun Bowl Stadium (Stadium)
         Venue v2 = venues.get(2);
         if (v2 != null) {
             System.out.println("\n-- Venue 2 Test (Sun Bowl Stadium) --");
@@ -59,7 +56,6 @@ public class TestLoadVenues {
             System.out.println("FAIL: Venue with ID 2 not found");
         }
 
-        // Test venue 3: Magoffin Auditorium (Auditorium)
         Venue v3 = venues.get(3);
         if (v3 != null) {
             System.out.println("\n-- Venue 3 Test (Magoffin Auditorium) --");
@@ -75,9 +71,6 @@ public class TestLoadVenues {
             System.out.println("FAIL: Venue with ID 3 not found");
         }
 
-        // Test venue 4: San Jacinto Plaza (Open Air)
-        // NOTE: CSV has type "Open Air" but loadVenues switch checks "OpenAir".
-        // If this fails, the switch case string needs to match the CSV value.
         Venue v4 = venues.get(4);
         if (v4 != null) {
             System.out.println("\n-- Venue 4 Test (San Jacinto Plaza) --");

@@ -14,14 +14,14 @@ public class TestLoadEvents {
         System.out.println("=== Event CSV Load Test ===");
         System.out.println("Total events loaded: " + events.size());
 
-        // Expect 44 events (all Sport in current CSV)
+        //Expect 44 events (all Sport in current CSV)
         if (events.size() == 44) {
             System.out.println("PASS: Expected 44 events");
         } else {
             System.out.println("FAIL: Expected 44 events, got " + events.size());
         }
 
-        // Test first event (UTEP Football 1)
+        //Test first event (UTEP Football 1)
         Event first = events.get(1);
         if (first != null) {
             System.out.println("\n-- Event 1 Test --");
@@ -40,7 +40,7 @@ public class TestLoadEvents {
             System.out.println("FAIL: Event with ID 1 not found");
         }
 
-        // Test last event (UTEP Basketball 31, ID 44)
+        //Test last event (UTEP Basketball 31, ID 44)
         Event last = events.get(44);
         if (last != null) {
             System.out.println("\n-- Event 44 Test --");
