@@ -175,17 +175,17 @@ class Logger {
 
 ' --- Relationships ---
 
-' Inheritance
+'Inheritance
 User <|-- Customer
 User <|-- Organizer
 User <|-- Admin
 
-' Aggregation / Composition 
+'Aggregation / Composition 
 DataManager "1" *-- "*" User : stores
 DataManager "1" *-- "*" Event : stores
 DataManager "1" *-- "*" Venue : stores
 
-' Dependencies
+'Dependencies
 Admin ..> User : manages
 Admin ..> Venue : manages
 Admin ..> Event : manages
