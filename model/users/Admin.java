@@ -30,7 +30,6 @@ public class Admin extends User {
         if (userMap.containsKey(identifier)) {
             return userMap.get(identifier);
         }
-        // Try by full name — only return if exactly one match
         List<User> matches = findMembersByName(identifier, userMap);
         if (matches.size() == 1) {
             return matches.get(0);

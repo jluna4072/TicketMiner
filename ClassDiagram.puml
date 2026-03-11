@@ -181,9 +181,9 @@ User <|-- Organizer
 User <|-- Admin
 
 ' Aggregation / Composition 
-DataManager "1" *-- "*" User : stores
-DataManager "1" *-- "*" Event : stores
-DataManager "1" *-- "*" Venue : stores
+DataManager "1" *-- "0...*" User : stores
+DataManager "1" *-- "0...*" Event : stores
+DataManager "1" *-- "0...*" Venue : stores
 
 ' Dependencies
 Admin ..> User : manages

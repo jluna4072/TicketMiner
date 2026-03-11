@@ -22,7 +22,6 @@ public class RunTicketMiner {
 
     public static void main(String[] args) {
         RunTicketMiner app = new RunTicketMiner();
-        //Temporary output to show program runs
         System.out.println("System started.");
         app.displayMainMenu();
     }
@@ -213,12 +212,10 @@ public class RunTicketMiner {
     }
 
     private User findUserByIdentifier(String input) {
-        // Try single-result lookup via Admin (ID, username, or unique name)
         User result = admin.viewMember(input, userMap);
         if (result != null) {
             return result;
         }
-        // Check for multiple name matches
         List<User> nameMatches = admin.findMembersByName(input, userMap);
         if (nameMatches.size() > 1) {
             System.out.println("Multiple members found with that name:");
