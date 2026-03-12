@@ -1,0 +1,226 @@
+CLASS DIAGRAM - TICKETMINER SYSTEM
+
+==========================================
+CORE SYSTEM CLASSES
+==========================================
+
+Class: RunTicketMiner
+------------------------------------------
+Fields:
+- dataManager: DataManager
+- userMap: HashMap<String, User>
+- venueMap: HashMap<Integer, Venue>
+- eventMap: HashMap<Integer, Event>
+- in: Scanner
+- loggedInUser: User
+
+Methods:
++ {static} main(args: String[]): void
++ displayMainMenu(): void
++ registerCustomer(): void
++ registerOrganizer(): void
++ login(): void
++ manageUsers(): void
++ addUser(): void
++ viewUser(): void
++ updateUser(): void
++ deleteUser(): void
+- isUsernameUnique(username: String): boolean
++ manageVenues(): void
++ addVenue(): void
++ viewVenue(): void
++ updateVenue(): void
++ deleteVenue(): void
++ manageEvents(): void
++ addEvent(): void
++ viewEvent(): void
++ updateEvent(): void
++ deleteEvent(): void
+- printUserInfo(u: User): void
+- findUserByIdentifier(input: String): User
+
+
+Class: DataManager
+------------------------------------------
+Fields:
+- lastUserIDSeen: int
+- lastVenueIDSeen: int
+- lastEventIDSeen: int
+
+Methods:
++ loadUsers(fileName: String): HashMap<String, User>
++ loadEvents(fileName: String): HashMap<Integer, Event>
++ loadVenues(fileName: String): HashMap<Integer, Venue>
++ writeEvent(fileName: String): void
++ writeUsers(fileName: String): void
++ writeVenues(fileName: String): void
++ generateUniqueUserId(): int
++ generateUniqueVenueId(): int
++ generateUniqueEventId(): int
+
+
+Class: Logger
+------------------------------------------
+Methods:
++ {static} logAction(actionDetail: String): void
+
+
+==========================================
+USER HIERARCHY
+==========================================
+
+Abstract Class: User
+------------------------------------------
+Fields:
+- firstName: String
+- lastName: String
+- username: String
+- password: String
+- userID: int
+- userType: String
+
+Methods:
++ getFirstName(): String
++ setFirstName(firstName: String): void
++ getLastName(): String
++ setLastName(lastName: String): void
++ getUsername(): String
++ setUsername(username: String): void
++ getPassword(): String
++ setPassword(password: String): void
++ getUserID(): int
++ setUserID(userID: int): void
++ getUserType(): String
++ setUserType(userType: String): void
++ login(): void
++ logout(): void
+
+
+Class: Customer (extends User)
+------------------------------------------
+Fields:
+- moneyAvailable: double
+- hasMembership: boolean
+- concertsPurchased: int
+
+Methods:
++ getMoneyAvailable(): double
++ setMoneyAvailable(moneyAvailable: double): void
++ hasMembership(): boolean
++ setMembership(hasMembership: boolean): void
++ getConcertsPurchased(): int
++ setConcertsPurchased(concertsPurchased: int): void
++ purchaseTicket(): void
+
+
+Class: Organizer (extends User)
+------------------------------------------
+Methods:
++ createEvent(): void
+
+
+Class: Admin (extends User)
+------------------------------------------
+
+
+==========================================
+EVENT HIERARCHY
+==========================================
+
+Abstract Class: Event
+------------------------------------------
+Fields:
+- eventID: int
+- type: String
+- name: String
+- date: String
+- time: String
+- vipPrice: String
+- goldPrice: String
+- silverPrice: String
+- bronzePrice: String
+- generalAdmissionPrice: String
+- venue: Venue
+
+Methods:
++ getEventID(): int
++ setEventID(eventID: int): void
++ getType(): String
++ setType(type: String): void
++ getName(): String
++ setName(name: String): void
++ getDate(): String
++ setDate(date: String): void
++ getTime(): String
++ setTime(time: String): void
++ getVenue(): Venue
++ setVenue(venue: Venue): void
+
+
+Subclasses:
+- Concert (extends Event)
+- Sport (extends Event)
+- Special (extends Event)
+
+
+==========================================
+VENUE HIERARCHY
+==========================================
+
+Abstract Class: Venue
+------------------------------------------
+Fields:
+- venueID: int
+- name: String
+- type: String
+- capacity: int
+- concertCapacity: int
+- cost: double
+- vipPercent: int
+- goldPercent: int
+- silverPercent: int
+- bronzePercent: int
+- generalAdmissionPercent: int
+- reservedPercent: int
+
+Methods:
++ getVenueID(): int
++ setVenueID(venueID: int): void
++ getName(): String
++ setName(name: String): void
++ getType(): String
++ setType(type: String): void
++ getCapacity(): int
++ setCapacity(capacity: int): void
++ getConcertCapacity(): int
++ setConcertCapacity(concertCapacity: int): void
++ getCost(): double
++ setCost(cost: double): void
++ getVipPercent(): int
++ setVipPercent(vipPercent: int): void
++ getGoldPercent(): int
++ setGoldPercent(goldPercent: int): void
++ getSilverPercent(): int
++ setSilverPercent(silverPercent: int): void
++ getBronzePercent(): int
++ setBronzePercent(bronzePercent: int): void
++ getGeneralAdmissionPercent(): int
++ setGeneralAdmissionPercent(generalAdmissionPercent: int): void
++ getReservedPercent(): int
++ setReservedPercent(reservedPercent: int): void
+
+
+Subclasses:
+- Arena (extends Venue)
+- Auditorium (extends Venue)
+- Stadium (extends Venue)
+- OpenAir (extends Venue)
+
+
+==========================================
+RELATIONSHIPS
+==========================================
+- RunTicketMiner uses DataManager
+- RunTicketMiner logs actions via Logger
+- DataManager stores Users, Events, and Venues
+- Event has a Venue

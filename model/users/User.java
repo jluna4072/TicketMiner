@@ -63,10 +63,4 @@ public abstract class User {
     public void setUserType(String userType) {
         this.userType = userType;
     }
-
-    public void login() {
-    }
-    
-    public void logout() {
-    }
 }

@@ -1,4 +1,4 @@
-
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -18,7 +18,7 @@ public class RunTicketMiner {
     private final HashMap<Integer, Venue> venueMap = dataManager.loadVenues("data/Venue_List_PA1.csv");
     private final HashMap<Integer, Event> eventMap = dataManager.loadEvents("data/Event_List_PA1.csv");
     private final Scanner in = new Scanner(System.in);
-    private final Admin admin = new Admin();
+    private User loggedInUser;
 
     public static void main(String[] args) {
         RunTicketMiner app = new RunTicketMiner();
@@ -56,33 +56,7 @@ public class RunTicketMiner {
                         }
                         break;
                     case 2:
-                        String username;
-                        String password;
-                        while (true) {
-                            System.out.println("Please enter your username.");
-                            username = in.nextLine().trim();
-                            System.out.println("Please enter your password.");
-                            password = in.nextLine().trim();
-
-                            if (userMap.containsKey(username)) {
-                                User user = userMap.get(username);
-                                if (user.getPassword().equals(password)) {
-                                    System.out.println("Login successful! Welcome, " + user.getFirstName() + "!");
-                                    if (user instanceof Customer) {
-                                        customerLogin();
-                                    } else if (user instanceof Organizer) {
-                                        organizerLogin();
-                                    } else {
-                                        adminLogin();
-                                    }
-                                    break;
-                                } else {
-                                    System.out.println("Incorrect username or password. Please try again.");
-                                }
-                            } else {
-                                System.out.println("Username not found. Please try again.");
-                            }
-                        }
+                        login();
                         break;
                     case 3:
                         System.out.println("Thank you for using TicketMiner. Goodbye!");
@@ -110,7 +84,7 @@ public class RunTicketMiner {
         String password = "";
         while (true) {
             username = in.nextLine().trim();
-            if (!userMap.containsKey(username)) {
+            if (isUsernameUnique(username)) {
                 System.out.print("Enter password: ");
                 password = in.nextLine().trim();
                 break;
@@ -145,9 +119,8 @@ public class RunTicketMiner {
         }
         int userId = dataManager.generateUniqueUserId();
         Customer newCustomer = new Customer(userId, firstName, lastName, username, password, "Customer", initialAmount, becomeMember, 0);
-        admin.addMember(newCustomer, userMap);
+        userMap.put(newCustomer.getUsername(), newCustomer);
         System.out.println("Customer registered successfully!");
-        return;
     }
 
     public void registerOrganizer() {
@@ -160,7 +133,7 @@ public class RunTicketMiner {
         String password = "";
         while (true) {
             username = in.nextLine().trim();
-            if (!userMap.containsKey(username)) {
+            if (isUsernameUnique(username)) {
                 System.out.print("Enter password: ");
                 password = in.nextLine().trim();
                 break;
@@ -171,9 +144,8 @@ public class RunTicketMiner {
 
         int userId = dataManager.generateUniqueUserId();
         User newOrganizer = new Organizer(userId, firstName, lastName, username, password, "Organizer");
-        admin.addMember(newOrganizer, userMap);
+        userMap.put(newOrganizer.getUsername(), newOrganizer);
         System.out.println("Organizer registered successfully!");
-        return;
     }
 
     public void registerAdmin() {
@@ -186,7 +158,7 @@ public class RunTicketMiner {
         String password = "";
         while (true) {
             username = in.nextLine().trim();
-            if (admin.isUsernameUnique(username, userMap)) {
+            if (isUsernameUnique(username)) {
                 System.out.print("Enter password: ");
                 password = in.nextLine().trim();
                 break;
@@ -196,62 +168,82 @@ public class RunTicketMiner {
         }
         int userId = dataManager.generateUniqueUserId();
         Admin newAdmin = new Admin(userId, firstName, lastName, username, password, "Admin");
-        admin.addMember(newAdmin, userMap);
+        userMap.put(newAdmin.getUsername(), newAdmin);
         System.out.println("Admin registered successfully!");
     }
 
-    public void customerLogin() {
-        System.out.println("Customer menu will be implemented here.");
-        return;
-    }
+    public void login() {
+        while (true) {
+            System.out.println("Please enter your username.");
+            String username = in.nextLine().trim();
+            System.out.println("Please enter your password.");
+            String password = in.nextLine().trim();
 
-    public void organizerLogin() {
-        System.out.println("Organizer menu will be implemented here.");
-        return;
-
-    }
-
-    private User findUserByIdentifier(String input) {
-        User result = admin.viewMember(input, userMap);
-        if (result != null) {
-            return result;
-        }
-        List<User> nameMatches = admin.findMembersByName(input, userMap);
-        if (nameMatches.size() > 1) {
-            System.out.println("Multiple members found with that name:");
-            for (User u : nameMatches) {
-                System.out.println("  ID: " + u.getUserID() + " | Username: " + u.getUsername()
-                        + " | " + u.getFirstName() + " " + u.getLastName());
-            }
-            while (true) {
-                System.out.print("Please enter the ID or username to select a specific member: ");
-                String refined = in.nextLine().trim();
-                for (User u : nameMatches) {
-                    if (u.getUsername().equals(refined)) {
-                        return u;
+            if (userMap.containsKey(username)) {
+                User user = userMap.get(username);
+                if (user.getPassword().equals(password)) {
+                    System.out.println("Login successful! Welcome, " + user.getFirstName() + "!");
+                    loggedInUser = user;
+                    if (user instanceof Customer) {
+                        customerMenu();
+                    } else if (user instanceof Organizer) {
+                        organizerMenu();
+                    } else {
+                        adminMenu();
                     }
-                    try {
-                        if (u.getUserID() == Integer.parseInt(refined)) {
-                            return u;
-                        }
-                    } catch (NumberFormatException ignored) {
-                    }
+                    break;
+                } else {
+                    System.out.println("Incorrect username or password. Please try again.");
                 }
-                System.out.println("Selection does not match any of the found members. Please try again.");
+            } else {
+                System.out.println("Username not found. Please try again.");
             }
         }
-        return null;
     }
 
-    private void printUserInfo(User u) {
-        System.out.println("ID: " + u.getUserID());
-        System.out.println("Name: " + u.getFirstName() + " " + u.getLastName());
-        System.out.println("Username: " + u.getUsername());
-        System.out.println("Type: " + u.getUserType());
-        if (u instanceof Customer c) {
-            System.out.printf("Money Available: $%.2f%n", c.getMoneyAvailable());
-            System.out.println("Membership: " + c.hasMembership());
-            System.out.println("Concerts Purchased: " + c.getConcertsPurchased());
+    public void customerMenu() {
+        System.out.println("Customer menu will be implemented here.");
+    }
+
+    public void organizerMenu() {
+        System.out.println("Organizer menu will be implemented here.");
+    }
+
+    public void adminMenu() {
+        boolean logout = false;
+        while (!logout) {
+            System.out.println("\n=== Admin Menu ===");
+            System.out.println("1. Manage Users");
+            System.out.println("2. Manage Venues");
+            System.out.println("3. Manage Events");
+            System.out.println("4. Logout");
+            System.out.print("Please select an option (1-4): ");
+            try {
+                int choice = in.nextInt();
+                in.nextLine();
+                switch (choice) {
+                    case 1:
+                        manageUsers();
+                        break;
+                    case 2:
+                        manageVenues();
+                        break;
+                    case 3:
+                        manageEvents();
+                        break;
+                    case 4:
+                        System.out.println("Logging out...");
+                        loggedInUser = null;
+                        logout = true;
+                        break;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
+                        break;
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                in.nextLine();
+            }
         }
     }
 
@@ -270,25 +262,10 @@ public class RunTicketMiner {
                 in.nextLine();
                 switch (choice) {
                     case 1:
-                        String userType;
-                        while (true) {
-                            System.out.print("Add as Customer, Organizer, or Admin? (C/O/A): ");
-                            userType = in.nextLine().trim().toUpperCase();
-                            if (userType.equals("C") || userType.equals("O") || userType.equals("A")) {
-                                break;
-                            }
-                            System.out.println("Invalid input. Please enter C, O, or A.");
-                        }
-                        if (userType.equals("C")) {
-                            registerCustomer();
-                        } else if (userType.equals("O")) {
-                            registerOrganizer();
-                        } else {
-                            registerAdmin();
-                        }
+                        addUser();
                         break;
                     case 2:
-                        viewUsers();
+                        viewUser();
                         break;
                     case 3:
                         updateUser();
@@ -310,7 +287,26 @@ public class RunTicketMiner {
         }
     }
 
-    public void viewUsers() {
+    public void addUser() {
+        String userType;
+        while (true) {
+            System.out.print("Add as Customer, Organizer, or Admin? (C/O/A): ");
+            userType = in.nextLine().trim().toUpperCase();
+            if (userType.equals("C") || userType.equals("O") || userType.equals("A")) {
+                break;
+            }
+            System.out.println("Invalid input. Please enter C, O, or A.");
+        }
+        if (userType.equals("C")) {
+            registerCustomer();
+        } else if (userType.equals("O")) {
+            registerOrganizer();
+        } else {
+            registerAdmin();
+        }
+    }
+
+    public void viewUser() {
         boolean back = false;
         while (!back) {
             System.out.println("\n=== View Members ===");
@@ -381,7 +377,8 @@ public class RunTicketMiner {
                         String newFirst = in.nextLine().trim();
                         System.out.print("Enter new last name: ");
                         String newLast = in.nextLine().trim();
-                        admin.updateMemberName(user, newFirst, newLast);
+                        user.setFirstName(newFirst);
+                        user.setLastName(newLast);
                         System.out.println("Name updated successfully.");
                         break;
                     case 2:
@@ -389,18 +386,20 @@ public class RunTicketMiner {
                         while (true) {
                             System.out.print("Enter new username: ");
                             newUsername = in.nextLine().trim();
-                            if (admin.isUsernameUnique(newUsername, userMap)) {
+                            if (isUsernameUnique(newUsername)) {
                                 break;
                             }
                             System.out.println("Username already exists. Please enter a different username.");
                         }
-                        admin.updateMemberUsername(user, newUsername, userMap);
+                        userMap.remove(user.getUsername());
+                        user.setUsername(newUsername);
+                        userMap.put(newUsername, user);
                         System.out.println("Username updated successfully.");
                         break;
                     case 3:
                         System.out.print("Enter new password: ");
                         String newPassword = in.nextLine().trim();
-                        admin.updateMemberPassword(user, newPassword);
+                        user.setPassword(newPassword);
                         System.out.println("Password updated successfully.");
                         break;
                     case 4:
@@ -430,49 +429,106 @@ public class RunTicketMiner {
         System.out.print("Are you sure you want to delete this member? (Y/N): ");
         String confirm = in.nextLine().trim().toUpperCase();
         if (confirm.equals("Y")) {
-            admin.deleteMember(user.getUsername(), userMap);
+            userMap.remove(user.getUsername());
             System.out.println("Member deleted successfully.");
         } else {
             System.out.println("Deletion cancelled.");
         }
     }
 
-    public void adminLogin() {
+    private boolean isUsernameUnique(String username) {
+        return !userMap.containsKey(username);
+    }
 
-        boolean logout = false;
+    // --- Admin Venue Management Methods ---
 
-        while (!logout) {
-            System.out.println("1. Manage Users");
-            System.out.println("2. Manage Venues");
-            System.out.println("3. Manage Events");
-            System.out.println("4. Logout");
-            System.out.print("Please select an option (1-4): ");
-            try {
-                int choice = in.nextInt();
-                in.nextLine();
-                switch (choice) {
-                    case 1:
-                        manageUsers();
-                        break;
-                    case 2:
-                        System.out.println("Venue management will be implemented here.");
-                        break;
-                    case 3:
-                        System.out.println("Event management will be implemented here.");
-                        break;
-                    case 4:
-                        System.out.println("Logging out...");
-                        logout = true;
-                        break;
-                    default:
-                        System.out.println("Invalid option. Please try again.");
-                        break;
+    public void manageVenues() {
+        System.out.println("Venue management will be implemented here.");
+    }
+
+    public void addVenue() {}
+    public void viewVenue() {}
+    public void updateVenue() {}
+    public void deleteVenue() {}
+
+    // --- Admin Event Management Methods ---
+
+    public void manageEvents() {
+        System.out.println("Event management will be implemented here.");
+    }
+
+    public void addEvent() {}
+    public void viewEvent() {}
+    public void updateEvent() {}
+    public void deleteEvent() {}
+
+    // --- Helper Methods ---
+
+    private User findUserByIdentifier(String input) {
+        // Try parsing as ID
+        try {
+            int id = Integer.parseInt(input);
+            for (User u : userMap.values()) {
+                if (u.getUserID() == id) {
+                    return u;
                 }
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please enter a number.");
-                in.nextLine();
             }
+        } catch (NumberFormatException ignored) {}
+
+        // Try username
+        if (userMap.containsKey(input)) {
+            return userMap.get(input);
+        }
+
+        // Try full name
+        List<User> matches = new ArrayList<>();
+        for (User u : userMap.values()) {
+            String fullName = u.getFirstName() + " " + u.getLastName();
+            if (fullName.equalsIgnoreCase(input)) {
+                matches.add(u);
+            }
+        }
+
+        if (matches.isEmpty()) {
+            return null;
+        }
+
+        if (matches.size() == 1) {
+            return matches.get(0);
+        }
+
+        // Multiple name matches
+        System.out.println("Multiple members found with that name:");
+        for (User u : matches) {
+            System.out.println("  ID: " + u.getUserID() + " | Username: " + u.getUsername()
+                    + " | " + u.getFirstName() + " " + u.getLastName());
+        }
+        while (true) {
+            System.out.print("Please enter the ID or username to select a specific member: ");
+            String refined = in.nextLine().trim();
+            for (User u : matches) {
+                if (u.getUsername().equals(refined)) {
+                    return u;
+                }
+                try {
+                    if (u.getUserID() == Integer.parseInt(refined)) {
+                        return u;
+                    }
+                } catch (NumberFormatException ignored) {}
+            }
+            System.out.println("Selection does not match any of the found members. Please try again.");
         }
     }
 
+    private void printUserInfo(User u) {
+        System.out.println("ID: " + u.getUserID());
+        System.out.println("Name: " + u.getFirstName() + " " + u.getLastName());
+        System.out.println("Username: " + u.getUsername());
+        System.out.println("Type: " + u.getUserType());
+        if (u instanceof Customer c) {
+            System.out.printf("Money Available: $%.2f%n", c.getMoneyAvailable());
+            System.out.println("Membership: " + c.hasMembership());
+            System.out.println("Concerts Purchased: " + c.getConcertsPurchased());
+        }
+    }
 }
