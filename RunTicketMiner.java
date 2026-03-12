@@ -18,7 +18,7 @@ public class RunTicketMiner {
     private final HashMap<Integer, Venue> venueMap = dataManager.loadVenues("data/Venue_List_PA1.csv");
     private final HashMap<Integer, Event> eventMap = dataManager.loadEvents("data/Event_List_PA1.csv");
     private final Scanner in = new Scanner(System.in);
-    private User loggedInUser;
+    private User loggedInUser; 
 
     public static void main(String[] args) {
         RunTicketMiner app = new RunTicketMiner();
@@ -182,8 +182,8 @@ public class RunTicketMiner {
             if (userMap.containsKey(username)) {
                 User user = userMap.get(username);
                 if (user.getPassword().equals(password)) {
-                    System.out.println("Login successful! Welcome, " + user.getFirstName() + "!");
                     loggedInUser = user;
+                    System.out.println("Login successful! Welcome, " + loggedInUser.getFirstName() + "!");
                     if (user instanceof Customer) {
                         customerMenu();
                     } else if (user instanceof Organizer) {

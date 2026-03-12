@@ -1,5 +1,4 @@
 package model.events;
-import model.venues.Venue;
 
 public abstract class Event {
 
@@ -13,7 +12,6 @@ public abstract class Event {
     private String silverPrice;
     private String bronzePrice;
     private String generalAdmissionPrice;
-    private Venue venue;
 
 
     public Event() {
@@ -69,13 +67,5 @@ public abstract class Event {
 
     public void setTime(String time) {
         this.time = time;
-    }
-
-    public Venue getVenue() {
-        return venue;
-    }
-
-    public void setVenue(Venue venue) {
-        this.venue = venue;
     }
 }
