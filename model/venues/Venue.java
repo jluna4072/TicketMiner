@@ -19,7 +19,7 @@ public abstract class Venue {
     public Venue() {
        
     }
-    public Venue(int id, String name, String type, int capacity, int concertCapacity, double cost, int vipPercent, int goldPercent, int silverPercent, int bronzePercent, int generalAdmissionPercent, int reservedPercent, String organizer) {
+    public Venue(int id, String name, String type, int capacity, int concertCapacity, double cost, int vipPercent, int goldPercent, int silverPercent, int bronzePercent, int generalAdmissionPercent, int reservedPercent) {
         this.venueID = id;
         this.name = name;
         this.type = type;
