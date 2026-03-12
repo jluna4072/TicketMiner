@@ -440,7 +440,6 @@ public class RunTicketMiner {
         return !userMap.containsKey(username);
     }
 
-    // --- Admin Venue Management Methods ---
 
     public void manageVenues() {
         System.out.println("Venue management will be implemented here.");
@@ -451,7 +450,6 @@ public class RunTicketMiner {
     public void updateVenue() {}
     public void deleteVenue() {}
 
-    // --- Admin Event Management Methods ---
 
     public void manageEvents() {
         System.out.println("Event management will be implemented here.");
@@ -462,10 +460,7 @@ public class RunTicketMiner {
     public void updateEvent() {}
     public void deleteEvent() {}
 
-    // --- Helper Methods ---
-
     private User findUserByIdentifier(String input) {
-        // Try parsing as ID
         try {
             int id = Integer.parseInt(input);
             for (User u : userMap.values()) {
@@ -475,12 +470,10 @@ public class RunTicketMiner {
             }
         } catch (NumberFormatException ignored) {}
 
-        // Try username
         if (userMap.containsKey(input)) {
             return userMap.get(input);
         }
 
-        // Try full name
         List<User> matches = new ArrayList<>();
         for (User u : userMap.values()) {
             String fullName = u.getFirstName() + " " + u.getLastName();
@@ -497,7 +490,6 @@ public class RunTicketMiner {
             return matches.get(0);
         }
 
-        // Multiple name matches
         System.out.println("Multiple members found with that name:");
         for (User u : matches) {
             System.out.println("  ID: " + u.getUserID() + " | Username: " + u.getUsername()
