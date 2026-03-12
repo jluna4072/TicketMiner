@@ -14,10 +14,12 @@ public abstract class Venue {
     private int bronzePercent;
     private int generalAdmissionPercent;
     private int reservedPercent;
+    
 
     public Venue() {
+       
     }
-    public Venue(int id, String name, String type, int capacity, int concertCapacity, double cost, int vipPercent, int goldPercent, int silverPercent, int bronzePercent, int generalAdmissionPercent, int reservedPercent) {
+    public Venue(int id, String name, String type, int capacity, int concertCapacity, double cost, int vipPercent, int goldPercent, int silverPercent, int bronzePercent, int generalAdmissionPercent, int reservedPercent, String organizer) {
         this.venueID = id;
         this.name = name;
         this.type = type;
@@ -30,6 +32,7 @@ public abstract class Venue {
         this.bronzePercent = bronzePercent;
         this.generalAdmissionPercent = generalAdmissionPercent;
         this.reservedPercent = reservedPercent;
+        
     }
 
     public int  getVenueID() {
@@ -126,4 +129,5 @@ public abstract class Venue {
     public int getConcertCapacity() {
         return concertCapacity;
     }
+
 }
