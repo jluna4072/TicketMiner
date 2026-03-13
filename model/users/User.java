@@ -63,4 +63,10 @@ public abstract class User {
     public void setUserType(String userType) {
         this.userType = userType;
     }
+
+    @Override
+    public String toString() {
+        return "ID: " + userID + " | Name: " + firstName + " " + lastName
+             + " | Username: " + username + " | Type: " + userType;
+    }
 }

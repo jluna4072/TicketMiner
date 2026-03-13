@@ -7,21 +7,16 @@ public abstract class Event {
     private String name;
     private String date;
     private String time;
-    private String vipPrice;
-    private String goldPrice;
-    private String silverPrice;
-    private String bronzePrice;
-    private String generalAdmissionPrice;
-    private int vipSold = 0;
-    private int goldSold = 0;
-    private int silverSold = 0;
-    private int bronzeSold = 0;
-    private int gaSold = 0;
+    private double vipPrice;
+    private double goldPrice;
+    private double silverPrice;
+    private double bronzePrice;
+    private double generalAdmissionPrice;
 
     public Event() {
     }
 
-    public Event(int eventID, String type, String name, String date, String time, String vipPrice, String goldPrice, String silverPrice, String bronzePrice, String generalAdmissionPrice) {
+    public Event(int eventID, String type, String name, String date, String time, double vipPrice, double goldPrice, double silverPrice, double bronzePrice, double generalAdmissionPrice) {
         this.eventID = eventID;
         this.type = type;
         this.name = name;
@@ -33,6 +28,7 @@ public abstract class Event {
         this.bronzePrice = bronzePrice;
         this.generalAdmissionPrice = generalAdmissionPrice;
     }
+
     public int getEventID() {
         return eventID;
     }
@@ -44,6 +40,7 @@ public abstract class Event {
     public String getType() {
         return type;
     }
+
     public void setType(String type) {
         this.type = type;
     }
@@ -71,67 +68,31 @@ public abstract class Event {
     public void setTime(String time) {
         this.time = time;
     }
-    public String getVipPrice() {
+
+    public double getVipPrice() {
         return vipPrice;
     }
 
-    public String getGoldPrice() {
+    public double getGoldPrice() {
         return goldPrice;
     }
 
-    public String getSilverPrice() {
+    public double getSilverPrice() {
         return silverPrice;
     }
 
-    public String getBronzePrice() {
+    public double getBronzePrice() {
         return bronzePrice;
     }
 
-    public String getGeneralAdmissionPrice() {
+    public double getGeneralAdmissionPrice() {
         return generalAdmissionPrice;
-    }
-    public void incrementVip() { 
-        vipSold++; 
-    }
-    public void incrementGold() { 
-        goldSold++; 
-    }
-    public void incrementSilver() { 
-        silverSold++; 
-    }
-    public void incrementBronze() { 
-        bronzeSold++; 
-    }
-    public void incrementGa() { 
-        gaSold++; 
-    }
-    public int getVipSold() { 
-        return vipSold; 
-    }
-    public int getGoldSold() { 
-        return goldSold; 
-    }
-    public int getSilverSold() { 
-        return silverSold; 
-    }
-    public int getBronzeSold() { 
-        return bronzeSold; 
-    }
-    public int getGaSold() { 
-        return gaSold; 
     }
 
     @Override
     public String toString() {
-        return String.format(
-            "ID: %-4d | Name: %-18s | Date: %-10s | VIP: %-6s | Gold: %-6s | Silv: %-6s | Bron: %-6s | GA: %-6s",
-            eventID, 
-            name, 
-            date, 
-            vipPrice, 
-            goldPrice, 
-            silverPrice, 
-            bronzePrice, 
-            generalAdmissionPrice);
+        return "ID: " + eventID + " | Name: " + name + " | Date: " + date
+             + " | VIP: $" + vipPrice + " | Gold: $" + goldPrice + " | Silver: $" + silverPrice
+             + " | Bronze: $" + bronzePrice + " | GA: $" + generalAdmissionPrice;
     }
 }

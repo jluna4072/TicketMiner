@@ -1,9 +1,11 @@
-import java.util.ArrayList;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
-
 import model.events.Concert;
 import model.events.Event;
 import model.events.Special;
@@ -26,7 +28,7 @@ public class RunTicketMiner {
     private final HashMap<Integer, Venue> venueMap = dataManager.loadVenues("data/Venue_List_PA1.csv");
     private final HashMap<Integer, Event> eventMap = dataManager.loadEvents("data/Event_List_PA1.csv");
     private final Scanner in = new Scanner(System.in);
-    private User loggedInUser; 
+    private User loggedInUser;
 
     public static void main(String[] args) {
         RunTicketMiner app = new RunTicketMiner();
@@ -83,18 +85,19 @@ public class RunTicketMiner {
     }
 
     public void registerCustomer() {
-        System.out.print("Enter first name: ");
-        String firstName = in.nextLine().trim();
-        System.out.print("Enter last name: ");
-        String lastName = in.nextLine().trim();
-        System.out.print("Enter desired username: ");
+        String firstName = readNonBlank("Enter first name: ");
+        String lastName = readNonBlank("Enter last name: ");
         String username = "";
         String password = "";
         while (true) {
+            System.out.print("Enter desired username: ");
             username = in.nextLine().trim();
+            if (username.isEmpty()) {
+                System.out.println("This field cannot be blank. Please try again.");
+                continue;
+            }
             if (isUsernameUnique(username)) {
-                System.out.print("Enter password: ");
-                password = in.nextLine().trim();
+                password = readNonBlank("Enter password: ");
                 break;
             } else {
                 System.out.println("Username already exists, please input different username.");
@@ -113,13 +116,14 @@ public class RunTicketMiner {
                 System.out.println("Invalid input. Please enter 'Y' for Yes or 'N' for No.");
             }
         }
-        double initialAmount;
+        double initialAmount = 0;
         while (true) {
             try {
                 System.out.print("What is the initial amount of money available for the user? ");
                 initialAmount = in.nextDouble();
                 in.nextLine();
-                break;
+                if (initialAmount >= 0) break;
+                System.out.println("Amount cannot be negative. Please try again.");
             } catch (InputMismatchException e) {
                 System.out.println("Invalid input. Please enter a valid number.");
                 in.nextLine();
@@ -132,24 +136,24 @@ public class RunTicketMiner {
     }
 
     public void registerOrganizer() {
-        System.out.print("Enter first name: ");
-        String firstName = in.nextLine().trim();
-        System.out.print("Enter last name: ");
-        String lastName = in.nextLine().trim();
-        System.out.print("Enter desired username: ");
+        String firstName = readNonBlank("Enter first name: ");
+        String lastName = readNonBlank("Enter last name: ");
         String username = "";
         String password = "";
         while (true) {
+            System.out.print("Enter desired username: ");
             username = in.nextLine().trim();
+            if (username.isEmpty()) {
+                System.out.println("This field cannot be blank. Please try again.");
+                continue;
+            }
             if (isUsernameUnique(username)) {
-                System.out.print("Enter password: ");
-                password = in.nextLine().trim();
+                password = readNonBlank("Enter password: ");
                 break;
             } else {
                 System.out.println("Username already exists, please input different username.");
             }
         }
-
         int userId = dataManager.generateUniqueUserId();
         User newOrganizer = new Organizer(userId, firstName, lastName, username, password, "Organizer");
         userMap.put(newOrganizer.getUsername(), newOrganizer);
@@ -157,18 +161,19 @@ public class RunTicketMiner {
     }
 
     public void registerAdmin() {
-        System.out.print("Enter first name: ");
-        String firstName = in.nextLine().trim();
-        System.out.print("Enter last name: ");
-        String lastName = in.nextLine().trim();
-        System.out.print("Enter desired username: ");
+        String firstName = readNonBlank("Enter first name: ");
+        String lastName = readNonBlank("Enter last name: ");
         String username = "";
         String password = "";
         while (true) {
+            System.out.print("Enter desired username: ");
             username = in.nextLine().trim();
+            if (username.isEmpty()) {
+                System.out.println("This field cannot be blank. Please try again.");
+                continue;
+            }
             if (isUsernameUnique(username)) {
-                System.out.print("Enter password: ");
-                password = in.nextLine().trim();
+                password = readNonBlank("Enter password: ");
                 break;
             } else {
                 System.out.println("Username already exists, please input a different username.");
@@ -188,7 +193,7 @@ public class RunTicketMiner {
 
             if (username.equalsIgnoreCase("back")) {
                 System.out.println("Returning to main menu...");
-                return; 
+                return;
             }
 
             System.out.println("Please enter your password:");
@@ -196,19 +201,19 @@ public class RunTicketMiner {
 
             if (userMap.containsKey(username)) {
                 User user = userMap.get(username);
-                
+
                 if (user.getPassword().equals(password)) {
                     loggedInUser = user;
                     System.out.println("Login successful! Welcome, " + loggedInUser.getFirstName() + "!");
-                    
+
                     if (user instanceof Customer) {
-                        customerMenu(); 
+                        customerMenu();
                     } else if (user instanceof Organizer) {
-                        organizerMenu(); 
+                        organizerMenu();
                     } else if (user instanceof Admin) {
-                        adminMenu(); 
+                        adminMenu();
                     }
-                    break; 
+                    break;
                 } else {
                     System.out.println("Incorrect password. Please try again.");
                 }
@@ -217,267 +222,13 @@ public class RunTicketMiner {
             }
         }
     }
-
     public void customerMenu() {
-        boolean loggedOut = false;
-        while (!loggedOut) {
-            Customer c = (Customer) loggedInUser;
-            
-            System.out.println("\n=== CUSTOMER MENU ===");
-            System.out.println("Welcome, " + c.getFirstName() + " " + c.getLastName());
-            System.out.printf("Current Balance: $%.2f\n", c.getMoneyAvailable());
-            System.out.println("---------------------");
-            System.out.println("1. View/Search Events");
-            System.out.println("2. Buy Tickets");
-            System.out.println("3. View My Stats");
-            System.out.println("4. Add Funds");
-            System.out.println("5. Logout");
-            System.out.print("Choice: ");
-
-            try {
-                int choice = in.nextInt();
-                in.nextLine(); 
-
-                switch (choice) {
-                    case 1: viewEvent(); 
-                        break;
-
-                    case 2: buyTickets(); 
-                        break;
-
-                    case 3: viewMyTickets(); 
-                        break;
-
-                    case 4: addFunds(); 
-                        break;
-
-                    case 5:
-                        System.out.println("Logging out...");
-                        loggedInUser = null;
-                        loggedOut = true;
-                        break;
-                    default:
-                        System.out.println("Invalid option.");
-                        break;
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Error: Please enter a valid number.");
-                in.nextLine();
-            }
-        }
-    }
-
-    public void addFunds() {
-        Customer c = (Customer) loggedInUser;
-        System.out.print("\nEnter amount to add to your balance: $");
-        try {
-            double amount = in.nextDouble();
-            in.nextLine(); 
-            
-            if (amount > 0) {
-                double newBalance = c.getMoneyAvailable() + amount;
-                c.setMoneyAvailable(newBalance);
-                System.out.printf("Successfully added $%.2f. New balance: $%.2f\n", amount, newBalance);
-            } else {
-                System.out.println("Error: Amount must be greater than 0.");
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("Error: Invalid decimal format.");
-            in.nextLine();
-        }
-    }
-
-    public void viewMyTickets() {
-        Customer c = (Customer) loggedInUser;
-        System.out.println("\n--- Your Account Status ---");
-        System.out.println("User ID: " + c.getUserID());
-        System.out.println("Membership: " + (c.hasMembership() ? "Premium Member" : "Standard"));
-        System.out.println("Total Events Attended: " + c.getConcertsPurchased());
-        System.out.printf("Available Funds: $%.2f\n", c.getMoneyAvailable());
-    }
-
-    public void buyTickets() {
-        System.out.print("\nEnter Event ID or Name to purchase: ");
-        String query = in.nextLine();
-        Event e = dataManager.findEvent(eventMap, query);
-
-        if (e != null) {
-            Customer c = (Customer) loggedInUser;
-            System.out.println("\n--- Ticket Options for " + e.getEventName() + " ---");
-            System.out.println("1. VIP:               $" + e.getVipPrice());
-            System.out.println("2. Gold:              $" + e.getGoldPrice());
-            System.out.println("3. Silver:            $" + e.getSilverPrice());
-            System.out.println("4. Bronze:            $" + e.getBronzePrice()); 
-            System.out.println("5. General Admission: $" + e.getGeneralAdmissionPrice()); 
-            System.out.println("6. Cancel");
-            System.out.print("Select an option: ");
-
-            int choice = in.nextInt();
-            in.nextLine();
-
-            String selectedPriceStr = "0";
-            switch (choice) {
-                case 1: selectedPriceStr = e.getVipPrice(); 
-                    break;
-                case 2: selectedPriceStr = e.getGoldPrice(); 
-                    break;
-                case 3: selectedPriceStr = e.getSilverPrice(); 
-                    break;
-                case 4: selectedPriceStr = e.getBronzePrice(); 
-                    break; 
-                case 5: selectedPriceStr = e.getGeneralAdmissionPrice(); 
-                    break; 
-                default: 
-                    System.out.println("Purchase cancelled."); 
-                    return;
-            }
-
-            try {
-                double price = Double.parseDouble(selectedPriceStr.replace("$", "").trim());
-
-                if (c.getMoneyAvailable() >= price) {
-                    c.setMoneyAvailable(c.getMoneyAvailable() - price);
-                    c.setConcertsPurchased(c.getConcertsPurchased() + 1);
-                    
-                    if (choice == 1){ 
-                        e.incrementVip();
-                    }else if (choice == 2){
-                        e.incrementGold();
-                    }else if (choice == 3){ 
-                        e.incrementSilver();
-                    }else if (choice == 4){ 
-                        e.incrementBronze();
-                    }else if (choice == 5){ 
-                        e.incrementGa();
-                    }
-                    System.out.println("Purchase successful! Enjoy the show!");
-                    System.out.printf("Remaining Balance: $%.2f\n", c.getMoneyAvailable());
-                } else {
-                    System.out.println("Insufficient funds! Please add money to your account.");
-                }
-            } catch (NumberFormatException nfe) {
-                System.out.println("Error: Ticket price is not valid. Please contact an Admin.");
-            }
-        } else {
-            System.out.println("Event not found.");
-        }
+        System.out.println("\nCustomer menu is under construction. Returning to main menu...");
     }
     public void organizerMenu() {
-        boolean loggedOut = false;
-        while (!loggedOut) {
-            Organizer o = (Organizer) loggedInUser;
-            
-            System.out.println("\n=== ORGANIZER MENU ===");
-            System.out.println("Welcome, " + o.getFirstName() + " " + o.getLastName());
-            System.out.println("---------------------");
-            System.out.println("1. Create New Event");
-            System.out.println("2. View/Search Events");
-            System.out.println("3. Update Event Details");
-            System.out.println("4. View Sales/Attendance Report");
-            System.out.println("5. Logout");
-            System.out.print("Choice: ");
-
-            try {
-                int choice = in.nextInt();
-                in.nextLine(); 
-                switch (choice) {
-                    case 1: addEvent(); 
-                        break;
-                    case 2: viewEventsWithPrices(); 
-                        break;
-                    case 3: updateEvent(); 
-                        break;
-                    case 4: viewSales(); 
-                        break;
-                    case 5:
-                        System.out.println("Logging out...");
-                        loggedInUser = null;
-                        loggedOut = true;
-                        break;
-                    default:
-                        System.out.println("Invalid option.");
-                        break;
-                }
-            } catch (InputMismatchException e) {
-                System.out.println("Error: Please enter a valid number.");
-                in.nextLine();
-            }
-        }
+        System.out.println("\nOrganizer menu is under construction. Returning to main menu...");
     }
 
-    public void viewSales() {
-        System.out.println("\n--- Event Sales Report ---");
-        System.out.print("Enter Event ID or Name: ");
-        String query = in.nextLine();
-        Event e = dataManager.findEvent(eventMap, query);
-
-        if (e != null) {
-            System.out.println("--------------------------------------------------");
-            System.out.println("Financial Summary for: " + e.getEventName());
-            System.out.println("Date: " + e.getDate());
-            System.out.println("--------------------------------------------------");
-            System.out.printf("%-15s | %-10s | %-5s\n", "Category", "Price", "Sold");
-            System.out.println("--------------------------------------------------");
-            System.out.printf("%-15s | %-10s | %-5d\n", "VIP", e.getVipPrice(), e.getVipSold());
-            System.out.printf("%-15s | %-10s | %-5d\n", "Gold", e.getGoldPrice(), e.getGoldSold());
-            System.out.printf("%-15s | %-10s | %-5d\n", "Silver", e.getSilverPrice(), e.getSilverSold());
-            System.out.printf("%-15s | %-10s | %-5d\n", "Bronze", e.getBronzePrice(), e.getBronzeSold());
-            System.out.printf("%-15s | %-10s | %-5d\n", "GA", e.getGeneralAdmissionPrice(), e.getGaSold());
-            System.out.println("--------------------------------------------------");
-            
-            double total = (e.getVipSold() * Double.parseDouble(e.getVipPrice().replace("$",""))) +(e.getGoldSold() * Double.parseDouble(e.getGoldPrice().replace("$",""))); 
-            System.out.printf("Estimated Total Revenue: $%.2f\n", total);
-        } else {
-            System.out.println("Event not found.");
-        }
-    }
-    public void viewEventsWithPrices() {
-        System.out.println("\n--- View/Search Events ---");
-        System.out.println("a. Display All Events");
-        System.out.println("b. Search for Specific Event (ID, Name, or Date)");
-        System.out.print("Selection: ");
-
-        try {
-            String choice = in.nextLine().trim().toLowerCase(); 
-
-            if (choice.equals("a")) {
-                displayAllEvents();
-            } else if (choice.equals("b")) {
-                System.out.print("Enter search term: ");
-                String query = in.nextLine(); 
-                
-                Event found = dataManager.findEvent(eventMap, query);
-                
-                if (found != null) {
-                    printEventTableHeader(); 
-                    System.out.println(found.toString());
-                } else {
-                    System.out.println("No event matching '" + query + "' was found.");
-                }
-            } else {
-                System.out.println("Invalid choice. Please select a or b.");
-            }
-        } catch (Exception e) {
-            System.out.println("An error occurred.");
-        }
-    }
-
-    private void displayAllEvents() {
-        if (eventMap.isEmpty()) {
-            System.out.println("The event list is currently empty.");
-            return;
-        }
-        
-        printEventTableHeader();
-        for (Event e : eventMap.values()) {
-            System.out.println(e.toString());
-        }
-    }
-
-    private void printEventTableHeader() {
-        System.out.println("\n" + String.format("%-4s | %-18s | %-10s | %-6s | %-6s | %-6s | %-6s | %-6s", "ID", "NAME", "DATE", "VIP", "GOLD", "SILV", "BRON", "GA"));
-        System.out.println("---------------------------------------------------------------------------------------");
-    }
     public void adminMenu() {
         boolean logout = false;
         while (!logout) {
@@ -489,29 +240,29 @@ public class RunTicketMiner {
             System.out.print("Please select an option (1-4): ");
             try {
                 int choice = in.nextInt();
-                in.nextLine(); 
+                in.nextLine();
                 switch (choice) {
                     case 1:
-                    manageUsers(); 
-                    break;
-                case 2:
-                    manageVenues(); 
-                    break;
-                case 3:
-                    manageEvents(); 
-                    break;
-                case 4:
-                    System.out.println("Logging out...");
-                    loggedInUser = null;
-                    logout = true;
-                    break;
-                default:
-                    System.out.println("Invalid option. Please try again.");
-                    break;
+                        manageUsers();
+                        break;
+                    case 2:
+                        manageVenues();
+                        break;
+                    case 3:
+                        manageEvents();
+                        break;
+                    case 4:
+                        System.out.println("Logging out...");
+                        loggedInUser = null;
+                        logout = true;
+                        break;
+                    default:
+                        System.out.println("Invalid option. Please try again.");
+                        break;
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Invalid input. Please enter a number.");
-                in.nextLine(); 
+                in.nextLine();
             }
         }
     }
@@ -528,22 +279,22 @@ public class RunTicketMiner {
             System.out.print("Please select an option (1-5): ");
             try {
                 int choice = in.nextInt();
-                in.nextLine(); 
+                in.nextLine();
                 switch (choice) {
                     case 1:
-                        addUser(); 
+                        addUser();
                         break;
                     case 2:
-                        viewUser(); 
+                        viewUser();
                         break;
                     case 3:
-                        updateUser(); 
+                        updateUser();
                         break;
                     case 4:
                         deleteUser();
                         break;
                     case 5:
-                        back = true; 
+                        back = true;
                         break;
                     default:
                         System.out.println("Invalid option. Please try again.");
@@ -551,7 +302,7 @@ public class RunTicketMiner {
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Invalid input. Please enter a number.");
-                in.nextLine(); 
+                in.nextLine();
             }
         }
     }
@@ -588,20 +339,16 @@ public class RunTicketMiner {
                 in.nextLine();
                 switch (choice) {
                     case 1:
-                        System.out.println("\n=== All Members ===");
                         for (User u : userMap.values()) {
-                            System.out.println("--------------------");
-                            printUserInfo(u);
+                            System.out.println(u);
                         }
-                        System.out.println("--------------------");
                         break;
                     case 2:
                         System.out.print("Enter ID, username, or full name: ");
                         String input = in.nextLine().trim();
-                        User found = findUserByIdentifier(input);
+                        User found = resolveUser(input);
                         if (found != null) {
-                            System.out.println("\n=== Member Found ===");
-                            printUserInfo(found);
+                            System.out.println(found);
                         } else {
                             System.out.println("Member not found.");
                         }
@@ -623,7 +370,7 @@ public class RunTicketMiner {
     public void updateUser() {
         System.out.print("Enter ID, username, or full name of member to update: ");
         String input = in.nextLine().trim();
-        User user = findUserByIdentifier(input);
+        User user = resolveUser(input);
         if (user == null) {
             System.out.println("Member not found.");
             return;
@@ -688,16 +435,16 @@ public class RunTicketMiner {
     public void deleteUser() {
         System.out.print("Enter ID, username, or full name of member to delete: ");
         String input = in.nextLine().trim();
-        User user = findUserByIdentifier(input);
+        User user = resolveUser(input);
         if (user == null) {
             System.out.println("Member not found.");
             return;
         }
         System.out.println("\nFound member:");
-        printUserInfo(user);
+        System.out.println(user);
         System.out.print("Are you sure you want to delete this member? (Y/N): ");
-        String confirm = in.nextLine().trim().toUpperCase();
-        if (confirm.equals("Y")) {
+        String confirm = in.nextLine().trim();
+        if (confirm.equalsIgnoreCase("y")) {
             userMap.remove(user.getUsername());
             System.out.println("Member deleted successfully.");
         } else {
@@ -708,7 +455,6 @@ public class RunTicketMiner {
     private boolean isUsernameUnique(String username) {
         return !userMap.containsKey(username);
     }
-
 
     public void manageVenues() {
         boolean back = false;
@@ -722,14 +468,26 @@ public class RunTicketMiner {
             System.out.print("Please select an option (1-5): ");
             try {
                 int choice = in.nextInt();
-                in.nextLine(); // consume newline
+                in.nextLine();
                 switch (choice) {
-                    case 1: addVenue(); break;
-                    case 2: viewVenue(); break;
-                    case 3: updateVenue(); break;
-                    case 4: deleteVenue(); break;
-                    case 5: back = true; break;
-                    default: System.out.println("Invalid option."); break;
+                    case 1:
+                        addVenue();
+                        break;
+                    case 2:
+                        viewVenue();
+                        break;
+                    case 3:
+                        updateVenue();
+                        break;
+                    case 4:
+                        deleteVenue();
+                        break;
+                    case 5:
+                        back = true;
+                        break;
+                    default:
+                        System.out.println("Invalid option.");
+                        break;
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Invalid input. Please enter a number.");
@@ -740,28 +498,30 @@ public class RunTicketMiner {
 
     public void addVenue() {
         System.out.println("\n--- Add New Venue ---");
-        System.out.print("Enter Venue Type (Arena, Stadium, Open Air, Auditorium): ");
-        String type = in.nextLine();
+        String type;
+        while (true) {
+            System.out.print("Enter Venue Type (Arena, Stadium, Open Air, Auditorium): ");
+            type = in.nextLine().trim();
+            if (type.equalsIgnoreCase("Arena") || type.equalsIgnoreCase("Stadium")
+                    || type.equalsIgnoreCase("Open Air") || type.equalsIgnoreCase("Auditorium")) {
+                break;
+            }
+            System.out.println("Invalid type. Please enter Arena, Stadium, Open Air, or Auditorium.");
+        }
         System.out.print("Enter Venue Name: ");
         String name = in.nextLine();
-        System.out.print("Enter Capacity: ");
-        int capacity = in.nextInt();
-        System.out.print("Enter Concert Capacity: ");
-        int concertCapacity = in.nextInt();
-        System.out.print("Enter Cost to Rent: ");
-        double cost = in.nextDouble();
-        
-        System.out.print("Enter VIP %: "); int vip = in.nextInt();
-        System.out.print("Enter Gold %: "); int gold = in.nextInt();
-        System.out.print("Enter Silver %: "); int silver = in.nextInt();
-        System.out.print("Enter Bronze %: "); int bronze = in.nextInt();
-        System.out.print("Enter General Admission %: "); int ga = in.nextInt();
-        System.out.print("Enter Reserved %: "); int reserved = in.nextInt();
-        in.nextLine(); 
+        int capacity = readPositiveInt("Enter Capacity: ");
+        int concertCapacity = readPositiveInt("Enter Concert Capacity: ");
+        double cost = readPositiveDouble("Enter Cost to Rent: $");
+        int vip = readPositiveInt("Enter VIP %: ");
+        int gold = readPositiveInt("Enter Gold %: ");
+        int silver = readPositiveInt("Enter Silver %: ");
+        int bronze = readPositiveInt("Enter Bronze %: ");
+        int ga = readPositiveInt("Enter General Admission %: ");
+        int reserved = readPositiveInt("Enter Reserved %: ");
 
         int id = dataManager.generateUniqueVenueId();
         Venue newVenue;
-
         switch (type.toLowerCase()) {
             case "arena":
                 newVenue = new Arena(id, name, type, capacity, concertCapacity, cost, vip, gold, silver, bronze, ga, reserved);
@@ -780,44 +540,49 @@ public class RunTicketMiner {
         venueMap.put(id, newVenue);
         System.out.println("Venue added successfully with ID: " + id);
     }
-    public void viewVenue() {
-        System.out.println("\n--- View Venues ---");
-        System.out.println("a. Display all venues");
-        System.out.println("b. Search for a venue");
-        System.out.print("Choice: ");
-        String choice = in.nextLine().toLowerCase();
 
-        if (choice.equals("a")) {
-            for (Venue v : venueMap.values()) {
-                System.out.println(v.toString());
-            }
-        } else {
-            System.out.print("Enter Venue ID, Name, or Type: ");
-            String query = in.nextLine();
-            Venue found = dataManager.findVenue(venueMap, query);
-            if (found != null) {
-                System.out.println(found.toString());
+    public void viewVenue() {
+        while (true) {
+            System.out.println("\n--- View Venues ---");
+            System.out.println("1. Display all venues");
+            System.out.println("2. Search for a venue");
+            System.out.print("Choice: ");
+            String choice = in.nextLine().trim();
+
+            if (choice.equals("1")) {
+                for (Venue v : venueMap.values()) {
+                    System.out.println(v);
+                }
+                break;
+            } else if (choice.equals("2")) {
+                System.out.print("Enter Venue ID, Name, or Type: ");
+                String query = in.nextLine();
+                Venue found = resolveVenue(query);
+                if (found != null) {
+                    System.out.println(found);
+                } else {
+                    System.out.println("Venue not found.");
+                }
+                break;
             } else {
-                System.out.println("Venue not found.");
+                System.out.println("Invalid option. Please enter 1 or 2.");
             }
         }
     }
+
     public void updateVenue() {
         System.out.print("\nEnter Venue ID, Name, or Type to update: ");
         String query = in.nextLine();
-        Venue found = dataManager.findVenue(venueMap, query);
+        Venue found = resolveVenue(query);
 
         if (found != null) {
             System.out.println("\nEditing: " + found.getName());
-            System.out.println("1. Name              2. Type              3. Capacity");
-            System.out.println("4. Concert Capacity  5. Cost              6. VIP %");
-            System.out.println("7. Gold %            8. Silver %          9. Bronze %");
-            System.out.println("10. GA %             11. Reserved %       12. Cancel");
-            System.out.print("Select field to update (1-12): ");
+            System.out.println("1. Name  2. Cost  3. Capacity  4. Cancel");
+            System.out.print("Select field to update (1-4): ");
 
             try {
                 int choice = in.nextInt();
-                in.nextLine(); 
+                in.nextLine();
 
                 switch (choice) {
                     case 1:
@@ -825,55 +590,12 @@ public class RunTicketMiner {
                         found.setName(in.nextLine());
                         break;
                     case 2:
-                        System.out.print("New Type: ");
-                        found.setType(in.nextLine());
+                        found.setCost(readPositiveDouble("New Cost: $"));
                         break;
                     case 3:
-                        System.out.print("New Capacity: ");
-                        found.setCapacity(in.nextInt());
-                        in.nextLine();
+                        found.setCapacity(readPositiveInt("New Capacity: "));
                         break;
                     case 4:
-                        System.out.print("New Concert Capacity: ");
-                        found.setConcertCapacity(in.nextInt());
-                        in.nextLine();
-                        break;
-                    case 5:
-                        System.out.print("New Cost: ");
-                        found.setCost(in.nextDouble());
-                        in.nextLine();
-                        break;
-                    case 6:
-                        System.out.print("New VIP %: ");
-                        found.setVipPercent(in.nextInt());
-                        in.nextLine();
-                        break;
-                    case 7:
-                        System.out.print("New Gold %: ");
-                        found.setGoldPercent(in.nextInt());
-                        in.nextLine();
-                        break;
-                    case 8:
-                        System.out.print("New Silver %: ");
-                        found.setSilverPercent(in.nextInt());
-                        in.nextLine();
-                        break;
-                    case 9:
-                        System.out.print("New Bronze %: ");
-                        found.setBronzePercent(in.nextInt());
-                        in.nextLine();
-                        break;
-                    case 10:
-                        System.out.print("New GA %: ");
-                        found.setGeneralAdmissionPercent(in.nextInt());
-                        in.nextLine();
-                        break;
-                    case 11:
-                        System.out.print("New Reserved %: ");
-                        found.setReservedPercent(in.nextInt());
-                        in.nextLine();
-                        break;
-                    case 12:
                         System.out.println("Update cancelled.");
                         return;
                     default:
@@ -889,10 +611,11 @@ public class RunTicketMiner {
             System.out.println("Venue not found.");
         }
     }
+
     public void deleteVenue() {
         System.out.print("\nEnter Venue ID, Name, or Type to delete: ");
         String query = in.nextLine();
-        Venue found = dataManager.findVenue(venueMap, query);
+        Venue found = resolveVenue(query);
 
         if (found != null) {
             System.out.println("Found: " + found.getName());
@@ -909,7 +632,6 @@ public class RunTicketMiner {
         }
     }
 
-
     public void manageEvents() {
         boolean back = false;
         while (!back) {
@@ -922,14 +644,26 @@ public class RunTicketMiner {
             System.out.print("Please select an option (1-5): ");
             try {
                 int choice = in.nextInt();
-                in.nextLine(); 
+                in.nextLine();
                 switch (choice) {
-                    case 1: addEvent(); break;
-                    case 2: viewEvent(); break;
-                    case 3: updateEvent(); break;
-                    case 4: deleteEvent(); break;
-                    case 5: back = true; break;
-                    default: System.out.println("Invalid option."); break;
+                    case 1:
+                        addEvent();
+                        break;
+                    case 2:
+                        viewEvent();
+                        break;
+                    case 3:
+                        updateEvent();
+                        break;
+                    case 4:
+                        deleteEvent();
+                        break;
+                    case 5:
+                        back = true;
+                        break;
+                    default:
+                        System.out.println("Invalid option.");
+                        break;
                 }
             } catch (InputMismatchException e) {
                 System.out.println("Invalid input. Please enter a number.");
@@ -940,24 +674,24 @@ public class RunTicketMiner {
 
     public void addEvent() {
         System.out.println("\n--- Add New Event ---");
-        System.out.print("Enter Event Type (Sport, Concert, Special): ");
-        String type = in.nextLine();
+        String type;
+        while (true) {
+            System.out.print("Enter Event Type (Sport, Concert, Special): ");
+            type = in.nextLine().trim();
+            if (type.equalsIgnoreCase("Sport") || type.equalsIgnoreCase("Concert") || type.equalsIgnoreCase("Special")) {
+                break;
+            }
+            System.out.println("Invalid type. Please enter Sport, Concert, or Special.");
+        }
         System.out.print("Enter Event Name: ");
         String name = in.nextLine();
-        System.out.print("Enter Date (MM/DD/YYYY): ");
-        String date = in.nextLine();
-        System.out.print("Enter Time: ");
-        String time = in.nextLine();
-        System.out.print("Enter VIP Price: ");
-        String vip = in.nextLine();
-        System.out.print("Enter Gold Price: ");
-        String gold = in.nextLine();
-        System.out.print("Enter Silver Price: ");
-        String silver = in.nextLine();
-        System.out.print("Enter Bronze Price: ");
-        String bronze = in.nextLine();
-        System.out.print("Enter General Admission Price: ");
-        String ga = in.nextLine();
+        String date = readDate("Enter Date (MM/DD/YYYY): ");
+        String time = readTime("Enter Time (hh:mm AM/PM): ");
+        double vip    = readPositiveDouble("Enter VIP Price: $");
+        double gold   = readPositiveDouble("Enter Gold Price: $");
+        double silver = readPositiveDouble("Enter Silver Price: $");
+        double bronze = readPositiveDouble("Enter Bronze Price: $");
+        double ga     = readPositiveDouble("Enter General Admission Price: $");
 
         int id = dataManager.generateUniqueEventId();
         Event newEvent;
@@ -976,53 +710,65 @@ public class RunTicketMiner {
         eventMap.put(id, newEvent);
         System.out.println("Event added successfully with ID: " + id);
     }
-    public void viewEvent() {
-        System.out.println("\n--- View Events ---");
-        System.out.println("a. Display all events");
-        System.out.println("b. Search for an event");
-        System.out.print("Choice: ");
-        String choice = in.nextLine().toLowerCase();
 
-        if (choice.equals("a")) {
-            for (Event e : eventMap.values()) {
-                System.out.println(e); 
-            }
-        } else {
-            System.out.print("Enter Event ID, Name, or Date: ");
-            String query = in.nextLine();
-            Event found = dataManager.findEvent(eventMap, query);
-            if (found != null) {
-                System.out.println(found);
+    public void viewEvent() {
+        while (true) {
+            System.out.println("\n--- View Events ---");
+            System.out.println("1. Display all events");
+            System.out.println("2. Search for an event");
+            System.out.print("Choice: ");
+            String choice = in.nextLine().trim();
+
+            if (choice.equals("1")) {
+                for (Event e : eventMap.values()) {
+                    System.out.println(e);
+                }
+                break;
+            } else if (choice.equals("2")) {
+                System.out.print("Enter Event ID, Name, or Date: ");
+                String query = in.nextLine();
+                Event found = resolveEvent(query);
+                if (found != null) {
+                    System.out.println(found);
+                } else {
+                    System.out.println("Event not found.");
+                }
+                break;
             } else {
-                System.out.println("Event not found.");
+                System.out.println("Invalid option. Please enter 1 or 2.");
             }
         }
     }
+
     public void updateEvent() {
         System.out.print("\nEnter Event ID, Name, or Date to update: ");
         String query = in.nextLine();
-        Event found = dataManager.findEvent(eventMap, query);
+        Event found = resolveEvent(query);
 
         if (found != null) {
             System.out.println("Updating: " + found.getEventName());
             System.out.println("1. Change Name\n2. Change Date\n3. Change Time\n4. Cancel");
             try {
                 int choice = in.nextInt();
-                in.nextLine(); 
-                
+                in.nextLine();
+
                 switch (choice) {
                     case 1:
                         System.out.print("New Name: ");
                         found.setEventName(in.nextLine());
                         break;
                     case 2:
-                        System.out.print("New Date: ");
-                        found.setDate(in.nextLine());
+                        found.setDate(readDate("New Date (MM/DD/YYYY): "));
                         break;
                     case 3:
-                        System.out.print("New Time: ");
-                        found.setTime(in.nextLine());
+                        found.setTime(readTime("New Time (hh:mm AM/PM): "));
                         break;
+                    case 4:
+                        System.out.println("Update cancelled.");
+                        return;
+                    default:
+                        System.out.println("Invalid option.");
+                        return;
                 }
                 System.out.println("Event updated.");
             } catch (InputMismatchException e) {
@@ -1033,10 +779,11 @@ public class RunTicketMiner {
             System.out.println("Event not found.");
         }
     }
+
     public void deleteEvent() {
         System.out.print("\nEnter Event ID, Name, or Date to delete: ");
         String query = in.nextLine();
-        Event found = dataManager.findEvent(eventMap, query);
+        Event found = resolveEvent(query);
 
         if (found != null) {
             System.out.println("Found: " + found.getEventName());
@@ -1044,37 +791,91 @@ public class RunTicketMiner {
             if (in.nextLine().equalsIgnoreCase("y")) {
                 eventMap.remove(found.getEventID());
                 System.out.println("Event deleted.");
+            } else {
+                System.out.println("Delete cancelled.");
             }
         } else {
             System.out.println("Event not found.");
         }
     }
-    private User findUserByIdentifier(String input) {
-        try {
-            int id = Integer.parseInt(input);
-            for (User u : userMap.values()) {
-                if (u.getUserID() == id) {
-                    return u;
+
+    private String readNonBlank(String prompt) {
+        while (true) {
+            System.out.print(prompt);
+            String input = in.nextLine().trim();
+            if (!input.isEmpty()) return input;
+            System.out.println("This field cannot be blank. Please try again.");
+        }
+    }
+
+    private int readPositiveInt(String input) {
+        while (true) {
+            System.out.print(input);
+            try {
+                int value = in.nextInt();
+                in.nextLine();
+                if (value >= 0) {
+                    return value;
                 }
-            }
-        } catch (NumberFormatException ignored) {}
-
-        if (userMap.containsKey(input)) {
-            return userMap.get(input);
-        }
-
-        List<User> matches = new ArrayList<>();
-        for (User u : userMap.values()) {
-            String fullName = u.getFirstName() + " " + u.getLastName();
-            if (fullName.equalsIgnoreCase(input)) {
-                matches.add(u);
+                System.out.println("Value cannot be negative. Please try again.");
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a whole number.");
+                in.nextLine();
             }
         }
+    }
+
+    private double readPositiveDouble(String input) {
+        while (true) {
+            System.out.print(input);
+            try {
+                double value = in.nextDouble();
+                in.nextLine();
+                if (value >= 0) {
+                    return value;
+                }
+                System.out.println("Price cannot be negative. Please try again.");
+            } catch (InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a valid number.");
+                in.nextLine();
+            }
+        }
+    }
+
+    private String readDate(String prompt) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+        while (true) {
+            System.out.print(prompt);
+            String input = in.nextLine().trim();
+            try {
+                LocalDate.parse(input, formatter);
+                return input;
+            } catch (DateTimeParseException e) {
+                System.out.println("Invalid date. Please enter a valid date in MM/DD/YYYY format.");
+            }
+        }
+    }
+
+    private String readTime(String prompt) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
+        while (true) {
+            System.out.print(prompt);
+            String input = in.nextLine().trim().toUpperCase();
+            try {
+                LocalTime.parse(input, formatter);
+                return input;
+            } catch (DateTimeParseException e) {
+                System.out.println("Invalid time. Please enter a valid time in hh:mm AM/PM format (e.g. 07:30 PM).");
+            }
+        }
+    }
+
+    private User resolveUser(String input) {
+        List<User> matches = dataManager.findUsers(userMap, input);
 
         if (matches.isEmpty()) {
             return null;
         }
-
         if (matches.size() == 1) {
             return matches.get(0);
         }
@@ -1101,15 +902,65 @@ public class RunTicketMiner {
         }
     }
 
-    private void printUserInfo(User u) {
-        System.out.println("ID: " + u.getUserID());
-        System.out.println("Name: " + u.getFirstName() + " " + u.getLastName());
-        System.out.println("Username: " + u.getUsername());
-        System.out.println("Type: " + u.getUserType());
-        if (u instanceof Customer c) {
-            System.out.printf("Money Available: $%.2f%n", c.getMoneyAvailable());
-            System.out.println("Membership: " + c.hasMembership());
-            System.out.println("Concerts Purchased: " + c.getConcertsPurchased());
+    private Venue resolveVenue(String input) {
+        List<Venue> matches = dataManager.findVenues(venueMap, input);
+
+        if (matches.isEmpty()) {
+            return null;
+        }
+        if (matches.size() == 1) {
+            return matches.get(0);
+        }
+
+        System.out.println("Multiple venues found:");
+        for (Venue v : matches) {
+            System.out.println("  ID: " + v.getVenueID() + " | Name: " + v.getName()
+                    + " | Type: " + v.getType());
+        }
+        while (true) {
+            System.out.print("Please enter the ID or name to select a specific venue: ");
+            String refined = in.nextLine().trim();
+            for (Venue v : matches) {
+                if (v.getName().equalsIgnoreCase(refined)) {
+                    return v;
+                }
+                try {
+                    if (v.getVenueID() == Integer.parseInt(refined)) {
+                        return v;
+                    }
+                } catch (NumberFormatException ignored) {}
+            }
+            System.out.println("Selection does not match any of the found venues. Please try again.");
+        }
+    }
+
+    private Event resolveEvent(String input) {
+        List<Event> matches = dataManager.findEvents(eventMap, input);
+
+        if (matches.isEmpty()) {
+            return null;
+        }
+        if (matches.size() == 1) {
+            return matches.get(0);
+        }
+
+        System.out.println("Multiple events found:");
+        for (Event e : matches) {
+            System.out.println("  ID: " + e.getEventID() + " | Name: " + e.getEventName()
+                    + " | Date: " + e.getDate());
+        }
+        while (true) {
+            System.out.print("Please enter the ID to select a specific event: ");
+            String refined = in.nextLine().trim();
+            try {
+                int id = Integer.parseInt(refined);
+                for (Event e : matches) {
+                    if (e.getEventID() == id) {
+                        return e;
+                    }
+                }
+            } catch (NumberFormatException ignored) {}
+            System.out.println("Selection does not match any of the found events. Please try again.");
         }
     }
 }
