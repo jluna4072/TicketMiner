@@ -22,6 +22,43 @@ public class DataManager {
     private int lastVenueIDSeen = 0;
     private int lastEventIDSeen = 0;
 
+    public User findUser(HashMap<String, User> userMap, String query) {
+        for (User u : userMap.values()) {
+            String fullName = u.getFirstName() + " " + u.getLastName();
+            if (String.valueOf(u.getUserID()).equals(query) || 
+                u.getUsername().equalsIgnoreCase(query) || 
+                fullName.equalsIgnoreCase(query)) {
+                return u;
+            }
+        }
+        return null;
+    }
+
+    
+    public Venue findVenue(HashMap<Integer, Venue> venueMap, String query) {
+        for (Venue v : venueMap.values()) {
+            if (String.valueOf(v.getVenueID()).equals(query) || 
+                v.getName().equalsIgnoreCase(query) || 
+                v.getType().equalsIgnoreCase(query)) {
+                return v;
+            }
+        }
+        return null;
+    }
+
+    
+    public Event findEvent(HashMap<Integer, Event> eventMap, String query) {
+        for (Event e : eventMap.values()) {
+            if (String.valueOf(e.getEventID()).equals(query) || 
+                e.getEventName().equalsIgnoreCase(query) || 
+                e.getDate().equalsIgnoreCase(query)) {
+                return e;
+            }
+        }
+        return null;
+    }
+
+
     public HashMap<String, User> loadUsers(String fileName) {
         HashMap<String, User> userMap = new HashMap<>();
 

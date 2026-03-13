@@ -23,7 +23,7 @@ public class TestLoadEvents {
         Event first = events.get(1);
         if (first != null) {
             System.out.println("\n-- Event 1 Test --");
-            System.out.println("Name: " + first.getName());
+            System.out.println("Name: " + first.getEventName());
             System.out.println("Type: " + first.getType());
             System.out.println("Date: " + first.getDate());
             System.out.println("Time: " + first.getTime());
@@ -41,7 +41,7 @@ public class TestLoadEvents {
         Event last = events.get(44);
         if (last != null) {
             System.out.println("\n-- Event 44 Test --");
-            System.out.println("Name: " + last.getName());
+            System.out.println("Name: " + last.getEventName());
             System.out.println("Type: " + last.getType());
             System.out.println("Date: " + last.getDate());
             System.out.println("Time: " + last.getTime());
