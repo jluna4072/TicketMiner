@@ -1,5 +1,13 @@
 package model.venues;
 
+/**
+ * Represents a Stadium venue in the TicketMiner system.
+ * Extends the abstract Venue class.
+ *
+ * @author Jacob Luna
+ * @author Carlos Marquez
+ * @author Alan Gutierrez-Zaragoza
+ */
 public class Stadium extends Venue {
 
     public Stadium() {

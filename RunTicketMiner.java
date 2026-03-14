@@ -1,3 +1,11 @@
+/**
+ * Main class for the TicketMiner application.
+ * Provides a menu-driven console interface for managing users, venues, and events.
+ *
+ * @author Jacob Luna
+ * @author Carlos Marquez
+ * @author Alan Gutierrez-Zaragoza
+ */
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -30,23 +38,39 @@ public class RunTicketMiner {
     private final Scanner in = new Scanner(System.in);
     private User loggedInUser;
 
+    /**
+     * Entry point for the TicketMiner application. Instantiates the app and launches the main menu.
+     *
+     * @param args command-line arguments (not used)
+     */
     public static void main(String[] args) {
         RunTicketMiner app = new RunTicketMiner();
         System.out.println("System started.");
         app.displayMainMenu();
     }
 
+    /**
+     * Displays the top-level menu and routes the user to registration or login until they choose to exit.
+     */
     public void displayMainMenu() {
         boolean exit = true;
         while (exit) {
             System.out.println("=== Welcome to TicketMiner ===");
             System.out.println("1. Register");
             System.out.println("2. Login");
-            System.out.println("3. Exit");
-            System.out.print("Please select an option (1-3): ");
+            System.out.println("Type EXIT to exit");
+            System.out.print("Please select an option: ");
+            String input = in.nextLine().trim();
+
+            if (input.equalsIgnoreCase("EXIT")) {
+                System.out.println("Thank you for using TicketMiner. Goodbye!");
+                System.out.println("Exiting...");
+                exit = false;
+                continue;
+            }
+
             try {
-                int choice = in.nextInt();
-                in.nextLine();
+                int choice = Integer.parseInt(input);
                 switch (choice) {
                     case 1:
                         String userType;
@@ -68,22 +92,20 @@ public class RunTicketMiner {
                     case 2:
                         login();
                         break;
-                    case 3:
-                        System.out.println("Thank you for using TicketMiner. Goodbye!");
-                        System.out.println("Exiting...");
-                        exit = false;
-                        break;
                     default:
                         System.out.println("Invalid option. Please try again.");
                         break;
                 }
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please enter a number.");
-                in.nextLine();
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter 1, 2, or EXIT.");
             }
         }
     }
 
+    /**
+     * Prompts the user for all required fields and registers a new Customer account,
+     * adding it to the in-memory user map.
+     */
     public void registerCustomer() {
         String firstName = readNonBlank("Enter first name: ");
         String lastName = readNonBlank("Enter last name: ");
@@ -135,6 +157,10 @@ public class RunTicketMiner {
         System.out.println("Customer registered successfully!");
     }
 
+    /**
+     * Prompts the user for all required fields and registers a new Organizer account,
+     * adding it to the in-memory user map.
+     */
     public void registerOrganizer() {
         String firstName = readNonBlank("Enter first name: ");
         String lastName = readNonBlank("Enter last name: ");
@@ -160,6 +186,10 @@ public class RunTicketMiner {
         System.out.println("Organizer registered successfully!");
     }
 
+    /**
+     * Prompts the user for all required fields and registers a new Admin account,
+     * adding it to the in-memory user map.
+     */
     public void registerAdmin() {
         String firstName = readNonBlank("Enter first name: ");
         String lastName = readNonBlank("Enter last name: ");
@@ -185,6 +215,10 @@ public class RunTicketMiner {
         System.out.println("Admin registered successfully!");
     }
 
+    /**
+     * Handles the login flow by prompting for username and password, validating credentials,
+     * and routing the authenticated user to the appropriate role menu.
+     */
     public void login() {
         while (true) {
             System.out.println("\n--- Login ---");
@@ -222,13 +256,22 @@ public class RunTicketMiner {
             }
         }
     }
+    /**
+     * Displays the customer-facing menu. Currently a placeholder that returns to the main menu.
+     */
     public void customerMenu() {
         System.out.println("\nCustomer menu is under construction. Returning to main menu...");
     }
+    /**
+     * Displays the organizer-facing menu. Currently a placeholder that returns to the main menu.
+     */
     public void organizerMenu() {
         System.out.println("\nOrganizer menu is under construction. Returning to main menu...");
     }
 
+    /**
+     * Displays the admin menu loop, providing options to manage users, venues, events, or logout.
+     */
     public void adminMenu() {
         boolean logout = false;
         while (!logout) {
@@ -267,6 +310,9 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Displays the user management sub-menu, allowing an admin to add, view, update, or delete users.
+     */
     public void manageUsers() {
         boolean back = false;
         while (!back) {
@@ -307,6 +353,10 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Prompts the admin to choose a user type (Customer, Organizer, or Admin) and delegates
+     * to the appropriate registration method.
+     */
     public void addUser() {
         String userType;
         while (true) {
@@ -326,6 +376,10 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Displays a sub-menu allowing the admin to either list all users or search for a specific user
+     * by ID, username, or full name.
+     */
     public void viewUser() {
         boolean back = false;
         while (!back) {
@@ -367,6 +421,10 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Looks up a user by ID, username, or full name and presents options to change their
+     * name, username, or password.
+     */
     public void updateUser() {
         System.out.print("Enter ID, username, or full name of member to update: ");
         String input = in.nextLine().trim();
@@ -432,6 +490,10 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Looks up a user by ID, username, or full name and removes them from the user map
+     * after a confirmation prompt.
+     */
     public void deleteUser() {
         System.out.print("Enter ID, username, or full name of member to delete: ");
         String input = in.nextLine().trim();
@@ -452,10 +514,19 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Checks whether a given username is not already present in the user map.
+     *
+     * @param username the username to check
+     * @return {@code true} if the username is available; {@code false} if it is already taken
+     */
     private boolean isUsernameUnique(String username) {
         return !userMap.containsKey(username);
     }
 
+    /**
+     * Displays the venue management sub-menu, allowing an admin to add, view, update, or delete venues.
+     */
     public void manageVenues() {
         boolean back = false;
         while (!back) {
@@ -496,6 +567,10 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Prompts the admin for all required venue fields (type, name, capacity, costs, and seating
+     * section percentages) and adds the new venue to the venue map.
+     */
     public void addVenue() {
         System.out.println("\n--- Add New Venue ---");
         String type;
@@ -541,6 +616,10 @@ public class RunTicketMiner {
         System.out.println("Venue added successfully with ID: " + id);
     }
 
+    /**
+     * Displays a sub-menu allowing the admin to list all venues or search for a specific venue
+     * by ID, name, or type.
+     */
     public void viewVenue() {
         while (true) {
             System.out.println("\n--- View Venues ---");
@@ -570,6 +649,9 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Looks up a venue by ID, name, or type and presents options to update its name, cost, or capacity.
+     */
     public void updateVenue() {
         System.out.print("\nEnter Venue ID, Name, or Type to update: ");
         String query = in.nextLine();
@@ -612,6 +694,9 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Looks up a venue by ID, name, or type and removes it from the venue map after a confirmation prompt.
+     */
     public void deleteVenue() {
         System.out.print("\nEnter Venue ID, Name, or Type to delete: ");
         String query = in.nextLine();
@@ -632,6 +717,9 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Displays the event management sub-menu, allowing an admin to add, view, update, or delete events.
+     */
     public void manageEvents() {
         boolean back = false;
         while (!back) {
@@ -672,6 +760,10 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Prompts the admin for all required event fields (type, name, date, time, and tier prices)
+     * and adds the new event to the event map.
+     */
     public void addEvent() {
         System.out.println("\n--- Add New Event ---");
         String type;
@@ -711,6 +803,10 @@ public class RunTicketMiner {
         System.out.println("Event added successfully with ID: " + id);
     }
 
+    /**
+     * Displays a sub-menu allowing the admin to list all events or search for a specific event
+     * by ID, name, or date.
+     */
     public void viewEvent() {
         while (true) {
             System.out.println("\n--- View Events ---");
@@ -740,6 +836,9 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Looks up an event by ID, name, or date and presents options to update its name, date, or time.
+     */
     public void updateEvent() {
         System.out.print("\nEnter Event ID, Name, or Date to update: ");
         String query = in.nextLine();
@@ -780,6 +879,9 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Looks up an event by ID, name, or date and removes it from the event map after a confirmation prompt.
+     */
     public void deleteEvent() {
         System.out.print("\nEnter Event ID, Name, or Date to delete: ");
         String query = in.nextLine();
@@ -799,6 +901,12 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Repeatedly prompts the user until a non-blank string is entered.
+     *
+     * @param prompt the message to display before reading input
+     * @return the non-blank string entered by the user
+     */
     private String readNonBlank(String prompt) {
         while (true) {
             System.out.print(prompt);
@@ -808,6 +916,12 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Repeatedly prompts the user until a non-negative integer is entered.
+     *
+     * @param input the prompt message to display
+     * @return the non-negative integer value entered by the user
+     */
     private int readPositiveInt(String input) {
         while (true) {
             System.out.print(input);
@@ -825,6 +939,12 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Repeatedly prompts the user until a non-negative double is entered.
+     *
+     * @param input the prompt message to display
+     * @return the non-negative double value entered by the user
+     */
     private double readPositiveDouble(String input) {
         while (true) {
             System.out.print(input);
@@ -842,6 +962,12 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Repeatedly prompts the user until a valid date string in MM/DD/YYYY format is entered.
+     *
+     * @param prompt the message to display before reading input
+     * @return a valid date string in MM/DD/YYYY format
+     */
     private String readDate(String prompt) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
         while (true) {
@@ -856,6 +982,12 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Repeatedly prompts the user until a valid time string in hh:mm AM/PM format is entered.
+     *
+     * @param prompt the message to display before reading input
+     * @return a valid time string in hh:mm AM/PM format
+     */
     private String readTime(String prompt) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
         while (true) {
@@ -870,6 +1002,13 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Searches the user map for users matching the given query (by ID, username, or full name).
+     * If multiple matches are found, prompts the caller to disambiguate by ID or username.
+     *
+     * @param input the search query (numeric ID, username, or "First Last")
+     * @return the matched {@link User}, or {@code null} if no match is found
+     */
     private User resolveUser(String input) {
         List<User> matches = dataManager.findUsers(userMap, input);
 
@@ -902,6 +1041,13 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Searches the venue map for venues matching the given query (by ID, name, or type).
+     * If multiple matches are found, prompts the caller to disambiguate by ID or name.
+     *
+     * @param input the search query (numeric ID, venue name, or venue type)
+     * @return the matched {@link Venue}, or {@code null} if no match is found
+     */
     private Venue resolveVenue(String input) {
         List<Venue> matches = dataManager.findVenues(venueMap, input);
 
@@ -934,6 +1080,13 @@ public class RunTicketMiner {
         }
     }
 
+    /**
+     * Searches the event map for events matching the given query (by ID, name, or date).
+     * If multiple matches are found, prompts the caller to disambiguate by ID.
+     *
+     * @param input the search query (numeric ID, event name, or date string)
+     * @return the matched {@link Event}, or {@code null} if no match is found
+     */
     private Event resolveEvent(String input) {
         List<Event> matches = dataManager.findEvents(eventMap, input);
 
