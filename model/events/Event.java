@@ -21,9 +21,26 @@ public abstract class Event {
     private double bronzePrice;
     private double generalAdmissionPrice;
 
+    /**
+     * Constructs a default Event with no initial field values.
+     */
     public Event() {
     }
 
+    /**
+     * Constructs an Event with the specified scheduling and pricing details.
+     *
+     * @param eventID the unique numeric identifier for the event
+     * @param type the event type (e.g., Sport, Concert, Special)
+     * @param name the name of the event
+     * @param date the scheduled date of the event (MM/DD/YYYY format)
+     * @param time the scheduled time of the event (hh:mm AM/PM format)
+     * @param vipPrice the price for a VIP ticket
+     * @param goldPrice the price for a Gold ticket
+     * @param silverPrice the price for a Silver ticket
+     * @param bronzePrice the price for a Bronze ticket
+     * @param generalAdmissionPrice the price for a General Admission ticket
+     */
     public Event(int eventID, String type, String name, String date, String time, double vipPrice, double goldPrice, double silverPrice, double bronzePrice, double generalAdmissionPrice) {
         this.eventID = eventID;
         this.type = type;

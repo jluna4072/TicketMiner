@@ -48,6 +48,7 @@ Methods:
 - resolveUser(input: String): User
 - resolveVenue(input: String): Venue
 - resolveEvent(input: String): Event
++ saveUpdatedData(): void
 
 
 Class: DataManager
@@ -64,9 +65,9 @@ Methods:
 + loadUsers(fileName: String): HashMap<String, User>
 + loadEvents(fileName: String): HashMap<Integer, Event>
 + loadVenues(fileName: String): HashMap<Integer, Venue>
-+ writeEvent(fileName: String): void
-+ writeUsers(fileName: String): void
-+ writeVenues(fileName: String): void
++ writeEvent(fileName: String, eventMap: HashMap<Integer, Event>): void
++ writeUsers(fileName: String, userMap: HashMap<String, User>): void
++ writeVenues(fileName: String, venueMap: HashMap<Integer, Venue>): void
 + generateUniqueUserId(): int
 + generateUniqueVenueId(): int
 + generateUniqueEventId(): int

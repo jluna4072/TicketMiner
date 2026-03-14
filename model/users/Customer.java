@@ -14,8 +14,25 @@ public class Customer extends User {
     private boolean hasMembership;
     private int concertsPurchased;
 
+    /**
+     * Constructs a default Customer with no initial field values.
+     */
     public Customer() {
     }
+
+    /**
+     * Constructs a Customer with the specified user details and account information.
+     *
+     * @param userID the unique numeric identifier for the user
+     * @param firstName the customer's first name
+     * @param lastName the customer's last name
+     * @param username the username used for login
+     * @param password the password used for authentication
+     * @param userType the role/type of the user
+     * @param moneyAvailable the available balance in the customer's account
+     * @param hasMembership {@code true} if the customer holds an active membership; {@code false} otherwise
+     * @param concertsPurchased the number of events the customer has purchased tickets for
+     */
     public Customer(int userID, String firstName, String lastName, String username, String password, String userType, double moneyAvailable, boolean hasMembership, int concertsPurchased) {
         super(userID, firstName, lastName, username, password, userType); 
         this.moneyAvailable = moneyAvailable;
@@ -80,7 +97,7 @@ public class Customer extends User {
      * Returns a formatted string representation of this customer, including inherited user
      * fields plus available funds, membership status, and number of events attended.
      *
-     * @return a human-readable summary of the customer
+     * @return a readable summary of the customer
      */
     @Override
     public String toString() {

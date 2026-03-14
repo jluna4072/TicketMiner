@@ -16,9 +16,22 @@ public abstract class User {
     private int userID;
     private String userType;
 
+    /**
+     * Constructs a default User with no initial field values.
+     */
     public User() {
     }
 
+    /**
+     * Constructs a User with the specified identity and authentication details.
+     *
+     * @param userID the unique numeric identifier for the user
+     * @param firstName the user's first name
+     * @param lastName the user's last name
+     * @param username the username used for login
+     * @param password the password used for authentication
+     * @param userType the role/type of the user (e.g., Customer, Organizer, Admin)
+     */
     public User(int userID, String firstName, String lastName, String username, String password, String userType) {
         this.firstName = firstName;
         this.lastName = lastName;

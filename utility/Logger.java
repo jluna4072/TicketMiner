@@ -13,7 +13,8 @@ import java.io.IOException;
 public class Logger{
     
     /**
-     * Records the specified action detail to the log. Currently not implemented.
+     * Appends the specified action detail to the log file ({@code data/ticketMinerLogger.txt}).
+     * Each entry is written on its own line.
      *
      * @param actionDetail a description of the action to be logged
      */

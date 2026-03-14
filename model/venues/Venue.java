@@ -22,9 +22,28 @@ public abstract class Venue {
     private int generalAdmissionPercent;
     private int reservedPercent;
 
+    /**
+     * Constructs a default Venue with no initial field values.
+     */
     public Venue() {
     }
 
+    /**
+     * Constructs a Venue with the specified identity, capacity, cost, and seating section percentages.
+     *
+     * @param venueID the unique numeric identifier for the venue
+     * @param name the name of the venue
+     * @param type the venue type (e.g., Arena, Stadium, Open Air, Auditorium)
+     * @param capacity the general seating capacity of the venue
+     * @param concertCapacity the concert-specific seating capacity
+     * @param cost the rental cost of the venue
+     * @param vipPercent the percentage of seats allocated to the VIP section
+     * @param goldPercent the percentage of seats allocated to the Gold section
+     * @param silverPercent the percentage of seats allocated to the Silver section
+     * @param bronzePercent the percentage of seats allocated to the Bronze section
+     * @param generalAdmissionPercent the percentage of seats allocated to the General Admission section
+     * @param reservedPercent the percentage of seats allocated to the Reserved section
+     */
     public Venue(int venueID, String name, String type, int capacity, int concertCapacity, double cost, int vipPercent, int goldPercent, int silverPercent, int bronzePercent, int generalAdmissionPercent, int reservedPercent) {
         this.venueID = venueID;
         this.name = name;
@@ -251,7 +270,7 @@ public abstract class Venue {
      * Returns a formatted string representation of this venue including ID, name, type,
      * capacities, cost, and all seating section percentages.
      *
-     * @return a human-readable summary of the venue
+     * @return a readable summary of the venue
      */
     @Override
     public String toString() {

@@ -1191,6 +1191,10 @@ public class RunTicketMiner {
         
     }
 
+    /**
+     * Writes the current state of all maps (events, users, venues) to new CSV output files.
+     * Called automatically on program exit.
+     */
     public void saveUpdatedData(){
         dataManager.writeEvent("data/Updated_Event_List.csv", eventMap);
         dataManager.writeUsers("data/Updated_Customer_List.csv", userMap);
