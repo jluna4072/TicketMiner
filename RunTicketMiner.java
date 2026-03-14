@@ -28,6 +28,7 @@ import model.venues.OpenAir;
 import model.venues.Stadium;
 import model.venues.Venue;
 import utility.DataManager;
+import utility.Logger;
 
 public class RunTicketMiner {
 
@@ -47,6 +48,7 @@ public class RunTicketMiner {
         RunTicketMiner app = new RunTicketMiner();
         System.out.println("System started.");
         app.displayMainMenu();
+        app.saveUpdatedData();
     }
 
     /**
@@ -154,6 +156,9 @@ public class RunTicketMiner {
         int userId = dataManager.generateUniqueUserId();
         Customer newCustomer = new Customer(userId, firstName, lastName, username, password, "Customer", initialAmount, becomeMember, 0);
         userMap.put(newCustomer.getUsername(), newCustomer);
+        //Logging action to file
+        String actionDetail = "User " + userId + " has been registered as a Customer.";
+        Logger.logAction(actionDetail);
         System.out.println("Customer registered successfully!");
     }
 
@@ -183,7 +188,12 @@ public class RunTicketMiner {
         int userId = dataManager.generateUniqueUserId();
         User newOrganizer = new Organizer(userId, firstName, lastName, username, password, "Organizer");
         userMap.put(newOrganizer.getUsername(), newOrganizer);
+        //Logging action to file
+        String actionDetail = "User " + userId + " has registered as a Organizer to the system."; 
+        Logger.logAction(actionDetail);
+
         System.out.println("Organizer registered successfully!");
+
     }
 
     /**
@@ -212,7 +222,12 @@ public class RunTicketMiner {
         int userId = dataManager.generateUniqueUserId();
         Admin newAdmin = new Admin(userId, firstName, lastName, username, password, "Admin");
         userMap.put(newAdmin.getUsername(), newAdmin);
+        
+        String actionDetail = "User " + userId + " has been registered as a Admin to the system.";
+        Logger.logAction(actionDetail);
+
         System.out.println("Admin registered successfully!");
+        
     }
 
     /**
@@ -239,7 +254,10 @@ public class RunTicketMiner {
                 if (user.getPassword().equals(password)) {
                     loggedInUser = user;
                     System.out.println("Login successful! Welcome, " + loggedInUser.getFirstName() + "!");
-
+                    
+                    String actionDetail = "User " + loggedInUser.getUserID() + " has logged into the system.";
+                    Logger.logAction(actionDetail);
+                    
                     if (user instanceof Customer) {
                         customerMenu();
                     } else if (user instanceof Organizer) {
@@ -296,9 +314,12 @@ public class RunTicketMiner {
                         break;
                     case 4:
                         System.out.println("Logging out...");
+                        String actionDefined = "User " + loggedInUser.getUserID() + " had logged out.";
+                        Logger.logAction(actionDefined);
                         loggedInUser = null;
                         logout = true;
-                        break;
+                        
+                    break;
                     default:
                         System.out.println("Invalid option. Please try again.");
                         break;
@@ -351,6 +372,7 @@ public class RunTicketMiner {
                 in.nextLine();
             }
         }
+        
     }
 
     /**
@@ -374,6 +396,7 @@ public class RunTicketMiner {
         } else {
             registerAdmin();
         }
+
     }
 
     /**
@@ -396,6 +419,8 @@ public class RunTicketMiner {
                         for (User u : userMap.values()) {
                             System.out.println(u);
                         }
+                        String actionDetail = "User "+ loggedInUser.getUserID() + " has viewed all users to the console";
+                        Logger.logAction(actionDetail);
                         break;
                     case 2:
                         System.out.print("Enter ID, username, or full name: ");
@@ -403,9 +428,11 @@ public class RunTicketMiner {
                         User found = resolveUser(input);
                         if (found != null) {
                             System.out.println(found);
+                            actionDetail = "User " + loggedInUser.getUserID() +" has viewed user " + found.getUserID() + "and was printed to the console";
+                            Logger.logAction(actionDetail);
                         } else {
                             System.out.println("Member not found.");
-                        }
+                        }                        
                         break;
                     case 3:
                         back = true;
@@ -426,6 +453,7 @@ public class RunTicketMiner {
      * name, username, or password.
      */
     public void updateUser() {
+        String actionDetail;
         System.out.print("Enter ID, username, or full name of member to update: ");
         String input = in.nextLine().trim();
         User user = resolveUser(input);
@@ -454,6 +482,8 @@ public class RunTicketMiner {
                         user.setFirstName(newFirst);
                         user.setLastName(newLast);
                         System.out.println("Name updated successfully.");
+                        actionDetail = "User " + loggedInUser.getUserID() + " has updated user " + user.getUserID() + " full name";
+                        Logger.logAction(actionDetail);
                         break;
                     case 2:
                         String newUsername;
@@ -461,6 +491,8 @@ public class RunTicketMiner {
                             System.out.print("Enter new username: ");
                             newUsername = in.nextLine().trim();
                             if (isUsernameUnique(newUsername)) {
+                                actionDetail = "User " + loggedInUser.getUserID() + "has updated user " + user.getUserID() + " username";
+                                Logger.logAction(actionDetail);
                                 break;
                             }
                             System.out.println("Username already exists. Please enter a different username.");
@@ -469,12 +501,16 @@ public class RunTicketMiner {
                         user.setUsername(newUsername);
                         userMap.put(newUsername, user);
                         System.out.println("Username updated successfully.");
+                        actionDetail = "User " + loggedInUser.getUserID()+" has updated user " + user.getUserID() + " username.";
+                        Logger.logAction(actionDetail);
                         break;
                     case 3:
                         System.out.print("Enter new password: ");
                         String newPassword = in.nextLine().trim();
                         user.setPassword(newPassword);
                         System.out.println("Password updated successfully.");
+                        actionDetail = "User " + loggedInUser.getUserID() +" has updated user " + user.getUserID() + "password.";
+                        Logger.logAction(actionDetail);
                         break;
                     case 4:
                         back = true;
@@ -507,6 +543,8 @@ public class RunTicketMiner {
         System.out.print("Are you sure you want to delete this member? (Y/N): ");
         String confirm = in.nextLine().trim();
         if (confirm.equalsIgnoreCase("y")) {
+            String actionDetail = "User"+ loggedInUser.getUserID() +" has deleted user " + user.getUserID() + ".";
+            Logger.logAction(actionDetail);
             userMap.remove(user.getUsername());
             System.out.println("Member deleted successfully.");
         } else {
@@ -611,9 +649,12 @@ public class RunTicketMiner {
                 newVenue = new Auditorium(id, name, type, capacity, concertCapacity, cost, vip, gold, silver, bronze, ga, reserved);
                 break;
         }
-
+        
         venueMap.put(id, newVenue);
         System.out.println("Venue added successfully with ID: " + id);
+
+        String actionDetail = "User " + loggedInUser.getUserID() + " has added the venue " + id; 
+        Logger.logAction(actionDetail);
     }
 
     /**
@@ -622,6 +663,7 @@ public class RunTicketMiner {
      */
     public void viewVenue() {
         while (true) {
+            String actionDetail;
             System.out.println("\n--- View Venues ---");
             System.out.println("1. Display all venues");
             System.out.println("2. Search for a venue");
@@ -632,8 +674,10 @@ public class RunTicketMiner {
                 for (Venue v : venueMap.values()) {
                     System.out.println(v);
                 }
+                actionDetail = "User " + loggedInUser.getUserID() + " has printed all venues to the console";
+                Logger.logAction(actionDetail);
                 break;
-            } else if (choice.equals("2")) {
+        } else if (choice.equals("2")) {
                 System.out.print("Enter Venue ID, Name, or Type: ");
                 String query = in.nextLine();
                 Venue found = resolveVenue(query);
@@ -684,6 +728,10 @@ public class RunTicketMiner {
                         System.out.println("Invalid choice.");
                         return;
                 }
+
+                String actionDetail = "User " + loggedInUser.getUserID() + " has updated venue " + found.getVenueID();
+                Logger.logAction(actionDetail);
+
                 System.out.println("Venue updated successfully!");
             } catch (InputMismatchException e) {
                 System.out.println("Invalid input. Update failed.");
@@ -707,6 +755,9 @@ public class RunTicketMiner {
             System.out.print("Are you sure you want to delete this venue? (y/n): ");
             String confirm = in.nextLine();
             if (confirm.equalsIgnoreCase("y")) {
+
+                String actionDetails = "User " + " has deleted venue ID:"  + found.getVenueID();
+                Logger.logAction(actionDetails);
                 venueMap.remove(found.getVenueID());
                 System.out.println("Venue deleted successfully.");
             } else {
@@ -715,6 +766,7 @@ public class RunTicketMiner {
         } else {
             System.out.println("Venue not found.");
         }
+ 
     }
 
     /**
@@ -801,6 +853,8 @@ public class RunTicketMiner {
 
         eventMap.put(id, newEvent);
         System.out.println("Event added successfully with ID: " + id);
+        String actionDetail = "User " + loggedInUser.getUserID() + " has added a new event " + id;
+        Logger.logAction(actionDetail);
     }
 
     /**
@@ -808,6 +862,7 @@ public class RunTicketMiner {
      * by ID, name, or date.
      */
     public void viewEvent() {
+        String actionDetail;
         while (true) {
             System.out.println("\n--- View Events ---");
             System.out.println("1. Display all events");
@@ -819,6 +874,8 @@ public class RunTicketMiner {
                 for (Event e : eventMap.values()) {
                     System.out.println(e);
                 }
+                actionDetail = "User " + loggedInUser.getUserID() + " has printed all events to the console";
+                Logger.logAction(actionDetail);
                 break;
             } else if (choice.equals("2")) {
                 System.out.print("Enter Event ID, Name, or Date: ");
@@ -826,6 +883,8 @@ public class RunTicketMiner {
                 Event found = resolveEvent(query);
                 if (found != null) {
                     System.out.println(found);
+                    actionDetail = "User " + loggedInUser.getUserID() + " searched for " + found.getEventID();
+                    Logger.logAction(actionDetail);
                 } else {
                     System.out.println("Event not found.");
                 }
@@ -840,6 +899,7 @@ public class RunTicketMiner {
      * Looks up an event by ID, name, or date and presents options to update its name, date, or time.
      */
     public void updateEvent() {
+        String actionDetail;
         System.out.print("\nEnter Event ID, Name, or Date to update: ");
         String query = in.nextLine();
         Event found = resolveEvent(query);
@@ -855,12 +915,22 @@ public class RunTicketMiner {
                     case 1:
                         System.out.print("New Name: ");
                         found.setEventName(in.nextLine());
+                        actionDetail = "User " + loggedInUser.getUserID() + " has updated event " + found.getEventID() + "'s' name";
+                        Logger.logAction(actionDetail);
                         break;
                     case 2:
                         found.setDate(readDate("New Date (MM/DD/YYYY): "));
+                        System.out.print("New Date: ");
+                        found.setDate(in.nextLine());
+                        actionDetail = "User " + loggedInUser.getUserID() + " has updated event " + found.getEventID() + "'s date";
+                        Logger.logAction(actionDetail);
                         break;
                     case 3:
                         found.setTime(readTime("New Time (hh:mm AM/PM): "));
+                        System.out.print("New Time: ");
+                        found.setTime(in.nextLine());
+                        actionDetail = "User " + loggedInUser.getUserID() + " has updated event " + found.getEventID() + "'s time";
+                        Logger.logAction(actionDetail);
                         break;
                     case 4:
                         System.out.println("Update cancelled.");
@@ -891,6 +961,8 @@ public class RunTicketMiner {
             System.out.println("Found: " + found.getEventName());
             System.out.print("Are you sure you want to delete this event? (y/n): ");
             if (in.nextLine().equalsIgnoreCase("y")) {
+                String actionDetail = "User " + loggedInUser.getUserID() + " has deleted the event " + found.getEventID();
+                Logger.logAction(actionDetail);
                 eventMap.remove(found.getEventID());
                 System.out.println("Event deleted.");
             } else {
@@ -1115,5 +1187,13 @@ public class RunTicketMiner {
             } catch (NumberFormatException ignored) {}
             System.out.println("Selection does not match any of the found events. Please try again.");
         }
+
+        
+    }
+
+    public void saveUpdatedData(){
+        dataManager.writeEvent("data/Updated_Event_List.csv", eventMap);
+        dataManager.writeUsers("data/Updated_Customer_List.csv", userMap);
+        dataManager.writeVenues("data/Updated_Venue_List.csv", venueMap);
     }
 }

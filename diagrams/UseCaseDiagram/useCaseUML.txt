@@ -1,8 +1,6 @@
 @startuml
 left to right direction
-actor "Admin" as admin
-actor "Customer" as customer
-actor "Organizer" as organizer
+actor "User" as user
 actor "CSV" as CSV
 
 rectangle applicationSystem as "Application System"{
@@ -11,11 +9,22 @@ rectangle applicationSystem as "Application System"{
   usecase "Register" as register
   usecase "Login" as login 
   usecase "Exit" as exit
+
+  mainMenu --> login
+  mainMenu --> register
+  mainMenu --> exit
+
   
-  mainMenu --> register : <<extends>> 
-  mainMenu --> login : <<extends>>
-  mainMenu --> exit : <<extends>>
-  rectangle adminRights as "Admin Rights"{
+  usecase "Admin Options Menu" as adminLogin
+  adminLogin --> login : <<extends>> [if user is admin]
+
+  usecase "Organizer Information" as organInfo
+  organInfo --> register : <<extends>> [If registering as a organizer, provide organizer details] 
+
+  usecase "User Information" as userInfo 
+  userInfo --> register : <<extends> [If user is selected, provide user details to enter]
+  
+  rectangle adminOptions as "Admin Options"{
     usecase "Manage Event" as manEvent
     usecase "Manage Venue" as manVenue
     usecase "Manage Users" as manUsers
@@ -27,15 +36,17 @@ rectangle applicationSystem as "Application System"{
    usecase "Update User" as updateUser
    usecase "Register Admin" as regAdmin
    usecase "Return to Admin Rights" as return
-   addUser --> regAdmin : <<extend>> 
+   
+   addUser <.. regAdmin : <<extend>> [Admin can only register admin with organizer details]
+   
    }
 
-   manUsers --> userOptions : <<extend>>
    usecase "Venue Options" as venueOptions
-   manVenue --> venueOptions : <<extend>>
- 
    usecase "Event Options" as eventOptions
-   manEvent --> eventOptions : <<extend>> 
+
+   manUsers --> userOptions : <<include>>   
+   manVenue --> venueOptions : <<include>>
+   manEvent --> eventOptions : <<include>> 
    
    usecase logger as "Log action"
 
@@ -45,13 +56,10 @@ rectangle applicationSystem as "Application System"{
   
   }
 
+ 
 }
 
 logger --> CSV
+user --> mainMenu
 
-mainMenu <-- admin
-adminRights <-- admin
-
-customer --> mainMenu
-organizer --> mainMenu
 @enduml

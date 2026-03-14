@@ -10,7 +10,9 @@ package utility;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -302,28 +304,74 @@ public class DataManager {
     }
 
     /**
-     * Writes event data to the specified file. Currently not implemented.
+     * Writes event data to the specified file.
      *
      * @param fileName path to the output file
      */
-    public void writeEvent(String fileName) {
-    }
+    public void writeEvent(String fileName, HashMap<Integer, Event> eventMap) {
 
-    /**
+     try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
+        writer.println("ID,Type,Name,Date,Time,VIP Price,Gold Price,Silver Price,Bronze Price,General Admission Price");
+        for (Event event : eventMap.values()) {
+            writer.printf("%d,%s,%s,%s,%s,%s,%s,%s,%s,%s%n",
+                event.getEventID(), event.getType(), event.getEventName(),
+                event.getDate(), event.getTime(),
+                event.getVipPrice(), event.getGoldPrice(), event.getSilverPrice(),
+                event.getBronzePrice(), event.getGeneralAdmissionPrice());
+        }
+    } catch (IOException e) {
+        System.out.println("Error writing events file: " + e.getMessage());
+    }
+}
+/**
      * Writes user data to the specified file. Currently not implemented.
      *
      * @param fileName path to the output file
      */
-    public void writeUsers(String fileName) {
-    }
+    public void writeUsers(String fileName, HashMap<String, User> userMap) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
+                writer.println("ID,First Name,Last Name,Username,Password,User Type,Money Available,TicketMiner Membership,Concerts Purchased");
+                for (User user : userMap.values()) {
+                    StringBuilder line = new StringBuilder();
+                    line.append(user.getUserID()).append(",");
+                    line.append(user.getFirstName()).append(",");
+                    line.append(user.getLastName()).append(",");
+                    line.append(user.getUsername()).append(",");
+                    line.append(user.getPassword()).append(",");
+                    line.append(user.getUserType()).append(",");
 
+                    if (user instanceof Customer) {
+                        Customer c = (Customer) user;
+                        line.append(c.getMoneyAvailable()).append(",");
+                        line.append(c.hasMembership()).append(",");
+                        line.append(c.getConcertsPurchased());
+                    } else {
+                        line.append("0.00,false,0");
+                    }
+                    writer.println(line.toString());
+                }
+            } catch (IOException e) {
+                System.out.println("Error writing users file: " + e.getMessage());
+            }
+        }
     /**
      * Writes venue data to the specified file. Currently not implemented.
      *
      * @param fileName path to the output file
      */
-    public void writeVenues(String fileName) {
+    public void writeVenues(String fileName, HashMap<Integer, Venue> venueMap){
+          try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
+        for (Venue venue : venueMap.values()) {
+            writer.printf("%d,%s,%s,%d,%d,%.2f,%d,%d,%d,%d,%d,%d%n",
+                venue.getVenueID(), venue.getName(), venue.getType(),venue.getCapacity(),
+                venue.getConcertCapacity(), venue.getCost(), venue.getVipPercent(),
+                venue.getGoldPercent(), venue.getSilverPercent(), venue.getBronzePercent(),
+                venue.getGeneralAdmissionPercent(), venue.getReservedPercent());
+        }
+    } catch (IOException e) {
+        System.out.println("Error writing venues file: " + e.getMessage());
     }
+}
 
     /**
      * Increments and returns the next unique user ID based on the highest ID seen during load.
