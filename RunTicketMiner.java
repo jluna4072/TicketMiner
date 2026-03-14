@@ -271,10 +271,11 @@ public class RunTicketMiner {
                         break;
                     case 4:
                         System.out.println("Logging out...");
+                        String actionDefined = "User " + loggedInUser.getUserID() + " had logged out.";
+                        Logger.logAction(actionDefined);
                         loggedInUser = null;
                         logout = true;
-                        String actionDefined = "User " + loggedInUser.getUserID() + " had logged out.";
-                    Logger.logAction(actionDefined);
+                        
                     break;
                     default:
                         System.out.println("Invalid option. Please try again.");
