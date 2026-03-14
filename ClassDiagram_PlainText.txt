@@ -19,7 +19,11 @@ Methods:
 + displayMainMenu(): void
 + registerCustomer(): void
 + registerOrganizer(): void
++ registerAdmin(): void
 + login(): void
++ customerMenu(): void
++ organizerMenu(): void
++ adminMenu(): void
 + manageUsers(): void
 + addUser(): void
 + viewUser(): void
@@ -36,8 +40,14 @@ Methods:
 + viewEvent(): void
 + updateEvent(): void
 + deleteEvent(): void
-- printUserInfo(u: User): void
-- findUserByIdentifier(input: String): User
+- readNonBlank(prompt: String): String
+- readPositiveInt(prompt: String): int
+- readPositiveDouble(prompt: String): double
+- readDate(prompt: String): String
+- readTime(prompt: String): String
+- resolveUser(input: String): User
+- resolveVenue(input: String): Venue
+- resolveEvent(input: String): Event
 
 
 Class: DataManager
@@ -48,6 +58,9 @@ Fields:
 - lastEventIDSeen: int
 
 Methods:
++ findUsers(userMap: HashMap<String, User>, query: String): List<User>
++ findVenues(venueMap: HashMap<Integer, Venue>, query: String): List<Venue>
++ findEvents(eventMap: HashMap<Integer, Event>, query: String): List<Event>
 + loadUsers(fileName: String): HashMap<String, User>
 + loadEvents(fileName: String): HashMap<Integer, Event>
 + loadVenues(fileName: String): HashMap<Integer, Venue>
@@ -92,8 +105,7 @@ Methods:
 + setUserID(userID: int): void
 + getUserType(): String
 + setUserType(userType: String): void
-+ login(): void
-+ logout(): void
++ toString(): String
 
 
 Class: Customer (extends User)
@@ -111,6 +123,7 @@ Methods:
 + getConcertsPurchased(): int
 + setConcertsPurchased(concertsPurchased: int): void
 + purchaseTicket(): void
++ toString(): String
 
 
 Class: Organizer (extends User)
@@ -135,26 +148,29 @@ Fields:
 - name: String
 - date: String
 - time: String
-- vipPrice: String
-- goldPrice: String
-- silverPrice: String
-- bronzePrice: String
-- generalAdmissionPrice: String
-- venue: Venue
+- vipPrice: double
+- goldPrice: double
+- silverPrice: double
+- bronzePrice: double
+- generalAdmissionPrice: double
 
 Methods:
 + getEventID(): int
 + setEventID(eventID: int): void
 + getType(): String
 + setType(type: String): void
-+ getName(): String
-+ setName(name: String): void
++ getEventName(): String
++ setEventName(name: String): void
 + getDate(): String
 + setDate(date: String): void
 + getTime(): String
 + setTime(time: String): void
-+ getVenue(): Venue
-+ setVenue(venue: Venue): void
++ getVipPrice(): double
++ getGoldPrice(): double
++ getSilverPrice(): double
++ getBronzePrice(): double
++ getGeneralAdmissionPrice(): double
++ toString(): String
 
 
 Subclasses:
@@ -185,7 +201,6 @@ Fields:
 
 Methods:
 + getVenueID(): int
-+ setVenueID(venueID: int): void
 + getName(): String
 + setName(name: String): void
 + getType(): String
@@ -208,6 +223,7 @@ Methods:
 + setGeneralAdmissionPercent(generalAdmissionPercent: int): void
 + getReservedPercent(): int
 + setReservedPercent(reservedPercent: int): void
++ toString(): String
 
 
 Subclasses:
@@ -223,4 +239,3 @@ RELATIONSHIPS
 - RunTicketMiner uses DataManager
 - RunTicketMiner logs actions via Logger
 - DataManager stores Users, Events, and Venues
-- Event has a Venue

@@ -40,4 +40,10 @@ public class Customer extends User {
 
     public void purchaseTicket() {
     }
+
+    @Override
+    public String toString() {
+        return super.toString() + " | Funds: $" + moneyAvailable + " | Member: " + hasMembership
+             + " | Events Attended: " + concertsPurchased;
+    }
 }

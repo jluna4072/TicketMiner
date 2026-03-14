@@ -103,19 +103,10 @@ public abstract class Venue {
         this.reservedPercent = reservedPercent; 
     }
     @Override
-public String toString() {
-    return String.format("ID: %-4d | Name: %-18s | Type: %-10s | Cap: %-6d | C.Cap: %-6d | Cost: $%-8.2f | " +"VIP: %d%% | Gold: %d%% | Silv: %d%% | Bron: %d%% | GA: %d%% | Res: %d%%",
-        venueID, 
-        name, 
-        type, 
-        capacity, 
-        concertCapacity, 
-        cost, 
-        vipPercent, 
-        goldPercent, 
-        silverPercent, 
-        bronzePercent, 
-        generalAdmissionPercent, 
-        reservedPercent);
+    public String toString() {
+        return "ID: " + venueID + " | Name: " + name + " | Type: " + type
+             + " | Cap: " + capacity + " | C.Cap: " + concertCapacity + " | Cost: $" + cost
+             + " | VIP: " + vipPercent + "% | Gold: " + goldPercent + "% | Silver: " + silverPercent
+             + "% | Bronze: " + bronzePercent + "% | GA: " + generalAdmissionPercent + "% | Reserved: " + reservedPercent + "%";
     }
 }

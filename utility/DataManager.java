@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import model.events.Concert;
 import model.events.Event;
 import model.events.Special;
@@ -21,48 +22,98 @@ import model.venues.Auditorium;
 import model.venues.OpenAir;
 import model.venues.Stadium;
 import model.venues.Venue;
+
 public class DataManager {
 
     private int lastUserIDSeen = 0;
     private int lastVenueIDSeen = 0;
     private int lastEventIDSeen = 0;
 
-    public User findUser(HashMap<String, User> userMap, String query) {
+    public List<User> findUsers(HashMap<String, User> userMap, String query) {
+        List<User> matches = new ArrayList<>();
+
+        try {
+            int id = Integer.parseInt(query);
+            for (User u : userMap.values()) {
+                if (u.getUserID() == id) {
+                    matches.add(u);
+                    return matches;
+                }
+            }
+        } catch (NumberFormatException ignored) {
+        }
+
+        if (userMap.containsKey(query)) {
+            matches.add(userMap.get(query));
+            return matches;
+        }
+
         for (User u : userMap.values()) {
             String fullName = u.getFirstName() + " " + u.getLastName();
-            if (String.valueOf(u.getUserID()).equals(query) || 
-                u.getUsername().equalsIgnoreCase(query) || 
-                fullName.equalsIgnoreCase(query)) {
-                return u;
+            if (fullName.equalsIgnoreCase(query)) {
+                matches.add(u);
             }
         }
-        return null;
+        return matches;
     }
 
-    
-    public Venue findVenue(HashMap<Integer, Venue> venueMap, String query) {
+    public List<Venue> findVenues(HashMap<Integer, Venue> venueMap, String query) {
+        List<Venue> matches = new ArrayList<>();
+
+        try {
+            int id = Integer.parseInt(query);
+            if (venueMap.containsKey(id)) {
+                matches.add(venueMap.get(id));
+                return matches;
+            }
+        } catch (NumberFormatException ignored) {
+        }
+
         for (Venue v : venueMap.values()) {
-            if (String.valueOf(v.getVenueID()).equals(query) || 
-                v.getName().equalsIgnoreCase(query) || 
-                v.getType().equalsIgnoreCase(query)) {
-                return v;
+            if (v.getName().equalsIgnoreCase(query)) {
+                matches.add(v);
             }
         }
-        return null;
+        if (!matches.isEmpty()) {
+            return matches;
+        }
+
+        for (Venue v : venueMap.values()) {
+            if (v.getType().equalsIgnoreCase(query)) {
+                matches.add(v);
+            }
+        }
+        return matches;
     }
 
-    
-    public Event findEvent(HashMap<Integer, Event> eventMap, String query) {
+    public List<Event> findEvents(HashMap<Integer, Event> eventMap, String query) {
+        List<Event> matches = new ArrayList<>();
+
+        try {
+            int id = Integer.parseInt(query);
+            if (eventMap.containsKey(id)) {
+                matches.add(eventMap.get(id));
+                return matches;
+            }
+        } catch (NumberFormatException ignored) {
+        }
+
         for (Event e : eventMap.values()) {
-            if (String.valueOf(e.getEventID()).equals(query) || 
-                e.getEventName().equalsIgnoreCase(query) || 
-                e.getDate().equalsIgnoreCase(query)) {
-                return e;
+            if (e.getEventName().equalsIgnoreCase(query)) {
+                matches.add(e);
             }
         }
-        return null;
-    }
+        if (!matches.isEmpty()) {
+            return matches;
+        }
 
+        for (Event e : eventMap.values()) {
+            if (e.getDate().equalsIgnoreCase(query)) {
+                matches.add(e);
+            }
+        }
+        return matches;
+    }
 
     public HashMap<String, User> loadUsers(String fileName) {
         HashMap<String, User> userMap = new HashMap<>();
@@ -88,7 +139,7 @@ public class DataManager {
                         boolean isMember = Boolean.parseBoolean(fields[7].trim());
                         int concertsPurchased = Integer.parseInt(fields[8].trim());
                         user = new Customer(id, firstName, lastName, username, password, userType, moneyAvailable, isMember, concertsPurchased);
-                    } 
+                    }
                     case "Organizer" -> {
                         user = new Organizer(id, firstName, lastName, username, password, userType);
                     }
@@ -122,17 +173,17 @@ public class DataManager {
                 String name = fields[2].trim();
                 String date = fields[3].trim();
                 String time = fields[4].trim();
-                String vipPrice = fields[5].trim();
-                String goldPrice = fields[6].trim();
-                String silverPrice = fields[7].trim();
-                String bronzePrice = fields[8].trim();
-                String generalAdmissionPrice = fields[9].trim();
+                double vipPrice = Double.parseDouble(fields[5].trim());
+                double goldPrice = Double.parseDouble(fields[6].trim());
+                double silverPrice = Double.parseDouble(fields[7].trim());
+                double bronzePrice = Double.parseDouble(fields[8].trim());
+                double generalAdmissionPrice = Double.parseDouble(fields[9].trim());
                 Event event;
-                
+
                 switch (type) {
                     case "Sport" -> {
                         event = new Sport(id, type, name, date, time, vipPrice, goldPrice, silverPrice, bronzePrice, generalAdmissionPrice);
-                    }   
+                    }
                     case "Concert" -> {
                         event = new Concert(id, type, name, date, time, vipPrice, goldPrice, silverPrice, bronzePrice, generalAdmissionPrice);
                     }
@@ -178,7 +229,7 @@ public class DataManager {
                 switch (type) {
                     case "Arena" -> {
                         venue = new Arena(id, name, type, capacity, concertCapacity, cost, vipPercent, goldPercent, silverPercent, bronzePercent, generalAdmissionPercent, reservedPercent);
-                    }   
+                    }
                     case "Stadium" -> {
                         venue = new Stadium(id, name, type, capacity, concertCapacity, cost, vipPercent, goldPercent, silverPercent, bronzePercent, generalAdmissionPercent, reservedPercent);
                     }
@@ -260,6 +311,7 @@ public void writeUsers(String fileName, HashMap<String, User> userMap) {
         lastUserIDSeen++;
         return lastUserIDSeen;
     }
+
     public int generateUniqueVenueId() {
         lastVenueIDSeen++;
         return lastVenueIDSeen;
