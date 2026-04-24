@@ -1,7 +1,10 @@
 @startuml
 left to right direction
 actor "User" as user
-actor "CSV" as CSV
+actor "Logging CSV" as loggerCSV
+actor "user CSV" as userCSV
+actor "eventCSV" as eventCSV
+actor "venueCSV" as venueCSV
 
 rectangle applicationSystem as "Application System"{
 
@@ -9,20 +12,17 @@ rectangle applicationSystem as "Application System"{
   usecase "Register" as register
   usecase "Login" as login 
   usecase "Exit" as exit
-
-  mainMenu --> login
-  mainMenu --> register
-  mainMenu --> exit
-
   
   usecase "Admin Options Menu" as adminLogin
   adminLogin --> login : <<extends>> [if user is admin]
+
+  'Registering users' 
 
   usecase "Organizer Information" as organInfo
   organInfo --> register : <<extends>> [If registering as a organizer, provide organizer details] 
 
   usecase "User Information" as userInfo 
-  userInfo --> register : <<extends> [If user is selected, provide user details to enter]
+  userInfo --> register : <<extends>> [If user is selected, provide user details to enter]
   
   rectangle adminOptions as "Admin Options"{
     usecase "Manage Event" as manEvent
@@ -30,14 +30,13 @@ rectangle applicationSystem as "Application System"{
     usecase "Manage Users" as manUsers
     
    rectangle userOptions as "User Options"{
-   usecase "Add User" as addUser
+   usecase "Add/Update User" as addUpdateUser
    usecase "View User" as viewUser
    usecase "Delete User" as deleteUser
-   usecase "Update User" as updateUser
    usecase "Register Admin" as regAdmin
    usecase "Return to Admin Rights" as return
    
-   addUser <.. regAdmin : <<extend>> [Admin can only register admin with organizer details]
+   addUpdateUser <.. regAdmin : <<extend>> [Admin can only register admin with organizer details]
    
    }
 
@@ -55,11 +54,18 @@ rectangle applicationSystem as "Application System"{
    eventOptions --> logger : <<include>>
   
   }
-
- 
 }
 
-logger --> CSV
-user --> mainMenu
+logger --> loggerCSV
+user --> register
+user --> login
+user --> exit
 
+' Extend usecase relationships ' 
+
+' Include usecase relationships ' 
+  register --> userCSV : <<include>> [updating/adding user to userCSV file]
+  addUpdateUser --> userCSV : <<include >> [updating/adding user to userCSV file]
+  venueOptions --> venueCSV: <<include>> [updating/adding venues to venuCSV]
+  eventOptions --> eventCSV: <<include>> [updating/adding events to eventCSV]
 @enduml
