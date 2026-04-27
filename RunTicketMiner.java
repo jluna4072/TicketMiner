@@ -1196,8 +1196,8 @@ public class RunTicketMiner {
      * Called automatically on program exit.
      */
     public void saveUpdatedData(){
-        dataManager.writeEvent("data/Updated_Event_List.csv", eventMap);
-        dataManager.writeUsers("data/Updated_Customer_List.csv", userMap);
-        dataManager.writeVenues("data/Updated_Venue_List.csv", venueMap);
+        dataManager.writeEvent("data/Event_List_PA1.csv", eventMap);
+        dataManager.writeUsers("data/Customer_List_PA1.csv", userMap);
+        dataManager.writeVenues("data/Venue_List_PA1.csv", venueMap);
     }
 }
