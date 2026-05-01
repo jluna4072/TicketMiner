@@ -277,9 +277,7 @@ public class RunTicketMiner {
     /**
      * Displays the customer-facing menu. Currently a placeholder that returns to the main menu.
      */
-    public void customerMenu() {
-        System.out.println("\nCustomer menu is under construction. Returning to main menu...");
-    }
+    
     /**
      * Displays the organizer-facing menu. Currently a placeholder that returns to the main menu.
      */

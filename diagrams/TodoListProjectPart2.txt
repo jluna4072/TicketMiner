@@ -9,14 +9,12 @@ Part A Requriements :
 	* Write a UML State Diagram
 Part B Requirements:
 	* Refactor your existing code:
-		#Carlos's problem with logging in with new created users
-		#Rewirte file reading system. 
 		#Write some tests or overlook Jacobs tests
 			@ Create a Junit test case for at least 3 functions	<--------|
 			@ Create Junit test suite to run all test case files at one. ----|
 	* Handle  all input file that do not have the information listed in the standard coulmn orders. 
-	* Create and use an interface in your system.
-	* Use a design pattern as part of the refactoring process.
+	* Create and use an interface in your system. 
+	* Use a design pattern as part of the refactoring process. <<Could do LSP for general uses like add, delete, update, and view actors>>
 	* Refactor your code to be a singular cohesive program. 
 	* Simple GUI program for user(customer, organizer, or admin) 
 

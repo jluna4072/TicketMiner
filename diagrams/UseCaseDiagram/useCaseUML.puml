@@ -1,71 +1,58 @@
 @startuml
-left to right direction
-actor "User" as user
-actor "Logging CSV" as loggerCSV
-actor "user CSV" as userCSV
-actor "eventCSV" as eventCSV
-actor "venueCSV" as venueCSV
+actor "Organizer" as Organizer
+actor "Admin" as Admin
+actor "Guest" as Guest 
+actor "Customer" as Customer
 
-rectangle applicationSystem as "Application System"{
 
-  usecase "Main Menu" as mainMenu 
-  usecase "Register" as register
-  usecase "Login" as login 
-  usecase "Exit" as exit
-  
-  usecase "Admin Options Menu" as adminLogin
-  adminLogin --> login : <<extends>> [if user is admin]
+rectangle sys as "System"{
+  rectangle loginSys as "LoginSystem"{
+   usecase "Register" as reg
+   usecase "Register User Type" as rst
+   reg ..>  rst : <<includes>>
 
-  'Registering users' 
+   usecase "Login" as login
+   usecase "Exit" as exit
 
-  usecase "Organizer Information" as organInfo
-  organInfo --> register : <<extends>> [If registering as a organizer, provide organizer details] 
-
-  usecase "User Information" as userInfo 
-  userInfo --> register : <<extends>> [If user is selected, provide user details to enter]
-  
-  rectangle adminOptions as "Admin Options"{
-    usecase "Manage Event" as manEvent
-    usecase "Manage Venue" as manVenue
-    usecase "Manage Users" as manUsers
-    
-   rectangle userOptions as "User Options"{
-   usecase "Add/Update User" as addUpdateUser
-   usecase "View User" as viewUser
-   usecase "Delete User" as deleteUser
-   usecase "Register Admin" as regAdmin
-   usecase "Return to Admin Rights" as return
-   
-   addUpdateUser <.. regAdmin : <<extend>> [Admin can only register admin with organizer details]
-   
-   }
-
-   usecase "Venue Options" as venueOptions
-   usecase "Event Options" as eventOptions
-
-   manUsers --> userOptions : <<include>>   
-   manVenue --> venueOptions : <<include>>
-   manEvent --> eventOptions : <<include>> 
-   
-   usecase logger as "Log action"
-
-   userOptions --> logger : <<include>>
-   venueOptions --> logger : <<include>>
-   eventOptions --> logger : <<include>>
-  
   }
+   
+  usecase "Purchase Tickets" as buyTickets
+  usecase "View Order Summary" as orderSumm
+  usecase "Check Funds" as checkFunds
+  buyTickets ..> checkFunds : <<includes>>
+  buyTickets ..> orderSumm : <<includes>>
+  usecase "Discount" as discount
+  discount ..> buyTickets : <<extends>>  
+
+  usecase "Print Order Summary"  as POS
+  Customer-->  POS
+  usecase "Manage Event" as manEvent 
+  usecase "Generate Event Report" as eventReport
+
+  usecase "Manage Users" as manUser
+  usecase "Manage Venue" as manVenue
+  usecase "Manage Event" as manEvent
+
+  usecase "Register Admin" as regAdmin
+  manUser <.. regAdmin : <<extends>>
+
+
+  Guest --> reg
+  Guest --> login
+  Guest --> exit 
+
+  Customer --> buyTickets
+
+  
+  Organizer --> manEvent
+  Organizer --> manVenue 
+  Organizer --> eventReport
+  
+  Admin --> manUser
+  Admin --> manEvent 
+  Admin --> manVenue
+  
+  
+
 }
-
-logger --> loggerCSV
-user --> register
-user --> login
-user --> exit
-
-' Extend usecase relationships ' 
-
-' Include usecase relationships ' 
-  register --> userCSV : <<include>> [updating/adding user to userCSV file]
-  addUpdateUser --> userCSV : <<include >> [updating/adding user to userCSV file]
-  venueOptions --> venueCSV: <<include>> [updating/adding venues to venuCSV]
-  eventOptions --> eventCSV: <<include>> [updating/adding events to eventCSV]
 @enduml
