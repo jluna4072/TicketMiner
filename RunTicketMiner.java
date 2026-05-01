@@ -272,9 +272,7 @@ public class RunTicketMiner {
     /**
      * Displays the customer-facing menu. Currently a placeholder that returns to the main menu.
      */
-    public void customerMenu() {
-        System.out.println("\nCustomer menu is under construction. Returning to main menu...");
-    }
+    
     /**
      * Displays the organizer-facing menu. Currently a placeholder that returns to the main menu.
      */
@@ -1191,8 +1189,8 @@ public class RunTicketMiner {
      * Called automatically on program exit.
      */
     public void saveUpdatedData(){
-        dataManager.writeEvent("data/Updated_Event_List.csv", eventMap);
-        dataManager.writeUsers("data/Updated_Customer_List.csv", userMap);
-        dataManager.writeVenues("data/Updated_Venue_List.csv", venueMap);
+        dataManager.writeEvent("data/Event_List_PA1.csv", eventMap);
+        dataManager.writeUsers("data/Customer_List_PA1.csv", userMap);
+        dataManager.writeVenues("data/Venue_List_PA1.csv", venueMap);
     }
 }
