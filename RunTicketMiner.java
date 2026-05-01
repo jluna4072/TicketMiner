@@ -39,11 +39,6 @@ public class RunTicketMiner {
     private final Scanner in = new Scanner(System.in);
     private User loggedInUser;
 
-    /**
-     * Entry point for the TicketMiner application. Instantiates the app and launches the main menu.
-     *
-     * @param args command-line arguments (not used)
-     */
     public static void main(String[] args) {
         RunTicketMiner app = new RunTicketMiner();
         System.out.println("System started.");
