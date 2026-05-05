@@ -1,4 +1,4 @@
-2,Sun Bowl Stadium,Stadium,58000,64000,681500.00,5,10,15,20,45,5
+ID,Name,Type,Capacity,Concert Capacity,Cost,VIP Percent,Gold Percent,Silver Percent,Bronze Percent,General Admission Percent,Reserved Percent
 3,Magoffin Auditorium,Auditorium,1152,1152,13536.00,5,10,15,20,45,5
 4,San Jacinto Plaza,Open Air,15000,15000,176250.00,5,10,15,20,45,5
 5,El Paso County Coliseum,Arena,5250,7000,61687.50,5,10,15,20,45,5

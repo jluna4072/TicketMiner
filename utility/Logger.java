@@ -9,24 +9,24 @@ package utility;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-public class Logger{
-    
+public class Logger {
+
     /**
      * Appends the specified action detail to the log file ({@code data/ticketMinerLogger.txt}).
-     * Each entry is written on its own line.
+     * Each entry includes a timestamp and is written on its own line.
      *
      * @param actionDetail a description of the action to be logged
      */
-    public static void logAction(String actionDetail){
-     //Writing to file for decision 
-      try(FileWriter logger = new FileWriter("data/ticketMinerLogger.txt", true)){
-        logger.write(actionDetail);
-        logger.write(System.lineSeparator());
-      }
-      catch(IOException e){
-        System.out.println("Error occured when");
-      }
+    public static void logAction(String actionDetail) {
+        String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        try (FileWriter logger = new FileWriter("data/ticketMinerLogger.txt", true)) {
+            logger.write("[" + timestamp + "] " + actionDetail);
+            logger.write(System.lineSeparator());
+        } catch (IOException e) {
+            System.out.println("Error occurred when writing to log file.");
+        }
     }
-
 }

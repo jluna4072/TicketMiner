@@ -4,7 +4,7 @@ CLASS DIAGRAM - TICKETMINER SYSTEM
 CORE SYSTEM CLASSES
 ==========================================
 
-Class: RunTicketMiner
+Class: RunTicketMiner (implements EventManageable)
 ------------------------------------------
 Fields:
 - dataManager: DataManager
@@ -23,6 +23,13 @@ Methods:
 + login(): void
 + customerMenu(): void
 + organizerMenu(): void
+- organizerManageEvent(): void
+- organizerAddEvent(): void
+- organizerViewEvent(): void
+- organizerUpdateEvent(): void
+- organizerDeleteEvent(): void
+- organizerSearchEvent(query: String): Event
+- generateEventReport(): void
 + adminMenu(): void
 + manageUsers(): void
 + addUser(): void
@@ -77,6 +84,21 @@ Class: Logger
 ------------------------------------------
 Methods:
 + {static} logAction(actionDetail: String): void
+
+
+Interface: EventManageable
+------------------------------------------
+Methods:
++ addEvent(): void
++ viewEvent(): void
++ updateEvent(): void
++ deleteEvent(): void
+
+
+Class: EventNotFoundException (extends Exception)
+------------------------------------------
+Methods:
++ EventNotFoundException(message: String)
 
 
 ==========================================
@@ -149,11 +171,23 @@ Fields:
 - name: String
 - date: String
 - time: String
+- venue: String
+- capacity: int
 - vipPrice: double
 - goldPrice: double
 - silverPrice: double
 - bronzePrice: double
 - generalAdmissionPrice: double
+- vipSeats: int
+- goldSeats: int
+- silverSeats: int
+- bronzeSeats: int
+- generalAdmissionSeats: int
+- vipSeatsSold: int
+- goldSeatsSold: int
+- silverSeatsSold: int
+- bronzeSeatsSold: int
+- generalAdmissionSeatsSold: int
 
 Methods:
 + getEventID(): int
@@ -166,11 +200,43 @@ Methods:
 + setDate(date: String): void
 + getTime(): String
 + setTime(time: String): void
++ getVenue(): String
++ setVenue(venue: String): void
++ getCapacity(): int
++ setCapacity(capacity: int): void
 + getVipPrice(): double
++ setVipPrice(vipPrice: double): void
 + getGoldPrice(): double
++ setGoldPrice(goldPrice: double): void
 + getSilverPrice(): double
++ setSilverPrice(silverPrice: double): void
 + getBronzePrice(): double
++ setBronzePrice(bronzePrice: double): void
 + getGeneralAdmissionPrice(): double
++ setGeneralAdmissionPrice(generalAdmissionPrice: double): void
++ getVipSeats(): int
++ setVipSeats(vipSeats: int): void
++ getGoldSeats(): int
++ setGoldSeats(goldSeats: int): void
++ getSilverSeats(): int
++ setSilverSeats(silverSeats: int): void
++ getBronzeSeats(): int
++ setBronzeSeats(bronzeSeats: int): void
++ getGeneralAdmissionSeats(): int
++ setGeneralAdmissionSeats(generalAdmissionSeats: int): void
++ getVipSeatsSold(): int
++ setVipSeatsSold(vipSeatsSold: int): void
++ getGoldSeatsSold(): int
++ setGoldSeatsSold(goldSeatsSold: int): void
++ getSilverSeatsSold(): int
++ setSilverSeatsSold(silverSeatsSold: int): void
++ getBronzeSeatsSold(): int
++ setBronzeSeatsSold(bronzeSeatsSold: int): void
++ getGeneralAdmissionSeatsSold(): int
++ setGeneralAdmissionSeatsSold(generalAdmissionSeatsSold: int): void
++ getTotalSeatsSold(): int
++ getTotalRevenue(): double
++ getExpectedProfit(): double
 + toString(): String
 
 
@@ -237,6 +303,8 @@ Subclasses:
 ==========================================
 RELATIONSHIPS
 ==========================================
+- RunTicketMiner implements EventManageable
 - RunTicketMiner uses DataManager
 - RunTicketMiner logs actions via Logger
+- RunTicketMiner throws EventNotFoundException
 - DataManager stores Users, Events, and Venues
