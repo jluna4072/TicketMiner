@@ -31,7 +31,6 @@ import model.venues.OpenAir;
 import model.venues.Stadium;
 import model.venues.Venue;
 
-//Assumed input files will not change and hardcoded their names for standard initialization
 public class DataManager {
 
     private int lastUserIDSeen = 0;
