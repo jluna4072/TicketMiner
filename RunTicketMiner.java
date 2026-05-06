@@ -6,6 +6,8 @@
  * @author Carlos Marquez
  * @author Alan Gutierrez-Zaragoza
  */
+
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -14,6 +16,8 @@ import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
+import java.math.BigDecimal;
+import java.math.RoundingMode; 
 import model.events.Concert;
 import model.events.Event;
 import model.events.Special;
@@ -37,6 +41,8 @@ public class RunTicketMiner {
     private final HashMap<Integer, Venue> venueMap = dataManager.loadVenues("data/Venue_List_PA1.csv");
     private final HashMap<Integer, Event> eventMap = dataManager.loadEvents("data/Event_List_PA1.csv");
     private final Scanner in = new Scanner(System.in);
+    public final double TEXAS_SALES_TAX = .0825;
+    public final double DISCOUNT = .10;
     private User loggedInUser;
 
     /**
@@ -277,7 +283,53 @@ public class RunTicketMiner {
     /**
      * Displays the customer-facing menu. Currently a placeholder that returns to the main menu.
      */
-    
+    public void customerMenu() {
+        System.out.println("\nCustomer menu is under construction. Returning to main menu...");
+        boolean logout = false; 
+        while(!logout){
+            System.out.println("\n=== Customer Menu ===");
+            System.out.println("1. Purchase Tickets");
+            System.out.println("2. Print Order Summary");
+            System.out.println("3. Preview Tickets"); //Used for our puproses just to keep paying
+            System.out.println("4. Logout");
+            int choice = in.nextInt();
+            try{
+                switch (choice) {
+                    case 1://
+                        purchaseTickets();
+                        break;
+                    case 2: 
+                        dataManager.printCustomerHistory("data/Customer_Order_History.csv", loggedInUser.getUserID());
+
+                        String actionDefined = "User " + loggedInUser.getUserID() + "has viewed their purchase history";
+                        Logger.logAction(actionDefined);
+
+                        break;
+                    case 3: 
+                        viewEvent();
+
+                        actionDefined = "User " + loggedInUser.getUserID() + "has viewed all events";
+                        Logger.logAction(actionDefined);
+                        break;
+                    case 4: 
+                        System.out.println("Logging out...");
+                        actionDefined = "User " + loggedInUser.getUserID() + " had logged out.";
+                        Logger.logAction(actionDefined);
+                        loggedInUser = null;
+                        logout = true;
+                    default:
+                        System.out.println("Please select a valid option.");
+                        break;
+                }
+            }
+            catch(InputMismatchException e) {
+                System.out.println("Invalid input. Please enter a number.");
+                in.nextLine();
+            }
+        }
+
+    }
+
     /**
      * Displays the organizer-facing menu. Currently a placeholder that returns to the main menu.
      */
@@ -1198,4 +1250,71 @@ public class RunTicketMiner {
         dataManager.writeUsers("data/Customer_List_PA1.csv", userMap);
         dataManager.writeVenues("data/Venue_List_PA1.csv", venueMap);
     }
-}
+
+        public void purchaseTickets(){
+            in.nextLine(); //May have to change
+
+            Customer loggedInCustomer = (Customer) loggedInUser;
+            System.out.println("Please enter the ID of the event you would like to purchase tickets for.");
+            String choice = in.nextLine();
+            Event foundEvent = resolveEvent(choice);
+
+            if (foundEvent != null){
+                System.out.println("Event Found: " + foundEvent.getEventID());
+
+                System.out.println("How many tickets would you like to purchase");
+                int numTickets = in.nextInt();
+                
+                if( loggedInCustomer.getMoneyAvailable() > calculateTotalCost(numTickets,foundEvent.getGeneralAdmissionPrice())){
+                    System.out.println("You have successfully purchased the tickets XD");
+                    double newBalance = loggedInCustomer.getMoneyAvailable() - calculateTotalCost(numTickets, foundEvent.getGeneralAdmissionPrice());
+                    
+                    loggedInCustomer.setMoneyAvailable(newBalance);
+                    String actionDetail = "User " + loggedInCustomer.getUserID() + " has bought " + numTickets + " for event " + foundEvent.getEventID();
+                    Logger.logAction(actionDetail);
+                    actionDetail = "User "+ loggedInCustomer.getUserID() + " new balance is : $" + newBalance;
+                    Logger.logAction(actionDetail);
+
+                    //dataManager WRiting purchase history 
+                    dataManager.writeCustomerHistory("data\\Customer_Order_History.csv",
+                    loggedInCustomer.getUserID(), foundEvent.getEventName(), 
+                    foundEvent.getDate(), loggedInCustomer.hasMembership(),
+                    numTickets, calculateTotalCost(numTickets, foundEvent.getGeneralAdmissionPrice()));
+                } else {
+                System.out.println("You have insufficient funds. Current funds: " + loggedInCustomer.getMoneyAvailable());
+                        }
+        
+            } else {
+                System.out.println("Event not found");
+            }
+        }
+
+            
+    /**
+     * 
+     * @param numOfTickets number of tickets the customer wants to buy
+     * @return The total cost of the tickets with the Texas sales tax.
+     * FIX CUSTOMER IF METHOD
+     */
+    public double calculateTotalCost(int numOfTickets, double admissionPrice){
+        Customer loggedInCustomer = (Customer) loggedInUser;
+        if(loggedInCustomer.hasMembership()){
+            double baseTotal = numOfTickets * admissionPrice; 
+            double salesTax = baseTotal * TEXAS_SALES_TAX;
+            double discount = baseTotal * .10;
+            double total = baseTotal + salesTax - discount;
+            total = Math.round(total * 100.0) /100.0;
+            System.out.println(total);
+            return total;
+        }else {
+            double eq1 = numOfTickets * admissionPrice; 
+            double salesTax = eq1 * TEXAS_SALES_TAX;
+            double total = eq1 + salesTax;
+            total = Math.round(total * 100.0) /100.0;
+            System.out.println(total);
+            return total;
+
+              }
+    }
+
+ }   

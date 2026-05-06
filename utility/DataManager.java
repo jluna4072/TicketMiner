@@ -10,6 +10,7 @@ package utility;
  */
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -37,7 +38,7 @@ public class DataManager {
     private int lastUserIDSeen = 0;
     private int lastVenueIDSeen = 0;
     private int lastEventIDSeen = 0;
-
+    private int confirmationNumber = 0;
     /**
      * Searches the user map for users matching the given query. Lookup priority is:
      * numeric ID first, then exact username match, then case-insensitive full name match.
@@ -378,7 +379,59 @@ public class DataManager {
             System.out.println("Error writing venues file: " + e.getMessage());
         }
     }
-
+/* 
+     
+    /**
+     * This reads the customerHistory, dont see any purpose other chainging it to 
+     * printing the whole customr history or a specific transaction
+     * @param fileName
+     * @param usermMap
+     * @param eventMap
+     */
+   public void printCustomerHistory(String fileName, int userID) {
+    File file = new File(fileName);
+    if (!file.exists()) {
+        return;
+    }
+    
+    try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            String[] parts = line.split(",");
+            if (parts.length >= 1) {
+                try {
+                    int customerID = Integer.parseInt(parts[0].trim());
+                    if (customerID == userID) {
+                        System.out.println(line);
+                    }
+                } catch (NumberFormatException e) {
+                    // Skip malformed lines silently
+                }
+            }
+        }
+    } catch (IOException e) {
+        System.out.println("Error reading customer history: " + e.getMessage());
+    }
+}
+    /**
+     * @param fileName
+     * @param userMap
+     * Writes the customersHistory/Transaction, could sort later for the customer but its 
+     * an extra activity for now
+     * 
+     * CustomerId, eventName, eventDate, ticketType, numOfTickets,totalPrice,
+     * and confirmationNumber
+     */
+   public void writeCustomerHistory(String fileName, int userID, String eventName, String eventDate, boolean hasMembership, int numOfTickets, double totalCost){
+    try (PrintWriter writer = new PrintWriter(new FileWriter(fileName, true))) {
+        writer.printf("%d,%s,%s,%s,%b,%.2f,%d%n", 
+            userID, eventName, eventDate, hasMembership, numOfTickets, totalCost, confirmationNumber); 
+    }
+    catch (IOException e){
+        System.out.println("Error writing customer history file: " + e.getMessage());
+    }
+}
+    
     /**
      * Increments and returns the next unique user ID based on the highest ID seen during load.
      *
@@ -407,6 +460,11 @@ public class DataManager {
     public int generateUniqueEventId() {
         lastEventIDSeen++;
         return lastEventIDSeen;
+    }
+
+    public int generateConfirmationNumber(){
+        confirmationNumber++;
+        return confirmationNumber;
     }
 
 }

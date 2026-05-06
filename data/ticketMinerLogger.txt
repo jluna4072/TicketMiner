@@ -16,3 +16,70 @@ User 1038 has been registered as a Customer.
 User 1038 has logged into the system.
 User 1038 has been registered as a Customer.
 User 1038 has logged into the system.
+User 1039 has been registered as a Customer.
+User 1039 has logged into the system.
+User 1038 has logged into the system.
+User 1038 had logged out.
+User 1038 has logged into the system.
+User 1038 has viewed all events
+User 1038 has logged into the system.
+User 1038 has viewed all events
+User 1038 had logged out.
+User 1038 has logged into the system.
+User 1038 has bought 1 for event 1
+User 1038 new balance is : $99.896875
+User 1038 had logged out.
+User 1038 has logged into the system.
+User 1038 has bought 1 for event 1
+User 1038 new balance is : $99.79374999999999
+User 1038 had logged out.
+User 1038 has logged into the system.
+User 1038 has bought 2 for event 1
+User 1038 new balance is : $99.58749999999999
+User 1038 had logged out.
+User 1038 has logged into the system.
+User 1038 has viewed all events
+User 1038 has bought 2 for event 44
+User 1038 new balance is : $64.11249999999998
+User 1038 had logged out.
+User 1038 has logged into the system.
+User 1038 has bought 2 for event 2
+User 1038 new balance is : $34.54999999999998
+User 1038 had logged out.
+User 1038 has logged into the system.
+User 1038 had logged out.
+User 1038 has logged into the system.
+User 1038 had logged out.
+User 1038 has logged into the system.
+User 1038 has bought 2 for event 1
+User 1038 new balance is : $4.987499999999983
+User 1038 had logged out.
+User 1038 has logged into the system.
+User 1038 has bought 3 for event 1
+User 1038 new balance is : $55.65625
+User 1038 has logged into the system.
+User 1038 has bought 1 for event 1
+User 1038 new balance is : $85.21875
+User 1038 had logged out.
+User 1038 has logged into the system.
+User 1038 has bought 2 for event 1
+User 1038 new balance is : $60.65625
+User 1038 has logged into the system.
+User 1038has viewed their purchase history
+User 1038 has bought 1 for event 1
+User 1038 new balance is : $72.93875
+User 1038has viewed their purchase history
+User 1038 has logged into the system.
+User 1038has viewed their purchase history
+User 1038 had logged out.
+User 1038 has logged into the system.
+User 1038 has bought 1 for event 1
+User 1038 new balance is : $72.93875
+User 1038has viewed their purchase history
+User 1038 has printed all events to the console
+User 1038has viewed all events
+User 1038has viewed their purchase history
+User 1038 has logged into the system.
+User 1038 has bought 1 for event 1
+User 1038 new balance is : $72.93875
+User 1038has viewed their purchase history
