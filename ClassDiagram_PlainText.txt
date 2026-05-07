@@ -12,6 +12,7 @@ Fields:
 - venueMap: HashMap<Integer, Venue>
 - eventMap: HashMap<Integer, Event>
 - in: Scanner
+- reader: InputReader
 - loggedInUser: User
 
 Methods:
@@ -20,7 +21,6 @@ Methods:
 + registerCustomer(): void
 + registerOrganizer(): void
 + login(): void
-- readNonBlank(prompt: String): String
 + saveUpdatedData(): void
 
 
@@ -28,6 +28,7 @@ Class: OrganizerMenu (implements EventManageable)
 ------------------------------------------
 Fields:
 - in: Scanner
+- reader: InputReader
 - eventMap: HashMap<Integer, Event>
 - dataManager: DataManager
 - loggedInUser: User
@@ -40,20 +41,14 @@ Methods:
 + viewEvent(): void
 + updateEvent(): void
 + deleteEvent(): void
-- searchEvent(query: String): Event
 - generateEventReport(): void
-- resolveEvent(input: String): Event
-- readNonBlank(prompt: String): String
-- readPositiveInt(prompt: String): int
-- readPositiveDouble(prompt: String): double
-- readDate(prompt: String): String
-- readTime(prompt: String): String
 
 
 Class: AdminMenu (implements EventManageable)
 ------------------------------------------
 Fields:
 - in: Scanner
+- reader: InputReader
 - userMap: HashMap<String, User>
 - venueMap: HashMap<Integer, Venue>
 - eventMap: HashMap<Integer, Event>
@@ -81,15 +76,7 @@ Methods:
 + viewEvent(): void
 + updateEvent(): void
 + deleteEvent(): void
-- resolveUser(input: String): User
-- resolveVenue(input: String): Venue
-- resolveEvent(input: String): Event
 - isUsernameUnique(username: String): boolean
-- readNonBlank(prompt: String): String
-- readPositiveInt(prompt: String): int
-- readPositiveDouble(prompt: String): double
-- readDate(prompt: String): String
-- readTime(prompt: String): String
 
 
 Class: CustomerMenu
@@ -99,10 +86,22 @@ Fields:
 - eventMap: HashMap<Integer, Event>
 - dataManager: DataManager
 - loggedInUser: User
+- orderHistory: ArrayList<String[]>
++ TEXAS_SALES_TAX: double
++ DISCOUNT: double
 
 Methods:
 + CustomerMenu(in: Scanner, eventMap: HashMap, dataManager: DataManager, loggedInUser: User)
 + show(): boolean
++ purchaseTickets(): void
+- printOrderSummary(): void
+- selectTicketType(event: Event): String
+- getTicketPrice(event: Event, ticketType: String): double
++ calculateTotalCost(numOfTickets: int, admissionPrice: double): double
++ calculateTax(numOfTickets: int, admissionPrice: double): double
++ viewEvent(): void
+- updateSeatsSold(event: Event, ticketType: String, quantity: int): void
+- getAvailableSeats(event: Event, ticketType: String): int
 
 
 Class: DataManager
@@ -111,6 +110,7 @@ Fields:
 - lastUserIDSeen: int
 - lastVenueIDSeen: int
 - lastEventIDSeen: int
+- confirmationNumber: int
 - userHeader: String
 - eventHeader: String
 - venueHeader: String
@@ -129,9 +129,29 @@ Methods:
 + writeEvent(fileName: String, eventMap: HashMap<Integer, Event>): void
 + writeUsers(fileName: String, userMap: HashMap<String, User>): void
 + writeVenues(fileName: String, venueMap: HashMap<Integer, Venue>): void
++ resolveEvent(eventMap: HashMap, query: String, in: Scanner): Event
++ resolveUser(userMap: HashMap, query: String, in: Scanner): User
++ resolveVenue(venueMap: HashMap, query: String, in: Scanner): Venue
++ printCustomerHistory(fileName: String, userID: int): void
++ writeCustomerHistory(fileName: String, userID: int, eventType: String, eventName: String, eventDate: String, ticketType: String, numOfTickets: int, totalCost: double, confirmNum: int): void
 + generateUniqueUserId(): int
 + generateUniqueVenueId(): int
 + generateUniqueEventId(): int
++ generateConfirmationNumber(): int
+
+
+Class: InputReader
+------------------------------------------
+Fields:
+- in: Scanner
+
+Methods:
++ InputReader(in: Scanner)
++ readNonBlank(prompt: String): String
++ readPositiveInt(prompt: String): int
++ readPositiveDouble(prompt: String): double
++ readDate(prompt: String): String
++ readTime(prompt: String): String
 
 
 Class: Logger
@@ -242,6 +262,7 @@ Fields:
 - silverSeatsSold: int
 - bronzeSeatsSold: int
 - generalAdmissionSeatsSold: int
+- taxCollected: double
 
 Methods:
 + getEventID(): int
@@ -288,6 +309,9 @@ Methods:
 + setBronzeSeatsSold(bronzeSeatsSold: int): void
 + getGeneralAdmissionSeatsSold(): int
 + setGeneralAdmissionSeatsSold(generalAdmissionSeatsSold: int): void
++ getTaxCollected(): double
++ setTaxCollected(taxCollected: double): void
++ addTaxCollected(tax: double): void
 + getTotalSeatsSold(): int
 + getTotalRevenue(): double
 + getExpectedProfit(): double
@@ -361,6 +385,11 @@ RELATIONSHIPS
 - RunTicketMiner delegates to OrganizerMenu, AdminMenu, CustomerMenu
 - OrganizerMenu implements EventManageable
 - AdminMenu implements EventManageable
+- AdminMenu throws EventNotFoundException
 - OrganizerMenu throws EventNotFoundException
+- CustomerMenu throws EventNotFoundException
 - OrganizerMenu, AdminMenu, CustomerMenu log actions via Logger
 - DataManager stores Users, Events, and Venues
+- RunTicketMiner, AdminMenu, OrganizerMenu use InputReader
+- AdminMenu, OrganizerMenu, CustomerMenu use DataManager for resolveEvent
+- AdminMenu uses DataManager for resolveUser, resolveVenue

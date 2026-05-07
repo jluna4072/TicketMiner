@@ -1,20 +1,8 @@
 package menus;
 
-/**
- * Handles the Admin menu and all admin-specific management operations for users,
- * venues, and events. Implements the EventManageable interface for event CRUD operations.
- *
- * @author Jacob Luna
- * @author Carlos Marquez
- * @author Alan Gutierrez-Zaragoza
- */
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Scanner;
+import utility.InputReader;
 import model.events.Concert;
 import model.events.Event;
 import model.events.Special;
@@ -30,11 +18,26 @@ import model.venues.Stadium;
 import model.venues.Venue;
 import utility.DataManager;
 import utility.EventManageable;
+import utility.EventNotFoundException;
 import utility.Logger;
 
+/**
+ * Handles the Admin menu and all admin-specific management operations for users,
+ * venues, and events. Implements the EventManageable interface for event CRUD operations.
+ *
+ * Design Pattern: Strategy Pattern (Concrete Strategy)
+ * This class serves as a concrete strategy in the Strategy pattern, providing
+ * the Admin-specific implementation of event management operations defined by
+ * the {@code EventManageable} interface.
+ *
+ * @author Jacob Luna
+ * @author Carlos Marquez
+ * @author Alan Gutierrez-Zaragoza
+ */
 public class AdminMenu implements EventManageable {
 
     private final Scanner in;
+    private final InputReader reader;
     private final HashMap<String, User> userMap;
     private final HashMap<Integer, Venue> venueMap;
     private final HashMap<Integer, Event> eventMap;
@@ -54,6 +57,7 @@ public class AdminMenu implements EventManageable {
     public AdminMenu(Scanner in, HashMap<String, User> userMap, HashMap<Integer, Venue> venueMap,
                      HashMap<Integer, Event> eventMap, DataManager dataManager, User loggedInUser) {
         this.in = in;
+        this.reader = new InputReader(in);
         this.userMap = userMap;
         this.venueMap = venueMap;
         this.eventMap = eventMap;
@@ -173,8 +177,8 @@ public class AdminMenu implements EventManageable {
      * Registers a new Customer user.
      */
     private void registerCustomer() {
-        String firstName = readNonBlank("Enter first name: ");
-        String lastName = readNonBlank("Enter last name: ");
+        String firstName = reader.readNonBlank("Enter first name: ");
+        String lastName = reader.readNonBlank("Enter last name: ");
         String username = "";
         String password = "";
         while (true) {
@@ -185,7 +189,7 @@ public class AdminMenu implements EventManageable {
                 continue;
             }
             if (isUsernameUnique(username)) {
-                password = readNonBlank("Enter password: ");
+                password = reader.readNonBlank("Enter password: ");
                 break;
             } else {
                 System.out.println("Username already exists, please input different username.");
@@ -204,7 +208,7 @@ public class AdminMenu implements EventManageable {
                 System.out.println("Invalid input. Please enter 'Y' for Yes or 'N' for No.");
             }
         }
-        double initialAmount = readPositiveDouble("What is the initial amount of money available for the user? ");
+        double initialAmount = reader.readPositiveDouble("What is the initial amount of money available for the user? ");
         int userId = dataManager.generateUniqueUserId();
         Customer newCustomer = new Customer(userId, firstName, lastName, username, password, "Customer", initialAmount, becomeMember, 0);
         userMap.put(newCustomer.getUsername(), newCustomer);
@@ -217,8 +221,8 @@ public class AdminMenu implements EventManageable {
      * Registers a new Organizer user.
      */
     private void registerOrganizer() {
-        String firstName = readNonBlank("Enter first name: ");
-        String lastName = readNonBlank("Enter last name: ");
+        String firstName = reader.readNonBlank("Enter first name: ");
+        String lastName = reader.readNonBlank("Enter last name: ");
         String username = "";
         String password = "";
         while (true) {
@@ -229,7 +233,7 @@ public class AdminMenu implements EventManageable {
                 continue;
             }
             if (isUsernameUnique(username)) {
-                password = readNonBlank("Enter password: ");
+                password = reader.readNonBlank("Enter password: ");
                 break;
             } else {
                 System.out.println("Username already exists, please input different username.");
@@ -247,8 +251,8 @@ public class AdminMenu implements EventManageable {
      * Registers a new Admin user.
      */
     private void registerAdmin() {
-        String firstName = readNonBlank("Enter first name: ");
-        String lastName = readNonBlank("Enter last name: ");
+        String firstName = reader.readNonBlank("Enter first name: ");
+        String lastName = reader.readNonBlank("Enter last name: ");
         String username = "";
         String password = "";
         while (true) {
@@ -259,7 +263,7 @@ public class AdminMenu implements EventManageable {
                 continue;
             }
             if (isUsernameUnique(username)) {
-                password = readNonBlank("Enter password: ");
+                password = reader.readNonBlank("Enter password: ");
                 break;
             } else {
                 System.out.println("Username already exists, please input a different username.");
@@ -297,7 +301,7 @@ public class AdminMenu implements EventManageable {
                     case 2:
                         System.out.print("Enter ID, username, or full name: ");
                         String input = in.nextLine().trim();
-                        User found = resolveUser(input);
+                        User found = dataManager.resolveUser(userMap, input, in);
                         if (found != null) {
                             System.out.println(found);
                             actionDetail = "User " + loggedInUser.getUserID() + " has viewed user " + found.getUserID() + " and was printed to the console";
@@ -326,7 +330,7 @@ public class AdminMenu implements EventManageable {
         String actionDetail;
         System.out.print("Enter ID, username, or full name of member to update: ");
         String input = in.nextLine().trim();
-        User user = resolveUser(input);
+        User user = dataManager.resolveUser(userMap, input, in);
         if (user == null) {
             System.out.println("Member not found.");
             return;
@@ -398,7 +402,7 @@ public class AdminMenu implements EventManageable {
     private void deleteUser() {
         System.out.print("Enter ID, username, or full name of member to delete: ");
         String input = in.nextLine().trim();
-        User user = resolveUser(input);
+        User user = dataManager.resolveUser(userMap, input, in);
         if (user == null) {
             System.out.println("Member not found.");
             return;
@@ -474,16 +478,16 @@ public class AdminMenu implements EventManageable {
             }
             System.out.println("Invalid type. Please enter Arena, Stadium, Open Air, or Auditorium.");
         }
-        String name = readNonBlank("Enter Venue Name: ");
-        int capacity = readPositiveInt("Enter Capacity: ");
-        int concertCapacity = readPositiveInt("Enter Concert Capacity: ");
-        double cost = readPositiveDouble("Enter Cost to Rent: $");
-        int vip = readPositiveInt("Enter VIP %: ");
-        int gold = readPositiveInt("Enter Gold %: ");
-        int silver = readPositiveInt("Enter Silver %: ");
-        int bronze = readPositiveInt("Enter Bronze %: ");
-        int ga = readPositiveInt("Enter General Admission %: ");
-        int reserved = readPositiveInt("Enter Reserved %: ");
+        String name = reader.readNonBlank("Enter Venue Name: ");
+        int capacity = reader.readPositiveInt("Enter Capacity: ");
+        int concertCapacity = reader.readPositiveInt("Enter Concert Capacity: ");
+        double cost = reader.readPositiveDouble("Enter Cost to Rent: $");
+        int vip = reader.readPositiveInt("Enter VIP %: ");
+        int gold = reader.readPositiveInt("Enter Gold %: ");
+        int silver = reader.readPositiveInt("Enter Silver %: ");
+        int bronze = reader.readPositiveInt("Enter Bronze %: ");
+        int ga = reader.readPositiveInt("Enter General Admission %: ");
+        int reserved = reader.readPositiveInt("Enter Reserved %: ");
 
         int id = dataManager.generateUniqueVenueId();
         Venue newVenue;
@@ -529,7 +533,7 @@ public class AdminMenu implements EventManageable {
             } else if (choice.equals("2")) {
                 System.out.print("Enter Venue ID, Name, or Type: ");
                 String query = in.nextLine();
-                Venue found = resolveVenue(query);
+                Venue found = dataManager.resolveVenue(venueMap, query, in);
                 if (found != null) {
                     System.out.println(found);
                 } else {
@@ -548,7 +552,7 @@ public class AdminMenu implements EventManageable {
     private void updateVenue() {
         System.out.print("\nEnter Venue ID, Name, or Type to update: ");
         String query = in.nextLine();
-        Venue found = resolveVenue(query);
+        Venue found = dataManager.resolveVenue(venueMap, query, in);
 
         if (found != null) {
             System.out.println("\nEditing: " + found.getName());
@@ -562,10 +566,10 @@ public class AdminMenu implements EventManageable {
                         found.setName(in.nextLine());
                         break;
                     case 2:
-                        found.setCost(readPositiveDouble("New Cost: $"));
+                        found.setCost(reader.readPositiveDouble("New Cost: $"));
                         break;
                     case 3:
-                        found.setCapacity(readPositiveInt("New Capacity: "));
+                        found.setCapacity(reader.readPositiveInt("New Capacity: "));
                         break;
                     case 4:
                         System.out.println("Update cancelled.");
@@ -591,7 +595,7 @@ public class AdminMenu implements EventManageable {
     private void deleteVenue() {
         System.out.print("\nEnter Venue ID, Name, or Type to delete: ");
         String query = in.nextLine();
-        Venue found = resolveVenue(query);
+        Venue found = dataManager.resolveVenue(venueMap, query, in);
 
         if (found != null) {
             System.out.println("Found: " + found.getName());
@@ -667,14 +671,14 @@ public class AdminMenu implements EventManageable {
             }
             System.out.println("Invalid type. Please enter Sport, Concert, or Special.");
         }
-        String name = readNonBlank("Enter Event Name: ");
-        String date = readDate("Enter Date (MM/DD/YYYY): ");
-        String time = readTime("Enter Time (hh:mm AM/PM): ");
-        double vip = readPositiveDouble("Enter VIP Price: $");
-        double gold = readPositiveDouble("Enter Gold Price: $");
-        double silver = readPositiveDouble("Enter Silver Price: $");
-        double bronze = readPositiveDouble("Enter Bronze Price: $");
-        double ga = readPositiveDouble("Enter General Admission Price: $");
+        String name = reader.readNonBlank("Enter Event Name: ");
+        String date = reader.readDate("Enter Date (MM/DD/YYYY): ");
+        String time = reader.readTime("Enter Time (hh:mm AM/PM): ");
+        double vip = reader.readPositiveDouble("Enter VIP Price: $");
+        double gold = reader.readPositiveDouble("Enter Gold Price: $");
+        double silver = reader.readPositiveDouble("Enter Silver Price: $");
+        double bronze = reader.readPositiveDouble("Enter Bronze Price: $");
+        double ga = reader.readPositiveDouble("Enter General Admission Price: $");
 
         int id = dataManager.generateUniqueEventId();
         Event newEvent;
@@ -718,13 +722,13 @@ public class AdminMenu implements EventManageable {
             } else if (choice.equals("2")) {
                 System.out.print("Enter Event ID, Name, or Date: ");
                 String query = in.nextLine();
-                Event found = resolveEvent(query);
-                if (found != null) {
+                try {
+                    Event found = dataManager.resolveEvent(eventMap, query, in);
                     System.out.println(found);
                     String actionDetail = "User " + loggedInUser.getUserID() + " searched for " + found.getEventID();
                     Logger.logAction(actionDetail);
-                } else {
-                    System.out.println("Event not found.");
+                } catch (EventNotFoundException ex) {
+                    System.out.println(ex.getMessage());
                 }
                 break;
             } else {
@@ -740,9 +744,8 @@ public class AdminMenu implements EventManageable {
     public void updateEvent() {
         System.out.print("\nEnter Event ID, Name, or Date to update: ");
         String query = in.nextLine();
-        Event found = resolveEvent(query);
-
-        if (found != null) {
+        try {
+            Event found = dataManager.resolveEvent(eventMap, query, in);
             System.out.println("Updating: " + found.getEventName());
             System.out.println("1. Change Name\n2. Change Date\n3. Change Time\n4. Cancel");
             try {
@@ -755,12 +758,12 @@ public class AdminMenu implements EventManageable {
                         Logger.logAction(actionDetail);
                         break;
                     case 2:
-                        found.setDate(readDate("New Date (MM/DD/YYYY): "));
+                        found.setDate(reader.readDate("New Date (MM/DD/YYYY): "));
                         actionDetail = "User " + loggedInUser.getUserID() + " has updated event " + found.getEventID() + " date";
                         Logger.logAction(actionDetail);
                         break;
                     case 3:
-                        found.setTime(readTime("New Time (hh:mm AM/PM): "));
+                        found.setTime(reader.readTime("New Time (hh:mm AM/PM): "));
                         actionDetail = "User " + loggedInUser.getUserID() + " has updated event " + found.getEventID() + " time";
                         Logger.logAction(actionDetail);
                         break;
@@ -775,8 +778,8 @@ public class AdminMenu implements EventManageable {
             } catch (NumberFormatException e) {
                 System.out.println("Invalid input.");
             }
-        } else {
-            System.out.println("Event not found.");
+        } catch (EventNotFoundException ex) {
+            System.out.println(ex.getMessage());
         }
     }
 
@@ -787,9 +790,8 @@ public class AdminMenu implements EventManageable {
     public void deleteEvent() {
         System.out.print("\nEnter Event ID, Name, or Date to delete: ");
         String query = in.nextLine();
-        Event found = resolveEvent(query);
-
-        if (found != null) {
+        try {
+            Event found = dataManager.resolveEvent(eventMap, query, in);
             System.out.println("Found: " + found.getEventName());
             System.out.print("Are you sure you want to delete this event? (y/n): ");
             if (in.nextLine().equalsIgnoreCase("y")) {
@@ -800,166 +802,15 @@ public class AdminMenu implements EventManageable {
             } else {
                 System.out.println("Delete cancelled.");
             }
-        } else {
-            System.out.println("Event not found.");
+        } catch (EventNotFoundException ex) {
+            System.out.println(ex.getMessage());
         }
     }
 
 
-    /**
-     * Searches the user map for users matching the given query.
-     *
-     * @param input the search query (numeric ID, username, or "First Last")
-     * @return the matched User, or null if no match is found
-     */
-    private User resolveUser(String input) {
-        List<User> matches = dataManager.findUsers(userMap, input);
-
-        if (matches.isEmpty()) return null;
-        if (matches.size() == 1) return matches.get(0);
-
-        System.out.println("Multiple members found with that name:");
-        for (User u : matches) {
-            System.out.println("  ID: " + u.getUserID() + " | Username: " + u.getUsername()
-                    + " | " + u.getFirstName() + " " + u.getLastName());
-        }
-        while (true) {
-            System.out.print("Please enter the ID or username to select a specific member: ");
-            String refined = in.nextLine().trim();
-            for (User u : matches) {
-                if (u.getUsername().equals(refined)) return u;
-                try {
-                    if (u.getUserID() == Integer.parseInt(refined)) return u;
-                } catch (NumberFormatException ignored) {}
-            }
-            System.out.println("Selection does not match any of the found members. Please try again.");
-        }
-    }
-
-    /**
-     * Searches the venue map for venues matching the given query.
-     *
-     * @param input the search query (numeric ID, venue name, or venue type)
-     * @return the matched Venue, or null if no match is found
-     */
-    private Venue resolveVenue(String input) {
-        List<Venue> matches = dataManager.findVenues(venueMap, input);
-
-        if (matches.isEmpty()) return null;
-        if (matches.size() == 1) return matches.get(0);
-
-        System.out.println("Multiple venues found:");
-        for (Venue v : matches) {
-            System.out.println("  ID: " + v.getVenueID() + " | Name: " + v.getName()
-                    + " | Type: " + v.getType());
-        }
-        while (true) {
-            System.out.print("Please enter the ID or name to select a specific venue: ");
-            String refined = in.nextLine().trim();
-            for (Venue v : matches) {
-                if (v.getName().equalsIgnoreCase(refined)) return v;
-                try {
-                    if (v.getVenueID() == Integer.parseInt(refined)) return v;
-                } catch (NumberFormatException ignored) {}
-            }
-            System.out.println("Selection does not match any of the found venues. Please try again.");
-        }
-    }
-
-    /**
-     * Searches the event map for events matching the given query.
-     *
-     * @param input the search query (numeric ID, event name, or date string)
-     * @return the matched Event, or null if no match is found
-     */
-    private Event resolveEvent(String input) {
-        List<Event> matches = dataManager.findEvents(eventMap, input);
-
-        if (matches.isEmpty()) return null;
-        if (matches.size() == 1) return matches.get(0);
-
-        System.out.println("Multiple events found:");
-        for (Event e : matches) {
-            System.out.println("  ID: " + e.getEventID() + " | Name: " + e.getEventName()
-                    + " | Date: " + e.getDate());
-        }
-        while (true) {
-            System.out.print("Please enter the ID to select a specific event: ");
-            String refined = in.nextLine().trim();
-            try {
-                int id = Integer.parseInt(refined);
-                for (Event e : matches) {
-                    if (e.getEventID() == id) return e;
-                }
-            } catch (NumberFormatException ignored) {}
-            System.out.println("Selection does not match any of the found events. Please try again.");
-        }
-    }
 
     private boolean isUsernameUnique(String username) {
         return !userMap.containsKey(username);
     }
 
-    private String readNonBlank(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            String input = in.nextLine().trim();
-            if (!input.isEmpty()) return input;
-            System.out.println("This field cannot be blank. Please try again.");
-        }
-    }
-
-    private int readPositiveInt(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            try {
-                int value = Integer.parseInt(in.nextLine().trim());
-                if (value >= 0) return value;
-                System.out.println("Value cannot be negative. Please try again.");
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a whole number.");
-            }
-        }
-    }
-
-    private double readPositiveDouble(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            try {
-                double value = Double.parseDouble(in.nextLine().trim());
-                if (value >= 0) return value;
-                System.out.println("Price cannot be negative. Please try again.");
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
-            }
-        }
-    }
-
-    private String readDate(String prompt) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-        while (true) {
-            System.out.print(prompt);
-            String input = in.nextLine().trim();
-            try {
-                LocalDate.parse(input, formatter);
-                return input;
-            } catch (DateTimeParseException e) {
-                System.out.println("Invalid date. Please enter a valid date in MM/DD/YYYY format.");
-            }
-        }
-    }
-
-    private String readTime(String prompt) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
-        while (true) {
-            System.out.print(prompt);
-            String input = in.nextLine().trim().toUpperCase();
-            try {
-                LocalTime.parse(input, formatter);
-                return input;
-            } catch (DateTimeParseException e) {
-                System.out.println("Invalid time. Please enter a valid time in hh:mm AM/PM format (e.g. 07:30 PM).");
-            }
-        }
-    }
 }

@@ -3,13 +3,15 @@ package tests;
 import java.util.HashMap;
 import model.events.Event;
 import model.events.Sport;
+import model.venues.Venue;
 import utility.DataManager;
 
 public class TestLoadEvents {
 
     public static void main(String[] args) {
         DataManager dm = new DataManager();
-        HashMap<Integer, Event> events = dm.loadEvents("data/Event_List_PA1.csv");
+        HashMap<Integer, Venue> venueMap = dm.loadVenues("data/PA2CSVs/Venue_List_PA2.csv");
+        HashMap<Integer, Event> events = dm.loadEvents("data/PA2CSVs/Event_List_PA2.csv", venueMap);
 
         System.out.println("=== Event CSV Load Test ===");
         System.out.println("Total events loaded: " + events.size());

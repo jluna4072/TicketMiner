@@ -32,6 +32,7 @@ public abstract class Event {
     private int silverSeatsSold;
     private int bronzeSeatsSold;
     private int generalAdmissionSeatsSold;
+    private double taxCollected;
 
     /**
      * Constructs a default Event with no initial field values.
@@ -76,6 +77,7 @@ public abstract class Event {
         this.silverSeatsSold = 0;
         this.bronzeSeatsSold = 0;
         this.generalAdmissionSeatsSold = 0;
+        this.taxCollected = 0;
     }
 
     /**
@@ -127,6 +129,7 @@ public abstract class Event {
         this.silverSeatsSold = 0;
         this.bronzeSeatsSold = 0;
         this.generalAdmissionSeatsSold = 0;
+        this.taxCollected = 0;
     }
 
     /**
@@ -443,6 +446,33 @@ public abstract class Event {
     /** @param generalAdmissionSeatsSold the number of General Admission seats sold */
     public void setGeneralAdmissionSeatsSold(int generalAdmissionSeatsSold) {
         this.generalAdmissionSeatsSold = generalAdmissionSeatsSold; 
+    }
+
+    /**
+     * Returns the total tax collected from ticket sales for this event.
+     *
+     * @return the total tax collected
+     */
+    public double getTaxCollected() {
+        return taxCollected;
+    }
+
+    /**
+     * Sets the total tax collected for this event.
+     *
+     * @param taxCollected the new tax collected amount
+     */
+    public void setTaxCollected(double taxCollected) {
+        this.taxCollected = taxCollected;
+    }
+
+    /**
+     * Adds a tax amount to the running total of tax collected for this event.
+     *
+     * @param tax the tax amount to add
+     */
+    public void addTaxCollected(double tax) {
+        this.taxCollected += tax;
     }
 
     /**

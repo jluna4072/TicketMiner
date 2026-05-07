@@ -1,10 +1,3 @@
-/**
- * Utility class for logging actions taken within the TicketMiner system.
- *
- * @author Jacob Luna
- * @author Carlos Marquez
- * @author Alan Gutierrez-Zaragoza
- */
 package utility;
 
 import java.io.FileWriter;
@@ -12,6 +5,13 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Utility class for logging actions taken within the TicketMiner system.
+ *
+ * @author Jacob Luna
+ * @author Carlos Marquez
+ * @author Alan Gutierrez-Zaragoza
+ */
 public class Logger {
 
     /**

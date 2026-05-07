@@ -1,20 +1,6 @@
 package menus;
 
-/**
- * Handles the Organizer menu and all organizer-specific event management operations.
- * Implements the EventManageable interface to provide add, view, update, and delete
- * functionality for events.
- *
- * @author Jacob Luna
- * @author Carlos Marquez
- * @author Alan Gutierrez-Zaragoza
- */
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Scanner;
 import model.events.Concert;
 import model.events.Event;
@@ -24,11 +10,27 @@ import model.users.User;
 import utility.DataManager;
 import utility.EventManageable;
 import utility.EventNotFoundException;
+import utility.InputReader;
 import utility.Logger;
 
+/**
+ * Handles the Organizer menu and all organizer-specific event management operations.
+ * Implements the EventManageable interface to provide add, view, update, and delete
+ * functionality for events.
+ *
+ * Design Pattern: Strategy Pattern (Concrete Strategy)
+ * This class serves as a concrete strategy in the Strategy pattern, providing
+ * the Organizer-specific implementation of event management operations defined by
+ * the {@code EventManageable} interface.
+ *
+ * @author Jacob Luna
+ * @author Carlos Marquez
+ * @author Alan Gutierrez-Zaragoza
+ */
 public class OrganizerMenu implements EventManageable {
 
     private final Scanner in;
+    private final InputReader reader;
     private final HashMap<Integer, Event> eventMap;
     private final DataManager dataManager;
     private final User loggedInUser;
@@ -44,6 +46,7 @@ public class OrganizerMenu implements EventManageable {
     public OrganizerMenu(Scanner in, HashMap<Integer, Event> eventMap,
                          DataManager dataManager, User loggedInUser) {
         this.in = in;
+        this.reader = new InputReader(in);
         this.eventMap = eventMap;
         this.dataManager = dataManager;
         this.loggedInUser = loggedInUser;
@@ -150,21 +153,21 @@ public class OrganizerMenu implements EventManageable {
             System.out.println("Invalid type. Please enter Sport, Concert, or Special.");
         }
         
-        String name = readNonBlank("Enter Event Name: ");
-        String date = readDate("Enter Event Date (MM/DD/YYYY): ");
-        String time = readTime("Enter Event Time (hh:mm AM/PM): ");
-        String venue = readNonBlank("Enter Venue / Location: ");
-        int capacity = readPositiveInt("Enter Total Capacity (total seats): ");
-        double vipPrice = readPositiveDouble("Enter VIP Ticket Price: $");
-        double goldPrice = readPositiveDouble("Enter Gold Ticket Price: $");
-        double silverPrice = readPositiveDouble("Enter Silver Ticket Price: $");
-        double bronzePrice = readPositiveDouble("Enter Bronze Ticket Price: $");
-        double gaPrice = readPositiveDouble("Enter General Admission Ticket Price: $");
-        int vipSeats = readPositiveInt("Enter number of VIP seats: ");
-        int goldSeats = readPositiveInt("Enter number of Gold seats: ");
-        int silverSeats = readPositiveInt("Enter number of Silver seats: ");
-        int bronzeSeats = readPositiveInt("Enter number of Bronze seats: ");
-        int gaSeats = readPositiveInt("Enter number of General Admission seats: ");
+        String name = reader.readNonBlank("Enter Event Name: ");
+        String date = reader.readDate("Enter Event Date (MM/DD/YYYY): ");
+        String time = reader.readTime("Enter Event Time (hh:mm AM/PM): ");
+        String venue = reader.readNonBlank("Enter Venue / Location: ");
+        int capacity = reader.readPositiveInt("Enter Total Capacity (total seats): ");
+        double vipPrice = reader.readPositiveDouble("Enter VIP Ticket Price: $");
+        double goldPrice = reader.readPositiveDouble("Enter Gold Ticket Price: $");
+        double silverPrice = reader.readPositiveDouble("Enter Silver Ticket Price: $");
+        double bronzePrice = reader.readPositiveDouble("Enter Bronze Ticket Price: $");
+        double gaPrice = reader.readPositiveDouble("Enter General Admission Ticket Price: $");
+        int vipSeats = reader.readPositiveInt("Enter number of VIP seats: ");
+        int goldSeats = reader.readPositiveInt("Enter number of Gold seats: ");
+        int silverSeats = reader.readPositiveInt("Enter number of Silver seats: ");
+        int bronzeSeats = reader.readPositiveInt("Enter number of Bronze seats: ");
+        int gaSeats = reader.readPositiveInt("Enter number of General Admission seats: ");
 
         int id = dataManager.generateUniqueEventId();
         Event newEvent;
@@ -219,7 +222,7 @@ public class OrganizerMenu implements EventManageable {
             System.out.print("Enter search term (Event ID, Name, or Date): ");
             String query = in.nextLine().trim();
             try {
-                Event found = searchEvent(query);
+                Event found = dataManager.resolveEvent(eventMap, query, in);
                 System.out.println(found);
                 String actionDetail = "Organizer " + loggedInUser.getUserID() + " searched and viewed event " + found.getEventID() + ".";
                 Logger.logAction(actionDetail);
@@ -239,7 +242,7 @@ public class OrganizerMenu implements EventManageable {
         System.out.print("\nEnter search term to find event (Event ID, Name, or Date): ");
         String query = in.nextLine().trim();
         try {
-            Event found = searchEvent(query);
+            Event found = dataManager.resolveEvent(eventMap, query, in);
             System.out.println("\nFound: " + found.getEventName());
             System.out.println("\n===== Update Event =====");
             System.out.println("1. Change Name");
@@ -249,14 +252,14 @@ public class OrganizerMenu implements EventManageable {
             String choice = in.nextLine().trim();
 
             if (choice.equals("1")) {
-                String newName = readNonBlank("Enter new event name: ");
+                String newName = reader.readNonBlank("Enter new event name: ");
                 found.setEventName(newName);
                 System.out.println("Event name updated successfully.");
                 String actionDetail = "Organizer " + loggedInUser.getUserID() + " updated event " + found.getEventID() + " name to \"" + newName + "\".";
                 Logger.logAction(actionDetail);
             } else if (choice.equals("2")) {
-                String newDate = readDate("Enter new date (MM/DD/YYYY): ");
-                String newTime = readTime("Enter new time (hh:mm AM/PM): ");
+                String newDate = reader.readDate("Enter new date (MM/DD/YYYY): ");
+                String newTime = reader.readTime("Enter new time (hh:mm AM/PM): ");
                 found.setDate(newDate);
                 found.setTime(newTime);
                 System.out.println("Event date and time updated successfully.");
@@ -279,7 +282,7 @@ public class OrganizerMenu implements EventManageable {
         System.out.print("\nEnter search term to find event (Event ID, Name, or Date): ");
         String query = in.nextLine().trim();
         try {
-            Event found = searchEvent(query);
+            Event found = dataManager.resolveEvent(eventMap, query, in);
             System.out.println("\nEvent found:");
             System.out.println(found);
             System.out.print("Are you sure you want to delete this event? (yes/no): ");
@@ -298,21 +301,6 @@ public class OrganizerMenu implements EventManageable {
         }
     }
 
-    /**
-     * Searches for an event by ID, name, or date and returns it.
-     * Uses the custom EventNotFoundException for not-found cases.
-     *
-     * @param query the search term (Event ID, Name, or Date)
-     * @return the found Event
-     * @throws EventNotFoundException if no event matches the query
-     */
-    private Event searchEvent(String query) throws EventNotFoundException {
-        Event found = resolveEvent(query);
-        if (found == null) {
-            throw new EventNotFoundException("Event not found. Please try again.");
-        }
-        return found;
-    }
 
     /**
      * Generates and displays a detailed event report on the console, including
@@ -322,7 +310,7 @@ public class OrganizerMenu implements EventManageable {
         System.out.print("\nEnter search term to find event (Event ID, Name, or Date): ");
         String query = in.nextLine().trim();
         try {
-            Event found = searchEvent(query);
+            Event found = dataManager.resolveEvent(eventMap, query, in);
 
             double revenueVip = found.getVipSeatsSold() * found.getVipPrice();
             double revenueGold = found.getGoldSeatsSold() * found.getGoldPrice();
@@ -331,7 +319,7 @@ public class OrganizerMenu implements EventManageable {
             double revenueGA = found.getGeneralAdmissionSeatsSold() * found.getGeneralAdmissionPrice();
             double totalRevenue = revenueVip + revenueGold + revenueSilver + revenueBronze + revenueGA;
             double expectedProfit = found.getExpectedProfit();
-            double actualProfit = totalRevenue;
+            double actualProfit = totalRevenue - found.getTaxCollected();
 
             System.out.println("\n===== Event Report =====");
             System.out.printf("Event ID: %d%n", found.getEventID());
@@ -364,133 +352,5 @@ public class OrganizerMenu implements EventManageable {
     }
 
 
-    /**
-     * Searches the event map for events matching the given query (by ID, name, or date).
-     * If multiple matches are found, prompts the user to disambiguate by ID.
-     *
-     * @param input the search query (numeric ID, event name, or date string)
-     * @return the matched Event, or null if no match is found
-     */
-    private Event resolveEvent(String input) {
-        List<Event> matches = dataManager.findEvents(eventMap, input);
 
-        if (matches.isEmpty()) {
-            return null;
-        }
-        if (matches.size() == 1) {
-            return matches.get(0);
-        }
-
-        System.out.println("Multiple events found:");
-        for (Event e : matches) {
-            System.out.println("  ID: " + e.getEventID() + " | Name: " + e.getEventName()
-                    + " | Date: " + e.getDate());
-        }
-        while (true) {
-            System.out.print("Please enter the ID to select a specific event: ");
-            String refined = in.nextLine().trim();
-            try {
-                int id = Integer.parseInt(refined);
-                for (Event e : matches) {
-                    if (e.getEventID() == id) {
-                        return e;
-                    }
-                }
-            } catch (NumberFormatException ignored) {}
-            System.out.println("Selection does not match any of the found events. Please try again.");
-        }
-    }
-
-    /**
-     * Repeatedly prompts the user until a non-blank string is entered.
-     *
-     * @param prompt the message to display before reading input
-     * @return the non-blank string entered by the user
-     */
-    private String readNonBlank(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            String input = in.nextLine().trim();
-            if (!input.isEmpty()) return input;
-            System.out.println("This field cannot be blank. Please try again.");
-        }
-    }
-
-    /**
-     * Repeatedly prompts the user until a non-negative integer is entered.
-     *
-     * @param prompt the prompt message to display
-     * @return the non-negative integer value entered by the user
-     */
-    private int readPositiveInt(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            try {
-                int value = Integer.parseInt(in.nextLine().trim());
-                if (value >= 0) return value;
-                System.out.println("Value cannot be negative. Please try again.");
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a whole number.");
-            }
-        }
-    }
-
-    /**
-     * Repeatedly prompts the user until a non-negative double is entered.
-     *
-     * @param prompt the prompt message to display
-     * @return the non-negative double value entered by the user
-     */
-    private double readPositiveDouble(String prompt) {
-        while (true) {
-            System.out.print(prompt);
-            try {
-                double value = Double.parseDouble(in.nextLine().trim());
-                if (value >= 0) return value;
-                System.out.println("Price cannot be negative. Please try again.");
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
-            }
-        }
-    }
-
-    /**
-     * Repeatedly prompts the user until a valid date string in MM/DD/YYYY format is entered.
-     *
-     * @param prompt the message to display before reading input
-     * @return a valid date string in MM/DD/YYYY format
-     */
-    private String readDate(String prompt) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
-        while (true) {
-            System.out.print(prompt);
-            String input = in.nextLine().trim();
-            try {
-                LocalDate.parse(input, formatter);
-                return input;
-            } catch (DateTimeParseException e) {
-                System.out.println("Invalid date. Please enter a valid date in MM/DD/YYYY format.");
-            }
-        }
-    }
-
-    /**
-     * Repeatedly prompts the user until a valid time string in hh:mm AM/PM format is entered.
-     *
-     * @param prompt the message to display before reading input
-     * @return a valid time string in hh:mm AM/PM format
-     */
-    private String readTime(String prompt) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("hh:mm a");
-        while (true) {
-            System.out.print(prompt);
-            String input = in.nextLine().trim().toUpperCase();
-            try {
-                LocalTime.parse(input, formatter);
-                return input;
-            } catch (DateTimeParseException e) {
-                System.out.println("Invalid time. Please enter a valid time in hh:mm AM/PM format (e.g. 07:30 PM).");
-            }
-        }
-    }
 }

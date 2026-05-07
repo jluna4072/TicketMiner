@@ -1,14 +1,5 @@
 package utility;
 
-/**
- * Handles loading and searching of user, venue, and event data.
- * Reads CSV files and stores records in HashMaps for efficient lookup.
- *
- * @author Jacob Luna
- * @author Carlos Marquez
- * @author Alan Gutierrez-Zaragoza
- */
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -18,6 +9,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 import model.events.Concert;
 import model.events.Event;
 import model.events.Special;
@@ -32,6 +24,14 @@ import model.venues.OpenAir;
 import model.venues.Stadium;
 import model.venues.Venue;
 
+/**
+ * Handles loading and searching of user, venue, and event data.
+ * Reads CSV files and stores records in HashMaps for efficient lookup.
+ *
+ * @author Jacob Luna
+ * @author Carlos Marquez
+ * @author Alan Gutierrez-Zaragoza
+ */
 public class DataManager {
 
     private int lastUserIDSeen = 0;
@@ -41,6 +41,7 @@ public class DataManager {
     private String userHeader = "";
     private String eventHeader = "";
     private String venueHeader = "";
+    private final HashMap<String, String> venueNameToId = new HashMap<>();
 
     /**
      * Searches the user map for users matching the given query. Lookup priority is:
@@ -225,13 +226,15 @@ public class DataManager {
     /**
      * Reads a CSV file of events and populates a map keyed by event ID.
      * Parses the header row dynamically to determine column positions, so the CSV
-     * columns can be in any order.
+     * columns can be in any order. If a "Venue ID" column is present, seat counts
+     * are computed automatically from the linked venue's capacity and seat percentages.
      * Also tracks the highest event ID seen to support unique ID generation.
      *
-     * @param fileName path to the CSV file containing event records
+     * @param fileName  path to the CSV file containing event records
+     * @param venueMap  the loaded venue map used to compute seat counts from venue data
      * @return a {@link HashMap} mapping event ID to the corresponding {@link Event} object
      */
-    public HashMap<Integer, Event> loadEvents(String fileName) {
+    public HashMap<Integer, Event> loadEvents(String fileName, HashMap<Integer, Venue> venueMap) {
         HashMap<Integer, Event> eventMap = new HashMap<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
@@ -266,6 +269,22 @@ public class DataManager {
                         event = new Special(id, type, name, date, time, vipPrice, goldPrice, silverPrice, bronzePrice, generalAdmissionPrice);
                     }
                 }
+
+                if (col.containsKey("venue id")) {
+                    int venueId = Integer.parseInt(fields[col.get("venue id")].trim());
+                    Venue venue = venueMap.get(venueId);
+                    if (venue != null) {
+                        int capacity = venue.getCapacity();
+                        event.setVenue(venue.getName());
+                        event.setCapacity(capacity);
+                        event.setVipSeats((int) (capacity * venue.getVipPercent() / 100.0));
+                        event.setGoldSeats((int) (capacity * venue.getGoldPercent() / 100.0));
+                        event.setSilverSeats((int) (capacity * venue.getSilverPercent() / 100.0));
+                        event.setBronzeSeats((int) (capacity * venue.getBronzePercent() / 100.0));
+                        event.setGeneralAdmissionSeats((int) (capacity * venue.getGeneralAdmissionPercent() / 100.0));
+                    }
+                }
+
                 lastEventIDSeen = Math.max(lastEventIDSeen, id);
                 eventMap.put(id, event);
             }
@@ -328,6 +347,7 @@ public class DataManager {
                 }
                 lastVenueIDSeen = Math.max(lastVenueIDSeen, id);
                 venueMap.put(id, venue);
+                venueNameToId.put(name, String.valueOf(id));
             }
 
         } catch (IOException e) {
@@ -345,28 +365,18 @@ public class DataManager {
      */
     private String getEventField(String colName, Event event) {
         switch (colName) {
-            case "id":
-                return String.valueOf(event.getEventID());
-            case "type":
-                return event.getType();
-            case "name":
-                return event.getEventName();
-            case "date":
-                return event.getDate();
-            case "time":
-                return event.getTime();
-            case "vip price":
-                return String.valueOf(event.getVipPrice());
-            case "gold price":
-                return String.valueOf(event.getGoldPrice());
-            case "silver price":
-                return String.valueOf(event.getSilverPrice());
-            case "bronze price":
-                return String.valueOf(event.getBronzePrice());
-            case "general admission price":
-                return String.valueOf(event.getGeneralAdmissionPrice());
-            default:
-                return "";
+            case "id": return String.valueOf(event.getEventID());
+            case "type": return event.getType();
+            case "name": return event.getEventName();
+            case "date": return event.getDate();
+            case "time": return event.getTime();
+            case "vip price": return String.valueOf(event.getVipPrice());
+            case "gold price": return String.valueOf(event.getGoldPrice());
+            case "silver price": return String.valueOf(event.getSilverPrice());
+            case "bronze price": return String.valueOf(event.getBronzePrice());
+            case "general admission price": return String.valueOf(event.getGeneralAdmissionPrice());
+            case "venue id": return venueNameToId.getOrDefault(event.getVenue(), "");
+            default: return "";
         }
     }
 
@@ -511,14 +521,117 @@ public class DataManager {
             System.out.println("Error writing venues file: " + e.getMessage());
         }
     }
-/* 
-     
     /**
-     * This reads the customerHistory, dont see any purpose other chainging it to 
-     * printing the whole customr history or a specific transaction
-     * @param fileName
-     * @param usermMap
-     * @param eventMap
+     * Searches for an event matching the query and prompts the user to disambiguate
+     * if multiple matches are found.
+     *
+     * @param eventMap the map of event ID to Event
+     * @param query the search term (numeric ID, event name, or date)
+     * @param in the Scanner for user input when disambiguation is needed
+     * @return the matched Event
+     * @throws EventNotFoundException if no event matches the query
+     */
+    public Event resolveEvent(HashMap<Integer, Event> eventMap, String query, Scanner in) throws EventNotFoundException {
+        List<Event> matches = findEvents(eventMap, query);
+
+        if (matches.isEmpty()) {
+            throw new EventNotFoundException("Event not found for query: " + query);
+        }
+        if (matches.size() == 1) {
+            return matches.get(0);
+        }
+
+        System.out.println("Multiple events found:");
+        for (Event e : matches) {
+            System.out.println("  ID: " + e.getEventID() + " | Name: " + e.getEventName()
+                    + " | Date: " + e.getDate());
+        }
+        while (true) {
+            System.out.print("Please enter the ID to select a specific event: ");
+            String refined = in.nextLine().trim();
+            try {
+                int id = Integer.parseInt(refined);
+                for (Event e : matches) {
+                    if (e.getEventID() == id) {
+                        return e;
+                    }
+                }
+            } catch (NumberFormatException ignored) {}
+            System.out.println("Selection does not match any of the found events. Please try again.");
+        }
+    }
+
+    /**
+     * Searches for a user matching the query and prompts to disambiguate
+     * if multiple matches are found.
+     *
+     * @param userMap the map of username to User
+     * @param query the search term (numeric ID, username, or "First Last")
+     * @param in the Scanner for user input when disambiguation is needed
+     * @return the matched User, or null if no match is found
+     */
+    public User resolveUser(HashMap<String, User> userMap, String query, Scanner in) {
+        List<User> matches = findUsers(userMap, query);
+
+        if (matches.isEmpty()) return null;
+        if (matches.size() == 1) return matches.get(0);
+
+        System.out.println("Multiple members found with that name:");
+        for (User u : matches) {
+            System.out.println("  ID: " + u.getUserID() + " | Username: " + u.getUsername()
+                    + " | " + u.getFirstName() + " " + u.getLastName());
+        }
+        while (true) {
+            System.out.print("Please enter the ID or username to select a specific member: ");
+            String refined = in.nextLine().trim();
+            for (User u : matches) {
+                if (u.getUsername().equals(refined)) return u;
+                try {
+                    if (u.getUserID() == Integer.parseInt(refined)) return u;
+                } catch (NumberFormatException ignored) {}
+            }
+            System.out.println("Selection does not match any of the found members. Please try again.");
+        }
+    }
+
+    /**
+     * Searches for a venue matching the query and prompts to disambiguate
+     * if multiple matches are found.
+     *
+     * @param venueMap the map of venue ID to Venue
+     * @param query the search term (numeric ID, venue name, or venue type)
+     * @param in the Scanner for user input when disambiguation is needed
+     * @return the matched Venue, or null if no match is found
+     */
+    public Venue resolveVenue(HashMap<Integer, Venue> venueMap, String query, Scanner in) {
+        List<Venue> matches = findVenues(venueMap, query);
+
+        if (matches.isEmpty()) return null;
+        if (matches.size() == 1) return matches.get(0);
+
+        System.out.println("Multiple venues found:");
+        for (Venue v : matches) {
+            System.out.println("  ID: " + v.getVenueID() + " | Name: " + v.getName()
+                    + " | Type: " + v.getType());
+        }
+        while (true) {
+            System.out.print("Please enter the ID or name to select a specific venue: ");
+            String refined = in.nextLine().trim();
+            for (Venue v : matches) {
+                if (v.getName().equalsIgnoreCase(refined)) return v;
+                try {
+                    if (v.getVenueID() == Integer.parseInt(refined)) return v;
+                } catch (NumberFormatException ignored) {}
+            }
+            System.out.println("Selection does not match any of the found venues. Please try again.");
+        }
+    }
+
+    /**
+     * Prints all order history entries for a given customer from the history CSV file.
+     *
+     * @param fileName the path to the customer order history CSV
+     * @param userID the customer's ID to filter by
      */
    public void printCustomerHistory(String fileName, int userID) {
     File file = new File(fileName);
@@ -546,23 +659,26 @@ public class DataManager {
     }
 }
     /**
-     * @param fileName
-     * @param userMap
-     * Writes the customersHistory/Transaction, could sort later for the customer but its 
-     * an extra activity for now
-     * 
-     * CustomerId, eventName, eventDate, ticketType, numOfTickets,totalPrice,
-     * and confirmationNumber
+     * Writes a customer's purchase transaction to the order history CSV file.
+     *
+     * @param fileName the path to the CSV file
+     * @param userID the customer's ID
+     * @param eventType the type of event (Sport, Concert, Special)
+     * @param eventName the name of the event
+     * @param eventDate the date of the event
+     * @param ticketType the type of ticket purchased (VIP, Gold, Silver, Bronze, General Admission)
+     * @param numOfTickets the number of tickets purchased
+     * @param totalCost the total cost charged to the customer
+     * @param confirmNum the confirmation number for this transaction
      */
-   public void writeCustomerHistory(String fileName, int userID, String eventName, String eventDate, boolean hasMembership, int numOfTickets, double totalCost){
-    try (PrintWriter writer = new PrintWriter(new FileWriter(fileName, true))) {
-        writer.printf("%d,%s,%s,%s,%b,%.2f,%d%n", 
-            userID, eventName, eventDate, hasMembership, numOfTickets, totalCost, confirmationNumber); 
+    public void writeCustomerHistory(String fileName, int userID, String eventType, String eventName, String eventDate, String ticketType, int numOfTickets, double totalCost, int confirmNum) {
+        try (PrintWriter writer = new PrintWriter(new FileWriter(fileName, true))) {
+            writer.printf("%d,%s,%s,%s,%s,%d,%.2f,%d%n",
+                userID, eventType, eventName, eventDate, ticketType, numOfTickets, totalCost, confirmNum);
+        } catch (IOException e) {
+            System.out.println("Error writing customer history file: " + e.getMessage());
+        }
     }
-    catch (IOException e){
-        System.out.println("Error writing customer history file: " + e.getMessage());
-    }
-}
     
     /**
      * Increments and returns the next unique user ID based on the highest ID seen during load.
@@ -594,6 +710,11 @@ public class DataManager {
         return lastEventIDSeen;
     }
 
+    /**
+     * Increments and returns the next unique confirmation number for a purchase transaction.
+     *
+     * @return a new unique confirmation number
+     */
     public int generateConfirmationNumber(){
         confirmationNumber++;
         return confirmationNumber;

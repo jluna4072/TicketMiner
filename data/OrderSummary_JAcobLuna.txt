@@ -1,0 +1,21 @@
+========================================
+       Electronic Order Summary
+========================================
+Customer: JAcob Luna
+Customer ID: 1038
+========================================
+
+Order #1
+----------------------------------------
+Event Type:          Sport
+Event Name:          UTEP Football 1
+Event Date:          09/04/2025
+Ticket Type:         VIP
+Number of Tickets:   3
+Total Price:         $76.72
+Confirmation Number: 1
+----------------------------------------
+
+========================================
+         End of Order Summary
+========================================

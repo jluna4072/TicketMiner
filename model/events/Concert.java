@@ -1,3 +1,5 @@
+package model.events;
+
 /**
  * Represents a Concert event in the TicketMiner system.
  * Extends the abstract Event class.
@@ -6,8 +8,6 @@
  * @author Carlos Marquez
  * @author Alan Gutierrez-Zaragoza
  */
-package model.events;
-
 public class Concert extends Event {
     /**
      * Constructs a default Concert with no initial field values.
