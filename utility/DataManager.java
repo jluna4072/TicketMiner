@@ -32,13 +32,16 @@ import model.venues.OpenAir;
 import model.venues.Stadium;
 import model.venues.Venue;
 
-//Assumed input files will not change and hardcoded their names for standard initialization
 public class DataManager {
 
     private int lastUserIDSeen = 0;
     private int lastVenueIDSeen = 0;
     private int lastEventIDSeen = 0;
     private int confirmationNumber = 0;
+    private String userHeader = "";
+    private String eventHeader = "";
+    private String venueHeader = "";
+
     /**
      * Searches the user map for users matching the given query. Lookup priority is:
      * numeric ID first, then exact username match, then case-insensitive full name match.
@@ -150,7 +153,25 @@ public class DataManager {
     }
 
     /**
+     * Builds a mapping of normalized (lowercase, trimmed) column names to their index positions
+     * from a CSV header row. This allows the system to handle input files regardless of column order.
+     *
+     * @param headerLine the first line of the CSV containing column names
+     * @return a {@link HashMap} mapping lowercase column name to column index
+     */
+    private HashMap<String, Integer> buildColumnMap(String headerLine) {
+        HashMap<String, Integer> columnMap = new HashMap<>();
+        String[] headers = headerLine.split(",");
+        for (int i = 0; i < headers.length; i++) {
+            columnMap.put(headers[i].trim().toLowerCase(), i);
+        }
+        return columnMap;
+    }
+
+    /**
      * Reads a CSV file of users and populates a map keyed by username.
+     * Parses the header row dynamically to determine column positions, so the CSV
+     * columns can be in any order.
      * Also tracks the highest user ID seen to support unique ID generation.
      *
      * @param fileName path to the CSV file containing user records
@@ -160,25 +181,27 @@ public class DataManager {
         HashMap<String, User> userMap = new HashMap<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String headerLine = br.readLine();
+            if (headerLine == null) return userMap;
+            this.userHeader = headerLine;
+            HashMap<String, Integer> col = buildColumnMap(headerLine);
             String line;
-            br.readLine();
-
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
 
-                int id = Integer.parseInt(fields[0].trim());
-                String firstName = fields[1].trim();
-                String lastName = fields[2].trim();
-                String username = fields[3].trim();
-                String password = fields[4].trim();
-                String userType = fields[5].trim();
+                int id = Integer.parseInt(fields[col.get("id")].trim());
+                String firstName = fields[col.get("first name")].trim();
+                String lastName = fields[col.get("last name")].trim();
+                String username = fields[col.get("username")].trim();
+                String password = fields[col.get("password")].trim();
+                String userType = fields[col.get("user type")].trim();
 
                 User user;
                 switch (userType) {
                     case "Customer" -> {
-                        double moneyAvailable = Double.parseDouble(fields[6].trim());
-                        boolean isMember = Boolean.parseBoolean(fields[7].trim());
-                        int concertsPurchased = Integer.parseInt(fields[8].trim());
+                        double moneyAvailable = Double.parseDouble(fields[col.get("money available")].trim());
+                        boolean isMember = Boolean.parseBoolean(fields[col.get("ticketminer membership")].trim());
+                        int concertsPurchased = Integer.parseInt(fields[col.get("concerts purchased")].trim());
                         user = new Customer(id, firstName, lastName, username, password, userType, moneyAvailable, isMember, concertsPurchased);
                     }
                     case "Organizer" -> {
@@ -201,6 +224,8 @@ public class DataManager {
 
     /**
      * Reads a CSV file of events and populates a map keyed by event ID.
+     * Parses the header row dynamically to determine column positions, so the CSV
+     * columns can be in any order.
      * Also tracks the highest event ID seen to support unique ID generation.
      *
      * @param fileName path to the CSV file containing event records
@@ -210,22 +235,24 @@ public class DataManager {
         HashMap<Integer, Event> eventMap = new HashMap<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String headerLine = br.readLine();
+            if (headerLine == null) return eventMap;
+            this.eventHeader = headerLine;
+            HashMap<String, Integer> col = buildColumnMap(headerLine);
             String line;
-            br.readLine();
-
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
 
-                int id = Integer.parseInt(fields[0].trim());
-                String type = fields[1].trim();
-                String name = fields[2].trim();
-                String date = fields[3].trim();
-                String time = fields[4].trim();
-                double vipPrice = Double.parseDouble(fields[5].trim());
-                double goldPrice = Double.parseDouble(fields[6].trim());
-                double silverPrice = Double.parseDouble(fields[7].trim());
-                double bronzePrice = Double.parseDouble(fields[8].trim());
-                double generalAdmissionPrice = Double.parseDouble(fields[9].trim());
+                int id = Integer.parseInt(fields[col.get("id")].trim());
+                String type = fields[col.get("type")].trim();
+                String name = fields[col.get("name")].trim();
+                String date = fields[col.get("date")].trim();
+                String time = fields[col.get("time")].trim();
+                double vipPrice = Double.parseDouble(fields[col.get("vip price")].trim());
+                double goldPrice = Double.parseDouble(fields[col.get("gold price")].trim());
+                double silverPrice = Double.parseDouble(fields[col.get("silver price")].trim());
+                double bronzePrice = Double.parseDouble(fields[col.get("bronze price")].trim());
+                double generalAdmissionPrice = Double.parseDouble(fields[col.get("general admission price")].trim());
                 Event event;
 
                 switch (type) {
@@ -252,6 +279,8 @@ public class DataManager {
 
     /**
      * Reads a CSV file of venues and populates a map keyed by venue ID.
+     * Parses the header row dynamically to determine column positions, so the CSV
+     * columns can be in any order.
      * Also tracks the highest venue ID seen to support unique ID generation.
      *
      * @param fileName path to the CSV file containing venue records
@@ -261,24 +290,26 @@ public class DataManager {
         HashMap<Integer, Venue> venueMap = new HashMap<>();
 
         try (BufferedReader br = new BufferedReader(new FileReader(fileName))) {
+            String headerLine = br.readLine();
+            if (headerLine == null) return venueMap;
+            this.venueHeader = headerLine;
+            HashMap<String, Integer> col = buildColumnMap(headerLine);
             String line;
-            br.readLine();
-
             while ((line = br.readLine()) != null) {
                 String[] fields = line.split(",");
 
-                int id = Integer.parseInt(fields[0].trim());
-                String name = fields[1].trim();
-                String type = fields[2].trim();
-                int capacity = Integer.parseInt(fields[3].trim());
-                int concertCapacity = Integer.parseInt(fields[4].trim());
-                double cost = Double.parseDouble(fields[5].trim());
-                int vipPercent = Integer.parseInt(fields[6].trim());
-                int goldPercent = Integer.parseInt(fields[7].trim());
-                int silverPercent = Integer.parseInt(fields[8].trim());
-                int bronzePercent = Integer.parseInt(fields[9].trim());
-                int generalAdmissionPercent = Integer.parseInt(fields[10].trim());
-                int reservedPercent = Integer.parseInt(fields[11].trim());
+                int id = Integer.parseInt(fields[col.get("id")].trim());
+                String name = fields[col.get("name")].trim();
+                String type = fields[col.get("type")].trim();
+                int capacity = Integer.parseInt(fields[col.get("capacity")].trim());
+                int concertCapacity = Integer.parseInt(fields[col.get("concert capacity")].trim());
+                double cost = Double.parseDouble(fields[col.get("cost")].trim());
+                int vipPercent = Integer.parseInt(fields[col.get("vip percent")].trim());
+                int goldPercent = Integer.parseInt(fields[col.get("gold percent")].trim());
+                int silverPercent = Integer.parseInt(fields[col.get("silver percent")].trim());
+                int bronzePercent = Integer.parseInt(fields[col.get("bronze percent")].trim());
+                int generalAdmissionPercent = Integer.parseInt(fields[col.get("general admission percent")].trim());
+                int reservedPercent = Integer.parseInt(fields[col.get("reserved extra percent")].trim());
                 Venue venue;
 
                 switch (type) {
@@ -306,21 +337,129 @@ public class DataManager {
     }
 
     /**
-     * Writes all events in the provided map to a new CSV file.
-     * Does not overwrite the original input file.
+     * Returns the value for a given column name from an Event object.
+     *
+     * @param colName the lowercase column name
+     * @param event the Event to extract the value from
+     * @return the string representation of the value for that column
+     */
+    private String getEventField(String colName, Event event) {
+        switch (colName) {
+            case "id":
+                return String.valueOf(event.getEventID());
+            case "type":
+                return event.getType();
+            case "name":
+                return event.getEventName();
+            case "date":
+                return event.getDate();
+            case "time":
+                return event.getTime();
+            case "vip price":
+                return String.valueOf(event.getVipPrice());
+            case "gold price":
+                return String.valueOf(event.getGoldPrice());
+            case "silver price":
+                return String.valueOf(event.getSilverPrice());
+            case "bronze price":
+                return String.valueOf(event.getBronzePrice());
+            case "general admission price":
+                return String.valueOf(event.getGeneralAdmissionPrice());
+            default:
+                return "";
+        }
+    }
+
+    /**
+     * Returns the value for a given column name from a User object.
+     *
+     * @param colName the lowercase column name
+     * @param user the User to extract the value from
+     * @return the string representation of the value for that column
+     */
+    private String getUserField(String colName, User user) {
+        switch (colName) {
+            case "id": return String.valueOf(user.getUserID());
+            case "first name": return user.getFirstName();
+            case "last name": return user.getLastName();
+            case "username": return user.getUsername();
+            case "password": return user.getPassword();
+            case "user type": return user.getUserType();
+            case "money available":
+                if (user instanceof Customer) {
+                    return String.valueOf(((Customer) user).getMoneyAvailable());
+                } else {
+                    return "";
+                }
+            case "ticketminer membership":
+                if (user instanceof Customer){
+                    return String.valueOf(((Customer) user).hasMembership());
+                } else {
+                    return "false";
+                }
+            case "concerts purchased":
+                if (user instanceof Customer){
+                    return String.valueOf(((Customer) user).getConcertsPurchased());
+                }
+                return "0";
+            default: return "";
+        }
+    }
+
+    /**
+     * Returns the value for a given column name from a Venue object.
+     *
+     * @param colName the lowercase column name
+     * @param venue the Venue to extract the value from
+     * @return the string representation of the value for that column
+     */
+    private String getVenueField(String colName, Venue venue) {
+        switch (colName) {
+            case "id":
+                return String.valueOf(venue.getVenueID());
+            case "name":
+                return venue.getName();
+            case "type":
+                return venue.getType();
+            case "capacity":
+                return String.valueOf(venue.getCapacity());
+            case "concert capacity":
+                return String.valueOf(venue.getConcertCapacity());
+            case "cost":
+                return String.valueOf(venue.getCost());
+            case "vip percent":
+                return String.valueOf(venue.getVipPercent());
+            case "gold percent":
+                return String.valueOf(venue.getGoldPercent());
+            case "silver percent":
+                return String.valueOf(venue.getSilverPercent());
+            case "bronze percent":
+                return String.valueOf(venue.getBronzePercent());
+            case "general admission percent":
+                return String.valueOf(venue.getGeneralAdmissionPercent());
+            case "reserved extra percent":
+                return String.valueOf(venue.getReservedPercent());
+            default: return "";
+        }
+    }
+
+    /**
+     * Writes all events in the provided map to a CSV file, preserving the original column order.
      *
      * @param fileName path to the output CSV file
      * @param eventMap the map of event ID to {@link Event} to write
      */
     public void writeEvent(String fileName, HashMap<Integer, Event> eventMap) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
-            writer.println("ID,Type,Name,Date,Time,VIP Price,Gold Price,Silver Price,Bronze Price,General Admission Price");
+            writer.println(eventHeader);
+            String[] columns = eventHeader.split(",");
             for (Event event : eventMap.values()) {
-                writer.printf("%d,%s,%s,%s,%s,%s,%s,%s,%s,%s%n",
-                    event.getEventID(), event.getType(), event.getEventName(),
-                    event.getDate(), event.getTime(),
-                    event.getVipPrice(), event.getGoldPrice(), event.getSilverPrice(),
-                    event.getBronzePrice(), event.getGeneralAdmissionPrice());
+                StringBuilder line = new StringBuilder();
+                for (int i = 0; i < columns.length; i++) {
+                    if (i > 0) line.append(",");
+                    line.append(getEventField(columns[i].trim().toLowerCase(), event));
+                }
+                writer.println(line.toString());
             }
         } catch (IOException e) {
             System.out.println("Error writing events file: " + e.getMessage());
@@ -328,30 +467,20 @@ public class DataManager {
     }
 
     /**
-     * Writes all users in the provided map to a new CSV file.
+     * Writes all users in the provided map to a CSV file, preserving the original column order.
      *
      * @param fileName path to the output CSV file
      * @param userMap  the map of username to {@link User} to write
      */
     public void writeUsers(String fileName, HashMap<String, User> userMap) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
-            writer.println("ID,First Name,Last Name,Username,Password,User Type,Money Available,TicketMiner Membership,Concerts Purchased");
+            writer.println(userHeader);
+            String[] columns = userHeader.split(",");
             for (User user : userMap.values()) {
                 StringBuilder line = new StringBuilder();
-                line.append(user.getUserID()).append(",");
-                line.append(user.getFirstName()).append(",");
-                line.append(user.getLastName()).append(",");
-                line.append(user.getUsername()).append(",");
-                line.append(user.getPassword()).append(",");
-                line.append(user.getUserType()).append(",");
-
-                if (user instanceof Customer) {
-                    Customer c = (Customer) user;
-                    line.append(c.getMoneyAvailable()).append(",");
-                    line.append(c.hasMembership()).append(",");
-                    line.append(c.getConcertsPurchased());
-                } else {
-                    line.append("0.00,false,0");
+                for (int i = 0; i < columns.length; i++) {
+                    if (i > 0) line.append(",");
+                    line.append(getUserField(columns[i].trim().toLowerCase(), user));
                 }
                 writer.println(line.toString());
             }
@@ -361,19 +490,22 @@ public class DataManager {
     }
 
     /**
-     * Writes all venues in the provided map to a new CSV file.
+     * Writes all venues in the provided map to a CSV file, preserving the original column order.
      *
      * @param fileName path to the output CSV file
      * @param venueMap the map of venue ID to {@link Venue} to write
      */
     public void writeVenues(String fileName, HashMap<Integer, Venue> venueMap) {
         try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
+            writer.println(venueHeader);
+            String[] columns = venueHeader.split(",");
             for (Venue venue : venueMap.values()) {
-                writer.printf("%d,%s,%s,%d,%d,%.2f,%d,%d,%d,%d,%d,%d%n",
-                    venue.getVenueID(), venue.getName(), venue.getType(), venue.getCapacity(),
-                    venue.getConcertCapacity(), venue.getCost(), venue.getVipPercent(),
-                    venue.getGoldPercent(), venue.getSilverPercent(), venue.getBronzePercent(),
-                    venue.getGeneralAdmissionPercent(), venue.getReservedPercent());
+                StringBuilder line = new StringBuilder();
+                for (int i = 0; i < columns.length; i++) {
+                    if (i > 0) line.append(",");
+                    line.append(getVenueField(columns[i].trim().toLowerCase(), venue));
+                }
+                writer.println(line.toString());
             }
         } catch (IOException e) {
             System.out.println("Error writing venues file: " + e.getMessage());

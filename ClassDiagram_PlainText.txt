@@ -19,36 +19,90 @@ Methods:
 + displayMainMenu(): void
 + registerCustomer(): void
 + registerOrganizer(): void
-+ registerAdmin(): void
 + login(): void
-+ customerMenu(): void
-+ organizerMenu(): void
-+ adminMenu(): void
-+ manageUsers(): void
-+ addUser(): void
-+ viewUser(): void
-+ updateUser(): void
-+ deleteUser(): void
-- isUsernameUnique(username: String): boolean
-+ manageVenues(): void
-+ addVenue(): void
-+ viewVenue(): void
-+ updateVenue(): void
-+ deleteVenue(): void
-+ manageEvents(): void
+- readNonBlank(prompt: String): String
++ saveUpdatedData(): void
+
+
+Class: OrganizerMenu (implements EventManageable)
+------------------------------------------
+Fields:
+- in: Scanner
+- eventMap: HashMap<Integer, Event>
+- dataManager: DataManager
+- loggedInUser: User
+
+Methods:
++ OrganizerMenu(in: Scanner, eventMap: HashMap, dataManager: DataManager, loggedInUser: User)
++ show(): boolean
+- manageEvent(): void
 + addEvent(): void
 + viewEvent(): void
 + updateEvent(): void
 + deleteEvent(): void
+- searchEvent(query: String): Event
+- generateEventReport(): void
+- resolveEvent(input: String): Event
 - readNonBlank(prompt: String): String
 - readPositiveInt(prompt: String): int
 - readPositiveDouble(prompt: String): double
 - readDate(prompt: String): String
 - readTime(prompt: String): String
+
+
+Class: AdminMenu (implements EventManageable)
+------------------------------------------
+Fields:
+- in: Scanner
+- userMap: HashMap<String, User>
+- venueMap: HashMap<Integer, Venue>
+- eventMap: HashMap<Integer, Event>
+- dataManager: DataManager
+- loggedInUser: User
+
+Methods:
++ AdminMenu(in: Scanner, userMap: HashMap, venueMap: HashMap, eventMap: HashMap, dataManager: DataManager, loggedInUser: User)
++ show(): boolean
+- manageUsers(): void
+- addUser(): void
+- registerCustomer(): void
+- registerOrganizer(): void
+- registerAdmin(): void
+- viewUser(): void
+- updateUser(): void
+- deleteUser(): void
+- manageVenues(): void
+- addVenue(): void
+- viewVenue(): void
+- updateVenue(): void
+- deleteVenue(): void
+- manageEvents(): void
++ addEvent(): void
++ viewEvent(): void
++ updateEvent(): void
++ deleteEvent(): void
 - resolveUser(input: String): User
 - resolveVenue(input: String): Venue
 - resolveEvent(input: String): Event
-+ saveUpdatedData(): void
+- isUsernameUnique(username: String): boolean
+- readNonBlank(prompt: String): String
+- readPositiveInt(prompt: String): int
+- readPositiveDouble(prompt: String): double
+- readDate(prompt: String): String
+- readTime(prompt: String): String
+
+
+Class: CustomerMenu
+------------------------------------------
+Fields:
+- in: Scanner
+- eventMap: HashMap<Integer, Event>
+- dataManager: DataManager
+- loggedInUser: User
+
+Methods:
++ CustomerMenu(in: Scanner, eventMap: HashMap, dataManager: DataManager, loggedInUser: User)
++ show(): boolean
 
 
 Class: DataManager
@@ -57,14 +111,21 @@ Fields:
 - lastUserIDSeen: int
 - lastVenueIDSeen: int
 - lastEventIDSeen: int
+- userHeader: String
+- eventHeader: String
+- venueHeader: String
 
 Methods:
+- buildColumnMap(headerLine: String): HashMap<String, Integer>
 + findUsers(userMap: HashMap<String, User>, query: String): List<User>
 + findVenues(venueMap: HashMap<Integer, Venue>, query: String): List<Venue>
 + findEvents(eventMap: HashMap<Integer, Event>, query: String): List<Event>
 + loadUsers(fileName: String): HashMap<String, User>
 + loadEvents(fileName: String): HashMap<Integer, Event>
 + loadVenues(fileName: String): HashMap<Integer, Venue>
+- getEventField(colName: String, event: Event): String
+- getUserField(colName: String, user: User): String
+- getVenueField(colName: String, venue: Venue): String
 + writeEvent(fileName: String, eventMap: HashMap<Integer, Event>): void
 + writeUsers(fileName: String, userMap: HashMap<String, User>): void
 + writeVenues(fileName: String, venueMap: HashMap<Integer, Venue>): void
@@ -77,6 +138,21 @@ Class: Logger
 ------------------------------------------
 Methods:
 + {static} logAction(actionDetail: String): void
+
+
+Interface: EventManageable
+------------------------------------------
+Methods:
++ addEvent(): void
++ viewEvent(): void
++ updateEvent(): void
++ deleteEvent(): void
+
+
+Class: EventNotFoundException (extends Exception)
+------------------------------------------
+Methods:
++ EventNotFoundException(message: String)
 
 
 ==========================================
@@ -149,11 +225,23 @@ Fields:
 - name: String
 - date: String
 - time: String
+- venue: String
+- capacity: int
 - vipPrice: double
 - goldPrice: double
 - silverPrice: double
 - bronzePrice: double
 - generalAdmissionPrice: double
+- vipSeats: int
+- goldSeats: int
+- silverSeats: int
+- bronzeSeats: int
+- generalAdmissionSeats: int
+- vipSeatsSold: int
+- goldSeatsSold: int
+- silverSeatsSold: int
+- bronzeSeatsSold: int
+- generalAdmissionSeatsSold: int
 
 Methods:
 + getEventID(): int
@@ -166,11 +254,43 @@ Methods:
 + setDate(date: String): void
 + getTime(): String
 + setTime(time: String): void
++ getVenue(): String
++ setVenue(venue: String): void
++ getCapacity(): int
++ setCapacity(capacity: int): void
 + getVipPrice(): double
++ setVipPrice(vipPrice: double): void
 + getGoldPrice(): double
++ setGoldPrice(goldPrice: double): void
 + getSilverPrice(): double
++ setSilverPrice(silverPrice: double): void
 + getBronzePrice(): double
++ setBronzePrice(bronzePrice: double): void
 + getGeneralAdmissionPrice(): double
++ setGeneralAdmissionPrice(generalAdmissionPrice: double): void
++ getVipSeats(): int
++ setVipSeats(vipSeats: int): void
++ getGoldSeats(): int
++ setGoldSeats(goldSeats: int): void
++ getSilverSeats(): int
++ setSilverSeats(silverSeats: int): void
++ getBronzeSeats(): int
++ setBronzeSeats(bronzeSeats: int): void
++ getGeneralAdmissionSeats(): int
++ setGeneralAdmissionSeats(generalAdmissionSeats: int): void
++ getVipSeatsSold(): int
++ setVipSeatsSold(vipSeatsSold: int): void
++ getGoldSeatsSold(): int
++ setGoldSeatsSold(goldSeatsSold: int): void
++ getSilverSeatsSold(): int
++ setSilverSeatsSold(silverSeatsSold: int): void
++ getBronzeSeatsSold(): int
++ setBronzeSeatsSold(bronzeSeatsSold: int): void
++ getGeneralAdmissionSeatsSold(): int
++ setGeneralAdmissionSeatsSold(generalAdmissionSeatsSold: int): void
++ getTotalSeatsSold(): int
++ getTotalRevenue(): double
++ getExpectedProfit(): double
 + toString(): String
 
 
@@ -238,5 +358,9 @@ Subclasses:
 RELATIONSHIPS
 ==========================================
 - RunTicketMiner uses DataManager
-- RunTicketMiner logs actions via Logger
+- RunTicketMiner delegates to OrganizerMenu, AdminMenu, CustomerMenu
+- OrganizerMenu implements EventManageable
+- AdminMenu implements EventManageable
+- OrganizerMenu throws EventNotFoundException
+- OrganizerMenu, AdminMenu, CustomerMenu log actions via Logger
 - DataManager stores Users, Events, and Venues

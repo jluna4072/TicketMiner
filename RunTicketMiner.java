@@ -1,6 +1,7 @@
 /**
  * Main class for the TicketMiner application.
- * Provides a menu-driven console interface for managing users, venues, and events.
+ * Provides a menu-driven console interface for login, registration, and routing
+ * users to their role-specific menus.
  *
  * @author Jacob Luna
  * @author Carlos Marquez
@@ -8,10 +9,6 @@
  */
 
 import java.io.IOException;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.List;
@@ -19,6 +16,9 @@ import java.util.Scanner;
 import java.math.BigDecimal;
 import java.math.RoundingMode; 
 import model.events.Concert;
+import menus.AdminMenu;
+import menus.CustomerMenu;
+import menus.OrganizerMenu;
 import model.events.Event;
 import model.events.Special;
 import model.events.Sport;
@@ -33,23 +33,22 @@ import model.venues.Stadium;
 import model.venues.Venue;
 import utility.DataManager;
 import utility.Logger;
+import java.time.format.DateTimeParseException;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 public class RunTicketMiner {
 
     private final DataManager dataManager = new DataManager();
-    private final HashMap<String, User> userMap = dataManager.loadUsers("data/Customer_List_PA1.csv");
-    private final HashMap<Integer, Venue> venueMap = dataManager.loadVenues("data/Venue_List_PA1.csv");
-    private final HashMap<Integer, Event> eventMap = dataManager.loadEvents("data/Event_List_PA1.csv");
+    private final HashMap<String, User> userMap = dataManager.loadUsers("data/PA2CSVs/Customer_List_PA2.csv");
+    private final HashMap<Integer, Venue> venueMap = dataManager.loadVenues("data/PA2CSVs/Venue_List_PA2.csv");
+    private final HashMap<Integer, Event> eventMap = dataManager.loadEvents("data/PA2CSVs/Event_List_PA2.csv");
     private final Scanner in = new Scanner(System.in);
     public final double TEXAS_SALES_TAX = .0825;
     public final double DISCOUNT = .10;
     private User loggedInUser;
 
-    /**
-     * Entry point for the TicketMiner application. Instantiates the app and launches the main menu.
-     *
-     * @param args command-line arguments (not used)
-     */
     public static void main(String[] args) {
         RunTicketMiner app = new RunTicketMiner();
         System.out.println("System started.");
@@ -111,8 +110,7 @@ public class RunTicketMiner {
     }
 
     /**
-     * Prompts the user for all required fields and registers a new Customer account,
-     * adding it to the in-memory user map.
+     * Prompts the user for all required fields and registers a new Customer account.
      */
     public void registerCustomer() {
         String firstName = readNonBlank("Enter first name: ");
@@ -126,7 +124,7 @@ public class RunTicketMiner {
                 System.out.println("This field cannot be blank. Please try again.");
                 continue;
             }
-            if (isUsernameUnique(username)) {
+            if (!userMap.containsKey(username)) {
                 password = readNonBlank("Enter password: ");
                 break;
             } else {
@@ -150,27 +148,23 @@ public class RunTicketMiner {
         while (true) {
             try {
                 System.out.print("What is the initial amount of money available for the user? ");
-                initialAmount = in.nextDouble();
-                in.nextLine();
+                initialAmount = Double.parseDouble(in.nextLine().trim());
                 if (initialAmount >= 0) break;
                 System.out.println("Amount cannot be negative. Please try again.");
-            } catch (InputMismatchException e) {
+            } catch (NumberFormatException e) {
                 System.out.println("Invalid input. Please enter a valid number.");
-                in.nextLine();
             }
         }
         int userId = dataManager.generateUniqueUserId();
         Customer newCustomer = new Customer(userId, firstName, lastName, username, password, "Customer", initialAmount, becomeMember, 0);
         userMap.put(newCustomer.getUsername(), newCustomer);
-        //Logging action to file
         String actionDetail = "User " + userId + " has been registered as a Customer.";
         Logger.logAction(actionDetail);
         System.out.println("Customer registered successfully!");
     }
 
     /**
-     * Prompts the user for all required fields and registers a new Organizer account,
-     * adding it to the in-memory user map.
+     * Prompts the user for all required fields and registers a new Organizer account.
      */
     public void registerOrganizer() {
         String firstName = readNonBlank("Enter first name: ");
@@ -184,7 +178,7 @@ public class RunTicketMiner {
                 System.out.println("This field cannot be blank. Please try again.");
                 continue;
             }
-            if (isUsernameUnique(username)) {
+            if (!userMap.containsKey(username)) {
                 password = readNonBlank("Enter password: ");
                 break;
             } else {
@@ -194,18 +188,11 @@ public class RunTicketMiner {
         int userId = dataManager.generateUniqueUserId();
         User newOrganizer = new Organizer(userId, firstName, lastName, username, password, "Organizer");
         userMap.put(newOrganizer.getUsername(), newOrganizer);
-        //Logging action to file
-        String actionDetail = "User " + userId + " has registered as a Organizer to the system."; 
+        String actionDetail = "User " + userId + " has registered as a Organizer to the system.";
         Logger.logAction(actionDetail);
-
         System.out.println("Organizer registered successfully!");
-
     }
 
-    /**
-     * Prompts the user for all required fields and registers a new Admin account,
-     * adding it to the in-memory user map.
-     */
     public void registerAdmin() {
         String firstName = readNonBlank("Enter first name: ");
         String lastName = readNonBlank("Enter last name: ");
@@ -260,17 +247,21 @@ public class RunTicketMiner {
                 if (user.getPassword().equals(password)) {
                     loggedInUser = user;
                     System.out.println("Login successful! Welcome, " + loggedInUser.getFirstName() + "!");
-                    
+
                     String actionDetail = "User " + loggedInUser.getUserID() + " has logged into the system.";
                     Logger.logAction(actionDetail);
-                    
+
                     if (user instanceof Customer) {
+                        //CustomerMenu menu = new CustomerMenu(in, eventMap, dataManager, loggedInUser);
                         customerMenu();
                     } else if (user instanceof Organizer) {
-                        organizerMenu();
+                        OrganizerMenu menu = new OrganizerMenu(in, eventMap, dataManager, loggedInUser);
+                        menu.show();
                     } else if (user instanceof Admin) {
-                        adminMenu();
+                        AdminMenu menu = new AdminMenu(in, userMap, venueMap, eventMap, dataManager, loggedInUser);
+                        menu.show();
                     }
+                    loggedInUser = null;
                     break;
                 } else {
                     System.out.println("Incorrect password. Please try again.");
@@ -284,7 +275,6 @@ public class RunTicketMiner {
      * Displays the customer-facing menu. Currently a placeholder that returns to the main menu.
      */
     public void customerMenu() {
-        System.out.println("\nCustomer menu is under construction. Returning to main menu...");
         boolean logout = false; 
         while(!logout){
             System.out.println("\n=== Customer Menu ===");
@@ -1245,10 +1235,10 @@ public class RunTicketMiner {
      * Writes the current state of all maps (events, users, venues) to new CSV output files.
      * Called automatically on program exit.
      */
-    public void saveUpdatedData(){
-        dataManager.writeEvent("data/Event_List_PA1.csv", eventMap);
-        dataManager.writeUsers("data/Customer_List_PA1.csv", userMap);
-        dataManager.writeVenues("data/Venue_List_PA1.csv", venueMap);
+    public void saveUpdatedData() {
+        dataManager.writeEvent("data/PA2CSVs/Event_List_PA2.csv", eventMap);
+        dataManager.writeUsers("data/PA2CSVs/Customer_List_PA2.csv", userMap);
+        dataManager.writeVenues("data/PA2CSVs/Venue_List_PA2.csv", venueMap);
     }
 
         public void purchaseTickets(){
