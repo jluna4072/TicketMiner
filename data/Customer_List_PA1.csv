@@ -1,6 +1,5 @@
 ID,First Name,Last Name,Username,Password,User Type,Money Available,TicketMiner Membership,Concerts Purchased
 543,Angela,Walker,angelawalker,Fun!23,Admin,0.00,false,0
-1039,Jacob,Luna,jluna33,1234,Organizer,0.00,false,0
 75,Alexis,Reta,alexisreta,Fun!23,Customer,2913597.39,true,0
 771,Alexis,Black,alexisblack,Fun!23,Customer,2316072.69,true,0
 531,Alexander,Carter,alexandercarter,Fun!23,Customer,1799509.91,true,0
@@ -10,7 +9,7 @@ ID,First Name,Last Name,Username,Password,User Type,Money Available,TicketMiner 
 275,Allison,Chang,allisonchang,Fun!23,Organizer,0.00,false,0
 1037,Amanda,Baker,amandabaker,Fun!23,Organizer,0.00,false,0
 207,Amanda,Miller,amandamiller,Fun!23,Organizer,0.00,false,0
-1038,carlos,marquez,camarquez10,password1,Customer,85.21875,true,0
+1038,carlos,marquez,camarquez10,password1,Customer,72.93875,true,0
 592,Alyssa,Smith,alyssasmith,Fun!23,Organizer,0.00,false,0
 781,Alexandra,Simpson,alexandrasimpson,Fun!23,Customer,2157205.09,false,0
 38,Ali,Nouri,alinouri,Fun!23,Customer,1790899.54,true,0
