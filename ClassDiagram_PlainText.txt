@@ -34,7 +34,7 @@ Fields:
 - loggedInUser: User
 
 Methods:
-+ OrganizerMenu(in: Scanner, eventMap: HashMap, dataManager: DataManager, loggedInUser: User)
++ OrganizerMenu(in: Scanner, eventMap: HashMap<Integer, Event>, dataManager: DataManager, loggedInUser: User)
 + show(): boolean
 - manageEvent(): void
 + addEvent(): void
@@ -56,7 +56,7 @@ Fields:
 - loggedInUser: User
 
 Methods:
-+ AdminMenu(in: Scanner, userMap: HashMap, venueMap: HashMap, eventMap: HashMap, dataManager: DataManager, loggedInUser: User)
++ AdminMenu(in: Scanner, userMap: HashMap<String, User>, venueMap: HashMap<Integer, Venue>, eventMap: HashMap<Integer, Event>, dataManager: DataManager, loggedInUser: User)
 + show(): boolean
 - manageUsers(): void
 - addUser(): void
@@ -87,11 +87,11 @@ Fields:
 - dataManager: DataManager
 - loggedInUser: User
 - orderHistory: ArrayList<String[]>
-+ TEXAS_SALES_TAX: double
-+ DISCOUNT: double
++ {static} TEXAS_SALES_TAX: double
++ {static} DISCOUNT: double
 
 Methods:
-+ CustomerMenu(in: Scanner, eventMap: HashMap, dataManager: DataManager, loggedInUser: User)
++ CustomerMenu(in: Scanner, eventMap: HashMap<Integer, Event>, dataManager: DataManager, loggedInUser: User)
 + show(): boolean
 + purchaseTickets(): void
 - printOrderSummary(): void
@@ -114,6 +114,7 @@ Fields:
 - userHeader: String
 - eventHeader: String
 - venueHeader: String
+- venueNameToId: HashMap<String, String>
 
 Methods:
 - buildColumnMap(headerLine: String): HashMap<String, Integer>
@@ -121,7 +122,7 @@ Methods:
 + findVenues(venueMap: HashMap<Integer, Venue>, query: String): List<Venue>
 + findEvents(eventMap: HashMap<Integer, Event>, query: String): List<Event>
 + loadUsers(fileName: String): HashMap<String, User>
-+ loadEvents(fileName: String): HashMap<Integer, Event>
++ loadEvents(fileName: String, venueMap: HashMap<Integer, Venue>): HashMap<Integer, Event>
 + loadVenues(fileName: String): HashMap<Integer, Venue>
 - getEventField(colName: String, event: Event): String
 - getUserField(colName: String, user: User): String
@@ -129,11 +130,12 @@ Methods:
 + writeEvent(fileName: String, eventMap: HashMap<Integer, Event>): void
 + writeUsers(fileName: String, userMap: HashMap<String, User>): void
 + writeVenues(fileName: String, venueMap: HashMap<Integer, Venue>): void
-+ resolveEvent(eventMap: HashMap, query: String, in: Scanner): Event
-+ resolveUser(userMap: HashMap, query: String, in: Scanner): User
-+ resolveVenue(venueMap: HashMap, query: String, in: Scanner): Venue
++ resolveEvent(eventMap: HashMap<Integer, Event>, query: String, in: Scanner): Event
++ resolveUser(userMap: HashMap<String, User>, query: String, in: Scanner): User
++ resolveVenue(venueMap: HashMap<Integer, Venue>, query: String, in: Scanner): Venue
 + printCustomerHistory(fileName: String, userID: int): void
 + writeCustomerHistory(fileName: String, userID: int, eventType: String, eventName: String, eventDate: String, ticketType: String, numOfTickets: int, totalCost: double, confirmNum: int): void
++ writeCustomerHistory(fileName: String, userID: int, eventName: String, eventDate: String, hasMembership: boolean, numOfTickets: int, totalCost: double): void
 + generateUniqueUserId(): int
 + generateUniqueVenueId(): int
 + generateUniqueEventId(): int
@@ -190,6 +192,8 @@ Fields:
 - userType: String
 
 Methods:
++ User()
++ User(userID: int, firstName: String, lastName: String, username: String, password: String, userType: String)
 + getFirstName(): String
 + setFirstName(firstName: String): void
 + getLastName(): String
@@ -213,24 +217,29 @@ Fields:
 - concertsPurchased: int
 
 Methods:
++ Customer()
++ Customer(userID: int, firstName: String, lastName: String, username: String, password: String, userType: String, moneyAvailable: double, hasMembership: boolean, concertsPurchased: int)
 + getMoneyAvailable(): double
 + setMoneyAvailable(moneyAvailable: double): void
 + hasMembership(): boolean
 + setMembership(hasMembership: boolean): void
 + getConcertsPurchased(): int
 + setConcertsPurchased(concertsPurchased: int): void
-+ purchaseTicket(): void
 + toString(): String
 
 
 Class: Organizer (extends User)
 ------------------------------------------
 Methods:
-+ createEvent(): void
++ Organizer()
++ Organizer(userID: int, firstName: String, lastName: String, username: String, password: String, userType: String)
 
 
 Class: Admin (extends User)
 ------------------------------------------
+Methods:
++ Admin()
++ Admin(userID: int, firstName: String, lastName: String, username: String, password: String, userType: String)
 
 
 ==========================================
@@ -265,6 +274,9 @@ Fields:
 - taxCollected: double
 
 Methods:
++ Event()
++ Event(eventID: int, type: String, name: String, date: String, time: String, vipPrice: double, goldPrice: double, silverPrice: double, bronzePrice: double, generalAdmissionPrice: double)
++ Event(eventID: int, type: String, name: String, date: String, time: String, venue: String, capacity: int, vipPrice: double, goldPrice: double, silverPrice: double, bronzePrice: double, generalAdmissionPrice: double, vipSeats: int, goldSeats: int, silverSeats: int, bronzeSeats: int, generalAdmissionSeats: int)
 + getEventID(): int
 + setEventID(eventID: int): void
 + getType(): String
@@ -275,10 +287,6 @@ Methods:
 + setDate(date: String): void
 + getTime(): String
 + setTime(time: String): void
-+ getVenue(): String
-+ setVenue(venue: String): void
-+ getCapacity(): int
-+ setCapacity(capacity: int): void
 + getVipPrice(): double
 + setVipPrice(vipPrice: double): void
 + getGoldPrice(): double
@@ -289,6 +297,10 @@ Methods:
 + setBronzePrice(bronzePrice: double): void
 + getGeneralAdmissionPrice(): double
 + setGeneralAdmissionPrice(generalAdmissionPrice: double): void
++ getVenue(): String
++ setVenue(venue: String): void
++ getCapacity(): int
++ setCapacity(capacity: int): void
 + getVipSeats(): int
 + setVipSeats(vipSeats: int): void
 + getGoldSeats(): int
@@ -318,10 +330,26 @@ Methods:
 + toString(): String
 
 
-Subclasses:
-- Concert (extends Event)
-- Sport (extends Event)
-- Special (extends Event)
+Class: Concert (extends Event)
+------------------------------------------
+Methods:
++ Concert()
++ Concert(id: int, type: String, name: String, date: String, time: String, vipPrice: double, goldPrice: double, silverPrice: double, bronzePrice: double, generalAdmissionPrice: double)
++ Concert(id: int, type: String, name: String, date: String, time: String, venue: String, capacity: int, vipPrice: double, goldPrice: double, silverPrice: double, bronzePrice: double, generalAdmissionPrice: double, vipSeats: int, goldSeats: int, silverSeats: int, bronzeSeats: int, generalAdmissionSeats: int)
+
+
+Class: Sport (extends Event)
+------------------------------------------
+Methods:
++ Sport(id: int, type: String, name: String, date: String, time: String, vipPrice: double, goldPrice: double, silverPrice: double, bronzePrice: double, generalAdmissionPrice: double)
++ Sport(id: int, type: String, name: String, date: String, time: String, venue: String, capacity: int, vipPrice: double, goldPrice: double, silverPrice: double, bronzePrice: double, generalAdmissionPrice: double, vipSeats: int, goldSeats: int, silverSeats: int, bronzeSeats: int, generalAdmissionSeats: int)
+
+
+Class: Special (extends Event)
+------------------------------------------
+Methods:
++ Special(id: int, type: String, name: String, date: String, time: String, vipPrice: double, goldPrice: double, silverPrice: double, bronzePrice: double, generalAdmissionPrice: double)
++ Special(id: int, type: String, name: String, date: String, time: String, venue: String, capacity: int, vipPrice: double, goldPrice: double, silverPrice: double, bronzePrice: double, generalAdmissionPrice: double, vipSeats: int, goldSeats: int, silverSeats: int, bronzeSeats: int, generalAdmissionSeats: int)
 
 
 ==========================================
@@ -345,6 +373,8 @@ Fields:
 - reservedPercent: int
 
 Methods:
++ Venue()
++ Venue(venueID: int, name: String, type: String, capacity: int, concertCapacity: int, cost: double, vipPercent: int, goldPercent: int, silverPercent: int, bronzePercent: int, generalAdmissionPercent: int, reservedPercent: int)
 + getVenueID(): int
 + getName(): String
 + setName(name: String): void
@@ -371,11 +401,28 @@ Methods:
 + toString(): String
 
 
-Subclasses:
-- Arena (extends Venue)
-- Auditorium (extends Venue)
-- Stadium (extends Venue)
-- OpenAir (extends Venue)
+Class: Arena (extends Venue)
+------------------------------------------
+Methods:
++ Arena(id: int, name: String, type: String, capacity: int, concertCapacity: int, cost: double, vipPercent: int, goldPercent: int, silverPercent: int, bronzePercent: int, generalAdmissionPercent: int, reservedPercent: int)
+
+
+Class: Auditorium (extends Venue)
+------------------------------------------
+Methods:
++ Auditorium(id: int, name: String, type: String, capacity: int, concertCapacity: int, cost: double, vipPercent: int, goldPercent: int, silverPercent: int, bronzePercent: int, generalAdmissionPercent: int, reservedPercent: int)
+
+
+Class: Stadium (extends Venue)
+------------------------------------------
+Methods:
++ Stadium(id: int, name: String, type: String, capacity: int, concertCapacity: int, cost: double, vipPercent: int, goldPercent: int, silverPercent: int, bronzePercent: int, generalAdmissionPercent: int, reservedPercent: int)
+
+
+Class: OpenAir (extends Venue)
+------------------------------------------
+Methods:
++ OpenAir(id: int, name: String, type: String, capacity: int, concertCapacity: int, cost: double, vipPercent: int, goldPercent: int, silverPercent: int, bronzePercent: int, generalAdmissionPercent: int, reservedPercent: int)
 
 
 ==========================================
