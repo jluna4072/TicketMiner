@@ -41,9 +41,9 @@ import java.time.format.DateTimeFormatter;
 public class RunTicketMiner {
 
     private final DataManager dataManager = new DataManager();
-    private final HashMap<String, User> userMap = dataManager.loadUsers("data/PA2CSVs/Customer_List_PA2.csv");
-    private final HashMap<Integer, Venue> venueMap = dataManager.loadVenues("data/PA2CSVs/Venue_List_PA2.csv");
-    private final HashMap<Integer, Event> eventMap = dataManager.loadEvents("data/PA2CSVs/Event_List_PA2.csv");
+    private final HashMap<String, User> userMap = dataManager.loadUsers("data/Customer_List_PA1.csv");
+    private final HashMap<Integer, Venue> venueMap = dataManager.loadVenues("data/Venue_List_PA1.csv");
+    private final HashMap<Integer, Event> eventMap = dataManager.loadEvents("data/Event_List_PA1.csv");
     private final Scanner in = new Scanner(System.in);
     public final double TEXAS_SALES_TAX = .0825;
     public final double DISCOUNT = .10;
@@ -1236,9 +1236,9 @@ public class RunTicketMiner {
      * Called automatically on program exit.
      */
     public void saveUpdatedData() {
-        dataManager.writeEvent("data/PA2CSVs/Event_List_PA2.csv", eventMap);
-        dataManager.writeUsers("data/PA2CSVs/Customer_List_PA2.csv", userMap);
-        dataManager.writeVenues("data/PA2CSVs/Venue_List_PA2.csv", venueMap);
+        dataManager.writeEvent("data/Event_List_PA1.csv", eventMap);
+        dataManager.writeUsers("data/Customer_List_PA1.csv", userMap);
+        dataManager.writeVenues("data/Venue_List_PA1.csv", venueMap);
     }
 
         public void purchaseTickets(){
@@ -1294,14 +1294,13 @@ public class RunTicketMiner {
             double discount = baseTotal * .10;
             double total = baseTotal + salesTax - discount;
             total = Math.round(total * 100.0) /100.0;
-            System.out.println(total);
             return total;
         }else {
             double eq1 = numOfTickets * admissionPrice; 
             double salesTax = eq1 * TEXAS_SALES_TAX;
             double total = eq1 + salesTax;
             total = Math.round(total * 100.0) /100.0;
-            System.out.println(total);
+
             return total;
 
               }

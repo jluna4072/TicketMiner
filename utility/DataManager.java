@@ -555,6 +555,7 @@ public class DataManager {
      * and confirmationNumber
      */
    public void writeCustomerHistory(String fileName, int userID, String eventName, String eventDate, boolean hasMembership, int numOfTickets, double totalCost){
+    generateConfirmationNumber();
     try (PrintWriter writer = new PrintWriter(new FileWriter(fileName, true))) {
         writer.printf("%d,%s,%s,%s,%b,%.2f,%d%n", 
             userID, eventName, eventDate, hasMembership, numOfTickets, totalCost, confirmationNumber); 

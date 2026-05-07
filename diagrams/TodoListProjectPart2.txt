@@ -1,37 +1,37 @@
 Part A Requriements :
-	* Refactor the UML Case Diagram - 4 actors, 5 Use Cases, 2 include, and 3 extends
-		# Give complete detail of the system, follow guide lines, and it must be consistent
+	* Refactor the UML Case Diagram - 4 actors, 5 Use Cases, 2 include, and 3 extends         ------| Done
+		# Give complete detail of the system, follow guide lines, and it must be consistent   ------|
 	
-	* Write two use case scenarious based on Part B. 
-		# cover all steps, interactions, and be ambigouus 
+	* Write two use case scenarious based on Part B.                 -|Done
+		# cover all steps, interactions, and be ambigouus            -|Done 
 
 	* Refactor the UML Class Diagram based on Part B requirements
-	* Write a UML State Diagram
+	* Write a UML State Diagram             
 Part B Requirements:
 	* Refactor your existing code:
 		#Write some tests or overlook Jacobs tests
 			@ Create a Junit test case for at least 3 functions	<--------|
 			@ Create Junit test suite to run all test case files at one. ----|
 	* Handle  all input file that do not have the information listed in the standard coulmn orders. 
-	* Create and use an interface in your system. 
+	* Create and use an interface in your system.                   
 	* Use a design pattern as part of the refactoring process. <<Could do LSP for general uses like add, delete, update, and view actors>>
-	* Refactor your code to be a singular cohesive program. 
-	* Simple GUI program for user(customer, organizer, or admin) 
+	* Refactor your code to be a singular cohesive program.                    
+	* Simple GUI program for user(customer, organizer, or admin)                   - I believe we have a simple GUI program
 
 	New System parts: 
-		* Customer should be able to: 
-			# Purchase tickets
-			# System should be able to verify that there are still tickets 
-			# Provide Order summary 
-			# Update customers available money
+		* Customer should be able to:											Done -|
+			# Purchase tickets														  |
+			# System should be able to verify that there are still tickets 			  |
+			# Provide Order summary 												  |
+			# Update customers available money										  |
 		* Order summary
-			# Event type, event name, event date, ticket type, number of tickets, total price, and confirmation number. 
-			# Provide history of all transaction of this.customer
+			# Event type, event name, event date, ticket type, number of tickets, total price, and confirmation number. Done -| 
+			# Provide history of all transaction of this.customer															  |
 		* Organizer 
 			# Mange Event - Same behaviour for admin options. 
 			# Generate report - Shall be able to inquire about an event by entering its ID, NAME, or DATE to search 
 				The report should contain all fields in 7.b.ii.1
-		* Make sure logging status works with new code and updated writing for CSV files.
+		* Make sure logging status works with new code and updated writing for CSV files.    - Done
 		* Handle all exceptions appropriately 
-		* Complete code review of all your code 
+		* Complete code review of all your code                                                         
 		* Write a lab report describing your work.	

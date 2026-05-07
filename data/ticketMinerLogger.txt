@@ -1,1 +1,42 @@
 User 1038 had logged out.
+[2026-05-06 19:46:05] User 1038 has logged into the system.
+[2026-05-06 19:46:14] User 1038 has bought 1 for event 1
+[2026-05-06 19:46:14] User 1038 new balance is : $87.72
+[2026-05-06 19:46:17] User 1038has viewed their purchase history
+[2026-05-06 19:46:27] User 1038 had logged out.
+[2026-05-06 20:10:34] User 1032 has logged into the system.
+[2026-05-06 20:22:18] User 1032 has updated user 1038 username.
+[2026-05-06 20:27:23] User 1032 had logged out.
+[2026-05-06 20:38:23] User 1039 has been registered as a Customer.
+[2026-05-06 20:40:01] User 1039 has logged into the system.
+[2026-05-06 20:42:01] User 1039 has bought 1 for event 1
+[2026-05-06 20:42:01] User 1039 new balance is : $87.72
+[2026-05-06 20:43:13] User 1039has viewed their purchase history
+[2026-05-06 20:44:15] User 1039 had logged out.
+[2026-05-06 20:47:58] User 1038 has logged into the system.
+[2026-05-06 20:48:04] User 1038 has bought 1 for event 2
+[2026-05-06 20:48:04] User 1038 new balance is : $75.44
+[2026-05-06 20:48:09] User 1038has viewed their purchase history
+[2026-05-06 20:50:29] User 1038 has bought 4 for event 2
+[2026-05-06 20:50:29] User 1038 new balance is : $26.309999999999995
+[2026-05-06 20:50:31] User 1038has viewed their purchase history
+[2026-05-06 20:50:42] User 1038 had logged out.
+[2026-05-06 21:09:06] User 743 has logged into the system.
+[2026-05-06 21:27:43] User 743 has updated user 1039 username.
+[2026-05-06 21:28:00] User 743 had logged out.
+[2026-05-06 21:28:48] User 1038 has logged into the system.
+[2026-05-06 21:28:50] User 1038has viewed their purchase history
+[2026-05-06 21:30:17] User 1038 has printed all events to the console
+[2026-05-06 21:30:17] User 1038has viewed all events
+[2026-05-06 21:30:38] User 1038 had logged out.
+[2026-05-06 21:31:01] User 1038 has logged into the system.
+[2026-05-06 21:33:15] User 1038 searched for 1
+[2026-05-06 21:33:15] User 1038has viewed all events
+[2026-05-06 21:34:04] User 1038 has bought 2 for event 1
+[2026-05-06 21:34:04] User 1038 new balance is : $1.7499999999999964
+[2026-05-06 21:34:09] User 1038has viewed their purchase history
+[2026-05-06 21:39:44] User 1038 had logged out.
+[2026-05-06 21:40:25] User 731 has logged into the system.
+[2026-05-06 21:41:19] Organizer 731 searched and viewed event 1.
+[2026-05-06 21:42:12] Organizer 731 generated report for event 1.
+[2026-05-06 21:45:13] Organizer 731 has logged out.
