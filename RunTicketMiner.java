@@ -208,7 +208,7 @@ public class RunTicketMiner {
                         CustomerMenu menu = new CustomerMenu(in, eventMap, dataManager, loggedInUser);
                         menu.show();
                     } else if (user instanceof Organizer) {
-                        OrganizerMenu menu = new OrganizerMenu(in, eventMap, dataManager, loggedInUser);
+                        OrganizerMenu menu = new OrganizerMenu(in, eventMap, venueMap, dataManager, loggedInUser);
                         menu.show();
                     } else if (user instanceof Admin) {
                         AdminMenu menu = new AdminMenu(in, userMap, venueMap, eventMap, dataManager, loggedInUser);

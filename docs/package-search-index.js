@@ -1,1 +1,1 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"model.events"},{"l":"model.users"},{"l":"model.venues"},{"l":"utility"}];updateSearchResults();
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html","k":"18"},{"l":"menus"},{"l":"model.events"},{"l":"model.users"},{"l":"model.venues"},{"l":"utility"}];updateSearchResults();

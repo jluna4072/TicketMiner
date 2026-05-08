@@ -11,6 +11,7 @@ import model.users.Customer;
 import model.users.User;
 import utility.DataManager;
 import utility.EventNotFoundException;
+import utility.InputReader;
 import utility.Logger;
 
 /**
@@ -23,6 +24,7 @@ import utility.Logger;
 public class CustomerMenu {
 
     private final Scanner in;
+    private final InputReader reader;
     private final HashMap<Integer, Event> eventMap;
     private final DataManager dataManager;
     private final User loggedInUser;
@@ -41,6 +43,7 @@ public class CustomerMenu {
     public CustomerMenu(Scanner in, HashMap<Integer, Event> eventMap,
                         DataManager dataManager, User loggedInUser) {
         this.in = in;
+        this.reader = new InputReader(in);
         this.eventMap = eventMap;
         this.dataManager = dataManager;
         this.loggedInUser = loggedInUser;
@@ -60,39 +63,35 @@ public class CustomerMenu {
             System.out.println("2. Print Order Summary");
             System.out.println("3. Preview Tickets");
             System.out.println("4. Logout");
-            System.out.print("Please select an option (1-4): ");
-            try {
-                int choice = Integer.parseInt(in.nextLine().trim());
-                switch (choice) {
-                    case 1:
-                        purchaseTickets();
-                        break;
-                    case 2:
-                        printOrderSummary();
+            
+            int choice = reader.readPositiveInt("Please select an option (1-4): ");
+            String actionDefined;
+            switch (choice) {
+                case 1:
+                    purchaseTickets();
+                    break;
+                case 2:
+                    printOrderSummary();
 
-                        String actionDefined = "User " + loggedInUser.getUserID() + " has printed their order summary";
-                        Logger.logAction(actionDefined);
+                    actionDefined = "User " + loggedInUser.getUserID() + " has printed their order summary";
+                    Logger.logAction(actionDefined);
 
-                        break;
-                    case 3:
-                        viewEvent();
+                    break;
+                case 3:
+                    viewEvent();
 
-                        actionDefined = "User " + loggedInUser.getUserID() + " has viewed all events";
-                        Logger.logAction(actionDefined);
-                        break;
-                    case 4:
-                        System.out.println("Logging out...");
-                        actionDefined = "User " + loggedInUser.getUserID() + " had logged out.";
-                        Logger.logAction(actionDefined);
-                        logout = true;
-                        break;
-                    default:
-                        System.out.println("Please select a valid option.");
-                        break;
-                }
-            }
-            catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a number.");
+                    actionDefined = "User " + loggedInUser.getUserID() + " has viewed all events";
+                    Logger.logAction(actionDefined);
+                    break;
+                case 4:
+                    System.out.println("Logging out...");
+                    actionDefined = "User " + loggedInUser.getUserID() + " had logged out.";
+                    Logger.logAction(actionDefined);
+                    logout = true;
+                    break;
+                default:
+                    System.out.println("Please select a valid option.");
+                    break;
             }
         }
         return true;
@@ -110,15 +109,13 @@ public class CustomerMenu {
         while (shopping) {
             System.out.println("\n--- Purchase Tickets ---");
             System.out.println("Current balance: $" + String.format("%.2f", loggedInCustomer.getMoneyAvailable()));
-            System.out.println("Enter the ID, name, or date of the event (or type 'done' to finish):");
-            String choice = in.nextLine().trim();
+            String choice = reader.readNonBlank("Enter the ID, name, or date of the event (or type 'done' to finish): ");
 
             if (choice.equalsIgnoreCase("done")) {
                 shopping = false;
                 System.out.println("Purchase session ended.");
                 continue;
             }
-
             Event foundEvent;
             try {
                 foundEvent = dataManager.resolveEvent(eventMap, choice, in);
@@ -126,7 +123,6 @@ public class CustomerMenu {
                 System.out.println(ex.getMessage());
                 continue;
             }
-
             System.out.println("Event Found: " + foundEvent.getEventName() + " (ID: " + foundEvent.getEventID() + ")");
 
             String ticketType = selectTicketType(foundEvent);
@@ -142,17 +138,9 @@ public class CustomerMenu {
                 System.out.println("No " + ticketType + " tickets available for this event.");
                 continue;
             }
-
-            System.out.print("How many " + ticketType + " tickets would you like to purchase? ");
-            int numTickets;
-            try {
-                numTickets = Integer.parseInt(in.nextLine().trim());
-                if (numTickets <= 0) {
-                    System.out.println("Number of tickets must be greater than 0.");
-                    continue;
-                }
-            } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
+            int numTickets = reader.readPositiveInt("How many " + ticketType + " tickets would you like to purchase? ");
+            if (numTickets <= 0) {
+                System.out.println("Number of tickets must be greater than 0.");
                 continue;
             }
 
@@ -172,7 +160,9 @@ public class CustomerMenu {
                 int confirmationNumber = dataManager.generateConfirmationNumber();
 
                 System.out.println("\n--- Order Summary ---");
-                System.out.println("Event: " + foundEvent.getEventName());
+                System.out.println("Event Type: " + foundEvent.getType());
+                System.out.println("Event Name: " + foundEvent.getEventName());
+                System.out.println("Event Date: " + foundEvent.getDate());
                 System.out.println("Ticket Type: " + ticketType);
                 System.out.println("Quantity: " + numTickets);
                 System.out.println("Total Charged: $" + String.format("%.2f", totalCost));
@@ -200,8 +190,7 @@ public class CustomerMenu {
                 foundEvent.getDate(), ticketType,
                 numTickets, totalCost, confirmationNumber);
 
-                System.out.print("\nWould you like to purchase tickets for another event? (Y/N): ");
-                String again = in.nextLine().trim().toUpperCase();
+                String again = reader.readNonBlank("\nWould you like to purchase tickets for another event? (Y/N): ").toUpperCase();
                 if (again.equals("N")) {
                     shopping = false;
                 }
@@ -226,6 +215,11 @@ public class CustomerMenu {
         String fileName = "data/OrderSummary_" + loggedInUser.getFirstName()
             + loggedInUser.getLastName() + ".txt";
 
+        System.out.println("\n--- On-Screen Order Summary ---");
+        System.out.println("Customer: " + loggedInUser.getFirstName() + " " + loggedInUser.getLastName());
+        System.out.println("Customer ID: " + loggedInUser.getUserID());
+        System.out.println("----------------------------------------");
+
         try (PrintWriter writer = new PrintWriter(new FileWriter(fileName))) {
             writer.println("========================================");
             writer.println("       Electronic Order Summary");
@@ -236,6 +230,17 @@ public class CustomerMenu {
 
             int orderNum = 1;
             for (String[] order : orderHistory) {
+                String summaryLine = "Order #" + orderNum + "\n" +
+                                     "Event Type:          " + order[0] + "\n" +
+                                     "Event Name:          " + order[1] + "\n" +
+                                     "Event Date:          " + order[2] + "\n" +
+                                     "Ticket Type:         " + order[3] + "\n" +
+                                     "Number of Tickets:   " + order[4] + "\n" +
+                                     "Total Price:         $" + order[5] + "\n" +
+                                     "Confirmation Number: " + order[6] + "\n" +
+                                     "----------------------------------------";
+                System.out.println(summaryLine);
+
                 writer.println("Order #" + orderNum);
                 writer.println("----------------------------------------");
                 writer.println("Event Type:          " + order[0]);
@@ -253,7 +258,7 @@ public class CustomerMenu {
             writer.println("         End of Order Summary");
             writer.println("========================================");
 
-            System.out.println("Order summary written to: " + fileName);
+            System.out.println("Order summary also written to: " + fileName);
         } catch (IOException e) {
             System.out.println("Error writing order summary: " + e.getMessage());
         }
@@ -274,15 +279,20 @@ public class CustomerMenu {
             System.out.println("4. Bronze - $" + event.getBronzePrice());
             System.out.println("5. General Admission - $" + event.getGeneralAdmissionPrice());
             System.out.println("6. Cancel");
-            System.out.print("Enter choice (1-6): ");
-            String typeChoice = in.nextLine().trim();
+            String typeChoice = reader.readNonBlank("Enter choice (1-6): ");
             switch (typeChoice) {
-                case "1": return "VIP";
-                case "2": return "Gold";
-                case "3": return "Silver";
-                case "4": return "Bronze";
-                case "5": return "General Admission";
-                case "6": return null;
+                case "1":
+                    return "VIP";
+                case "2":
+                    return "Gold";
+                case "3":
+                    return "Silver";
+                case "4":
+                    return "Bronze";
+                case "5":
+                    return "General Admission";
+                case "6":
+                    return null;
                 default:
                     System.out.println("Invalid choice. Please enter a number between 1 and 6.");
             }
@@ -298,12 +308,18 @@ public class CustomerMenu {
      */
     private double getTicketPrice(Event event, String ticketType) {
         switch (ticketType) {
-            case "VIP": return event.getVipPrice();
-            case "Gold": return event.getGoldPrice();
-            case "Silver": return event.getSilverPrice();
-            case "Bronze": return event.getBronzePrice();
-            case "General Admission": return event.getGeneralAdmissionPrice();
-            default: return 0;
+            case "VIP":
+                return event.getVipPrice();
+            case "Gold":
+                return event.getGoldPrice();
+            case "Silver":
+                return event.getSilverPrice();
+            case "Bronze":
+                return event.getBronzePrice();
+            case "General Admission":
+                return event.getGeneralAdmissionPrice();
+            default:
+                return 0;
         }
     }
 
@@ -353,8 +369,7 @@ public class CustomerMenu {
             System.out.println("\n--- View Events ---");
             System.out.println("1. Display all events");
             System.out.println("2. Search for an event");
-            System.out.print("Choice: ");
-            String choice = in.nextLine().trim();
+            String choice = reader.readNonBlank("Choice: ");
 
             if (choice.equals("1")) {
                 for (Event e : eventMap.values()) {
@@ -364,8 +379,7 @@ public class CustomerMenu {
                 Logger.logAction(actionDetail);
                 break;
             } else if (choice.equals("2")) {
-                System.out.print("Enter Event ID, Name, or Date: ");
-                String query = in.nextLine();
+                String query = reader.readNonBlank("Enter Event ID, Name, or Date: ");
                 try {
                     Event found = dataManager.resolveEvent(eventMap, query, in);
                     System.out.println(found);

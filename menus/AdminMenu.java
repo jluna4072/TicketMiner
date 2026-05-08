@@ -674,6 +674,24 @@ public class AdminMenu implements EventManageable {
         String name = reader.readNonBlank("Enter Event Name: ");
         String date = reader.readDate("Enter Date (MM/DD/YYYY): ");
         String time = reader.readTime("Enter Time (hh:mm AM/PM): ");
+
+        Venue selectedVenue = null;
+        while (selectedVenue == null) {
+            System.out.print("Enter Venue (ID or Name): ");
+            String venueQuery = in.nextLine().trim();
+            selectedVenue = dataManager.resolveVenue(venueMap, venueQuery, in);
+            if (selectedVenue == null) {
+                System.out.println("Venue not found. Please try again.");
+            }
+        }
+
+        int capacity = selectedVenue.getCapacity();
+        int vipSeats = (int) (capacity * selectedVenue.getVipPercent() / 100.0);
+        int goldSeats = (int) (capacity * selectedVenue.getGoldPercent() / 100.0);
+        int silverSeats = (int) (capacity * selectedVenue.getSilverPercent() / 100.0);
+        int bronzeSeats = (int) (capacity * selectedVenue.getBronzePercent() / 100.0);
+        int gaSeats = (int) (capacity * selectedVenue.getGeneralAdmissionPercent() / 100.0);
+
         double vip = reader.readPositiveDouble("Enter VIP Price: $");
         double gold = reader.readPositiveDouble("Enter Gold Price: $");
         double silver = reader.readPositiveDouble("Enter Silver Price: $");
@@ -684,13 +702,16 @@ public class AdminMenu implements EventManageable {
         Event newEvent;
         switch (type.toLowerCase()) {
             case "sport":
-                newEvent = new Sport(id, type, name, date, time, vip, gold, silver, bronze, ga);
+                newEvent = new Sport(id, type, name, date, time, selectedVenue.getName(), capacity,
+                    vip, gold, silver, bronze, ga, vipSeats, goldSeats, silverSeats, bronzeSeats, gaSeats);
                 break;
             case "concert":
-                newEvent = new Concert(id, type, name, date, time, vip, gold, silver, bronze, ga);
+                newEvent = new Concert(id, type, name, date, time, selectedVenue.getName(), capacity,
+                    vip, gold, silver, bronze, ga, vipSeats, goldSeats, silverSeats, bronzeSeats, gaSeats);
                 break;
             default:
-                newEvent = new Special(id, type, name, date, time, vip, gold, silver, bronze, ga);
+                newEvent = new Special(id, type, name, date, time, selectedVenue.getName(), capacity,
+                    vip, gold, silver, bronze, ga, vipSeats, goldSeats, silverSeats, bronzeSeats, gaSeats);
                 break;
         }
 

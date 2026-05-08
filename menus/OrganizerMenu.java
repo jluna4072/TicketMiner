@@ -7,6 +7,7 @@ import model.events.Event;
 import model.events.Special;
 import model.events.Sport;
 import model.users.User;
+import model.venues.Venue;
 import utility.DataManager;
 import utility.EventManageable;
 import utility.EventNotFoundException;
@@ -14,14 +15,14 @@ import utility.InputReader;
 import utility.Logger;
 
 /**
- * Handles the Organizer menu and all organizer-specific event management operations.
- * Implements the EventManageable interface to provide add, view, update, and delete
- * functionality for events.
+ * Handles the Organizer menu and all organizer-specific event management
+ * operations. Implements the EventManageable interface to provide add, view,
+ * update, and delete functionality for events.
  *
- * Design Pattern: Strategy Pattern (Concrete Strategy)
- * This class serves as a concrete strategy in the Strategy pattern, providing
- * the Organizer-specific implementation of event management operations defined by
- * the {@code EventManageable} interface.
+ * Design Pattern: Strategy Pattern (Concrete Strategy) This class serves as a
+ * concrete strategy in the Strategy pattern, providing the Organizer-specific
+ * implementation of event management operations defined by the
+ * {@code EventManageable} interface.
  *
  * @author Jacob Luna
  * @author Carlos Marquez
@@ -32,6 +33,7 @@ public class OrganizerMenu implements EventManageable {
     private final Scanner in;
     private final InputReader reader;
     private final HashMap<Integer, Event> eventMap;
+    private final HashMap<Integer, Venue> venueMap;
     private final DataManager dataManager;
     private final User loggedInUser;
 
@@ -40,21 +42,24 @@ public class OrganizerMenu implements EventManageable {
      *
      * @param in the shared Scanner for console input
      * @param eventMap the shared map of event ID to Event
+     * @param venueMap the shared map of venue ID to Venue
      * @param dataManager the shared DataManager for ID generation and search
      * @param loggedInUser the currently logged-in Organizer user
      */
     public OrganizerMenu(Scanner in, HashMap<Integer, Event> eventMap,
-                         DataManager dataManager, User loggedInUser) {
+            HashMap<Integer, Venue> venueMap,
+            DataManager dataManager, User loggedInUser) {
         this.in = in;
         this.reader = new InputReader(in);
         this.eventMap = eventMap;
+        this.venueMap = venueMap;
         this.dataManager = dataManager;
         this.loggedInUser = loggedInUser;
     }
 
     /**
-     * Displays the Organizer Main Menu loop, providing options to manage events,
-     * generate an event report, or log out.
+     * Displays the Organizer Main Menu loop, providing options to manage
+     * events, generate an event report, or log out.
      *
      * @return true if the user logged out
      */
@@ -137,8 +142,8 @@ public class OrganizerMenu implements EventManageable {
     }
 
     /**
-     * Prompts the Organizer for all required event fields and adds a new event to the system.
-     * Validates all inputs before creating the event.
+     * Prompts the Organizer for all required event fields and adds a new event
+     * to the system. Validates all inputs before creating the event.
      */
     @Override
     public void addEvent() {
@@ -152,40 +157,51 @@ public class OrganizerMenu implements EventManageable {
             }
             System.out.println("Invalid type. Please enter Sport, Concert, or Special.");
         }
-        
+
         String name = reader.readNonBlank("Enter Event Name: ");
         String date = reader.readDate("Enter Event Date (MM/DD/YYYY): ");
         String time = reader.readTime("Enter Event Time (hh:mm AM/PM): ");
-        String venue = reader.readNonBlank("Enter Venue / Location: ");
-        int capacity = reader.readPositiveInt("Enter Total Capacity (total seats): ");
+
+        Venue selectedVenue = null;
+        while (selectedVenue == null) {
+            System.out.print("Enter Venue (ID or Name): ");
+            String venueQuery = in.nextLine().trim();
+            selectedVenue = dataManager.resolveVenue(venueMap, venueQuery, in);
+            if (selectedVenue == null) {
+                System.out.println("Venue not found. Please try again.");
+            }
+        }
+
+        int capacity = selectedVenue.getCapacity();
+        int vipSeats = (int) (capacity * selectedVenue.getVipPercent() / 100.0);
+        int goldSeats = (int) (capacity * selectedVenue.getGoldPercent() / 100.0);
+        int silverSeats = (int) (capacity * selectedVenue.getSilverPercent() / 100.0);
+        int bronzeSeats = (int) (capacity * selectedVenue.getBronzePercent() / 100.0);
+        int gaSeats = (int) (capacity * selectedVenue.getGeneralAdmissionPercent() / 100.0);
+
         double vipPrice = reader.readPositiveDouble("Enter VIP Ticket Price: $");
         double goldPrice = reader.readPositiveDouble("Enter Gold Ticket Price: $");
         double silverPrice = reader.readPositiveDouble("Enter Silver Ticket Price: $");
         double bronzePrice = reader.readPositiveDouble("Enter Bronze Ticket Price: $");
         double gaPrice = reader.readPositiveDouble("Enter General Admission Ticket Price: $");
-        int vipSeats = reader.readPositiveInt("Enter number of VIP seats: ");
-        int goldSeats = reader.readPositiveInt("Enter number of Gold seats: ");
-        int silverSeats = reader.readPositiveInt("Enter number of Silver seats: ");
-        int bronzeSeats = reader.readPositiveInt("Enter number of Bronze seats: ");
-        int gaSeats = reader.readPositiveInt("Enter number of General Admission seats: ");
 
         int id = dataManager.generateUniqueEventId();
         Event newEvent;
         switch (type.toLowerCase()) {
             case "sport":
-                newEvent = new Sport(id, type, name, date, time, venue, capacity,
-                    vipPrice, goldPrice, silverPrice, bronzePrice, gaPrice,
-                    vipSeats, goldSeats, silverSeats, bronzeSeats, gaSeats);
+                newEvent = new Sport(id, type, name, date, time, selectedVenue.getName(), capacity,
+                        vipPrice, goldPrice, silverPrice, bronzePrice, gaPrice,
+                        vipSeats, goldSeats, silverSeats, bronzeSeats, gaSeats);
                 break;
             case "concert":
-                newEvent = new Concert(id, type, name, date, time, venue, capacity,
-                    vipPrice, goldPrice, silverPrice, bronzePrice, gaPrice,
-                    vipSeats, goldSeats, silverSeats, bronzeSeats, gaSeats);
+                newEvent = new Concert(id, type, name, date, time, selectedVenue.getName(), capacity,
+                        vipPrice, goldPrice, silverPrice, bronzePrice, gaPrice,
+                        vipSeats, goldSeats, silverSeats, bronzeSeats, gaSeats);
                 break;
             default:
-                newEvent = new Special(id, type, name, date, time, venue, capacity,
-                    vipPrice, goldPrice, silverPrice, bronzePrice, gaPrice,
-                    vipSeats, goldSeats, silverSeats, bronzeSeats, gaSeats);
+                newEvent = new Special(id, type, name, date, time, selectedVenue.getName(), capacity,
+                        vipPrice, goldPrice, silverPrice, bronzePrice, gaPrice,
+                        vipSeats, goldSeats, silverSeats, bronzeSeats, gaSeats);
                 break;
         }
 
@@ -196,8 +212,8 @@ public class OrganizerMenu implements EventManageable {
     }
 
     /**
-     * Displays the View Events sub-menu for organizers, allowing them to display all events
-     * or search for a specific event by ID, name, or date.
+     * Displays the View Events sub-menu for organizers, allowing them to
+     * display all events or search for a specific event by ID, name, or date.
      */
     @Override
     public void viewEvent() {
@@ -235,7 +251,8 @@ public class OrganizerMenu implements EventManageable {
     }
 
     /**
-     * Prompts the Organizer to search for an event and update its name or date/time.
+     * Prompts the Organizer to search for an event and update its name or
+     * date/time.
      */
     @Override
     public void updateEvent() {
@@ -275,7 +292,8 @@ public class OrganizerMenu implements EventManageable {
     }
 
     /**
-     * Prompts the Organizer to search for an event and delete it after confirmation.
+     * Prompts the Organizer to search for an event and delete it after
+     * confirmation.
      */
     @Override
     public void deleteEvent() {
@@ -301,10 +319,10 @@ public class OrganizerMenu implements EventManageable {
         }
     }
 
-
     /**
      * Generates and displays a detailed event report on the console, including
-     * ticket sales, revenue per type, total revenue, expected profit, and actual profit.
+     * ticket sales, revenue per type, total revenue, expected profit, and
+     * actual profit.
      */
     private void generateEventReport() {
         System.out.print("\nEnter search term to find event (Event ID, Name, or Date): ");
@@ -350,7 +368,5 @@ public class OrganizerMenu implements EventManageable {
             System.out.println("Unable to generate report.");
         }
     }
-
-
 
 }

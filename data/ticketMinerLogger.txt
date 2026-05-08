@@ -46,3 +46,54 @@ User 1038 had logged out.
 [2026-05-06 22:25:15] User 1038 has bought 3 VIP ticket(s) for event 1
 [2026-05-06 22:25:15] User 1038 new balance is: $1132.72
 [2026-05-06 22:25:20] User 1038 has printed their order summary
+[2026-05-06 22:39:21] User 1038 had logged out.
+[2026-05-06 22:39:40] User 1041 has registered as a Organizer to the system.
+[2026-05-06 22:39:47] User 1038 has logged into the system.
+[2026-05-06 22:39:50] User 1038 has printed all events to the console
+[2026-05-06 22:39:50] User 1038 has viewed all events
+[2026-05-06 22:40:30] User 1038 has bought 20 VIP ticket(s) for event 1
+[2026-05-06 22:40:30] User 1038 new balance is: $621.24
+[2026-05-06 22:40:37] User 1038 has bought 1 VIP ticket(s) for event 2
+[2026-05-06 22:40:37] User 1038 new balance is: $595.67
+[2026-05-06 22:40:41] User 1038 has printed their order summary
+[2026-05-06 22:41:14] User 1038 had logged out.
+[2026-05-07 00:20:10] User 1038 has logged into the system.
+[2026-05-07 00:20:57] User 1038 has bought 1 VIP ticket(s) for event 1
+[2026-05-07 00:20:57] User 1038 new balance is: $570.0999999999999
+[2026-05-07 00:21:04] User 1038 has printed their order summary
+[2026-05-07 00:27:39] User 1038 has logged into the system.
+[2026-05-07 00:27:41] User 1038 has printed their order summary
+[2026-05-07 00:31:36] User 1038 has printed their order summary
+[2026-05-07 00:31:44] User 1038 has bought 11 Gold ticket(s) for event 1
+[2026-05-07 00:31:44] User 1038 new balance is: $354.53999999999996
+[2026-05-07 00:31:51] User 1038 has printed their order summary
+[2026-05-07 00:33:34] User 1038 has printed all events to the console
+[2026-05-07 00:33:34] User 1038 has viewed all events
+[2026-05-07 00:33:44] User 1038 had logged out.
+[2026-05-07 00:34:03] User 1042 has registered as a Organizer to the system.
+[2026-05-07 00:34:13] User 1042 has logged into the system.
+[2026-05-07 00:34:25] Organizer 1042 generated report for event 1.
+[2026-05-07 00:38:27] Organizer 1042 searched and viewed event 1.
+[2026-05-07 00:39:29] Organizer 1042 added event 45 (Wrestling).
+[2026-05-07 00:39:42] Organizer 1042 generated report for event 45.
+[2026-05-07 00:39:50] Organizer 1042 has logged out.
+[2026-05-07 00:39:57] User 1038 has logged into the system.
+[2026-05-07 00:40:08] User 1038 searched for 45
+[2026-05-07 00:40:08] User 1038 has viewed all events
+[2026-05-07 00:40:16] User 1038 had logged out.
+[2026-05-07 00:40:41] User 543 has logged into the system.
+[2026-05-07 00:45:00] User 543 has updated event 1 name
+[2026-05-07 00:45:20] User 543 searched for 45
+[2026-05-07 00:47:37] User 543 had logged out.
+[2026-05-07 02:16:38] User 1042 has logged into the system.
+[2026-05-07 02:17:00] Organizer 1042 added event 45 (Name).
+[2026-05-07 02:17:06] Organizer 1042 has logged out.
+[2026-05-07 12:45:12] User 1042 has logged into the system.
+[2026-05-07 12:45:38] Organizer 1042 added event 46 (Basketball).
+[2026-05-07 12:45:42] Organizer 1042 viewed all events.
+[2026-05-07 12:46:10] Organizer 1042 updated event 1 name to "Name".
+[2026-05-07 12:47:32] Organizer 1042 searched and viewed event 1.
+[2026-05-07 12:47:57] Organizer 1042 updated event 1 name to "JAcob".
+[2026-05-07 12:48:26] Organizer 1042 added event 47 (JAcob).
+[2026-05-07 12:48:49] Organizer 1042 updated event 4 date/time.
+[2026-05-08 16:43:48] Organizer 1042 has logged out.

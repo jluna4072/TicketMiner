@@ -10,9 +10,9 @@ Order #1
 Event Type:          Sport
 Event Name:          UTEP Football 1
 Event Date:          09/04/2025
-Ticket Type:         VIP
-Number of Tickets:   3
-Total Price:         $76.72
+Ticket Type:         Gold
+Number of Tickets:   11
+Total Price:         $241.13
 Confirmation Number: 1
 ----------------------------------------
 

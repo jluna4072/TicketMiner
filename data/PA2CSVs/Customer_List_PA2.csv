@@ -1,6 +1,6 @@
 First Name,Money Available,Last Name,TicketMiner Membership,Username,ID,Password,User Type,Concerts Purchased
 Angela,,Walker,false,angelawalker,543,Fun!23,Admin,0
-JAcob,1209.44,Luna,true,jluna33,1038,1234,Customer,0
+JAcob,354.53999999999996,Luna,true,jluna33,1038,1234,Customer,0
 Alexis,2913597.39,Reta,true,alexisreta,75,Fun!23,Customer,0
 exit,123.0,jsjs,true,sjsjs,1039,s,Customer,0
 Alexis,2316072.69,Black,true,alexisblack,771,Fun!23,Customer,0
@@ -31,7 +31,9 @@ Alicia,2367693.69,Jenkins,true,aliciajenkins,384,Fun!23,Customer,0
 Alexis,1927607.8,Ford,false,alexisford,251,Fun!23,Customer,0
 Allison,,Cross,false,allisoncross,403,Fun!23,Organizer,0
 Amanda,,Johnson,false,amandajohnson,913,Fun!23,Organizer,0
+Jacob,,Luna,false,jlun,1041,1234,Organizer,0
 Amanda,,Shepherd,false,amandashepherd,331,Fun!23,Organizer,0
+jacob,,luna,false,jlu,1042,1234,Organizer,0
 Adam,2484415.98,Maldonado,false,adammaldonado,296,Fun!23,Customer,0
 Alejandra,1570979.69,Morris,true,alejandramorris,249,Fun!23,Customer,0
 Alex,1336987.47,Vega,false,alexvega,87,Fun!23,Customer,0

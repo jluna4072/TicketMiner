@@ -1,56 +1,41 @@
 package tests;
 
+import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import java.util.HashMap;
 import model.events.Event;
 import model.events.Sport;
 import model.venues.Venue;
 import utility.DataManager;
 
+/**
+ * JUnit tests for DataManager.loadEvents().
+ * Verifies that events are correctly loaded from the CSV file.
+ */
 public class TestLoadEvents {
 
-    public static void main(String[] args) {
+    private static HashMap<Integer, Event> events;
+
+    @BeforeAll
+    public static void setUpAll() {
         DataManager dm = new DataManager();
-        HashMap<Integer, Venue> venueMap = dm.loadVenues("data/PA2CSVs/Venue_List_PA2.csv");
-        HashMap<Integer, Event> events = dm.loadEvents("data/PA2CSVs/Event_List_PA2.csv", venueMap);
+        HashMap<Integer, Venue> venueMap = dm.loadVenues("tests/resources/Venue_List_Test.csv");
+        events = dm.loadEvents("tests/resources/Event_List_Test.csv", venueMap);
+    }
 
-        System.out.println("=== Event CSV Load Test ===");
-        System.out.println("Total events loaded: " + events.size());
+    @Test
+    public void testLoadEventsCount() {
+        assertNotNull(events);
+        assertEquals(2, events.size(), "Should load exactly 2 events from test resource");
+    }
 
-        if (events.size() == 44) {
-            System.out.println("PASS: Expected 44 events");
-        } else {
-            System.out.println("FAIL: Expected 44 events, got " + events.size());
-        }
-
+    @Test
+    public void testLoadEventDetails() {
         Event first = events.get(1);
-        if (first != null) {
-            System.out.println("\n-- Event 1 Test --");
-            System.out.println("Name: " + first.getEventName());
-            System.out.println("Type: " + first.getType());
-            System.out.println("Date: " + first.getDate());
-            System.out.println("Time: " + first.getTime());
-            System.out.println("Class: " + first.getClass().getSimpleName());
-
-            if (first instanceof Sport) {
-                System.out.println("PASS: Event 1 is a Sport");
-            } else {
-                System.out.println("FAIL: Event 1 should be Sport, got " + first.getClass().getSimpleName());
-            }
-        } else {
-            System.out.println("FAIL: Event with ID 1 not found");
-        }
-
-        Event last = events.get(44);
-        if (last != null) {
-            System.out.println("\n-- Event 44 Test --");
-            System.out.println("Name: " + last.getEventName());
-            System.out.println("Type: " + last.getType());
-            System.out.println("Date: " + last.getDate());
-            System.out.println("Time: " + last.getTime());
-        } else {
-            System.out.println("FAIL: Event with ID 44 not found");
-        }
-
-        System.out.println("\n=== Test Complete ===");
+        assertNotNull(first, "Event with ID 1 should exist");
+        assertEquals("UTEP Football 1", first.getEventName());
+        assertTrue(first instanceof Sport, "Event 1 should be an instance of Sport");
+        assertEquals("Sun Bowl Stadium", first.getVenue());
     }
 }
